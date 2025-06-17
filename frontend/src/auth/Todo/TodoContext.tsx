@@ -10,7 +10,7 @@ const TodoContext = createContext<TodoContext | null>(null);
 
 export const useTodos = () => {
     const context = useContext(TodoContext);
-    if (context === null  || undefined) {
+    if (context === null || undefined) {
         throw new Error ("useTodos must be used within a TodoProvider");
     }
 

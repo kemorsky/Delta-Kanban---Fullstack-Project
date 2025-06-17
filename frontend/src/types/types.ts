@@ -6,3 +6,12 @@ export type Todo = {
     createdAt: string;
     updatedAt: string;
 };
+
+export type Id = {
+    id: string | number
+}
+
+export type Column = {
+    id: Id,
+    title: string;
+};
