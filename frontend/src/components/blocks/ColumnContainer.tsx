@@ -1,45 +1,27 @@
 import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
-import type { Column, Id, Todo } from "../../types/types"
+import type { Column, Todo } from "../../types/types"
 import {CSS} from '@dnd-kit/utilities';
 import { ButtonAddTodo, ButtonDeleteColumn } from "../ui/button";
 import ColumnWrapper from "./Column/ColumnWrapper";
 import ColumnContent from "./Column/ColumnContent";
 import { useTodos } from "../../auth/Todo/TodoContext";
-import { editTodo } from "../../lib/api";
 
 type Props = {
     column: Column,
-    handleDeleteColumn: (id: Id) => void,
-    updateColumn: (id: Id, title: string) => void,
-    createTodo: (columnId: Id) => void
+    handleDeleteColumn: (id: string) => void,
+    updateColumn: (id: string, title: string) => void,
+    createTodo: (columnId: string) => void
 }
 
 export default function ColumnContainer(props: Props) {
     const { column, handleDeleteColumn, updateColumn, createTodo } = props;
 
-    const {setTodos} = useTodos();
-
-    const [editingTitle, setEditingTitle] = useState<Todo | null>(null)
+    const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
     const [editMode, setEditMode] = useState(false);
 
-    const editTitle =  async (title: string) => {
-        try {
-            const success = await editTodo(editingTitle);
-            console.log(editingTitle);
-            if (success) {
-                setTodos((prevTodos) => prevTodos.map((todo) => 
-                todo.id === editingTitle?.id ? {...todo, editingTitle} : todo
-            ))}
-            setEditingTitle(null);
-            }
-            catch (error) {
-                throw new Error (`Error updating todo: ${error}`);
-            }
-        };
-
     const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({
-        id: column.id as unknown as string,
+        id: column.id,
         data: {
             type: "Column",
             column
@@ -58,7 +40,7 @@ export default function ColumnContainer(props: Props) {
     
     return (
         <ColumnWrapper ref={setNodeRef} style={style}>
-            <section className="flex items-center justify-between" onClick={() => {setEditMode(true)}} {...attributes} {...listeners}>
+            <section className="flex items-center justify-between p-2" onClick={() => {setEditMode(true)}} {...attributes} {...listeners}>
                 <h3>{!editMode && column.title}</h3>
                 {editMode && (
                     <input value={column.title}

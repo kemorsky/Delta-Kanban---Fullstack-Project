@@ -6,8 +6,8 @@ type ColumnWrapperProps = {
 
 export default function ColumnWrapper({children}: ColumnWrapperProps) {
     return (
-        <article className="w-full max-w-[28rem] h-full min-h-[28rem]
-                 bg-red-200 flex flex-col rounded-xl gap-4 p-4">
+        <article className="w-full max-w-[22rem] h-full min-h-[28rem]
+                 bg-red-200 flex flex-col rounded-xl gap-4">
                     {children}
         </article>
     )
