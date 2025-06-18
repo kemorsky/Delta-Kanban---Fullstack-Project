@@ -1,4 +1,4 @@
-import type { Column, Todo } from "../types/types";
+import type { Todo } from "../types/types";
 
 type RequestOptions = {
     method?: string,
@@ -29,22 +29,22 @@ export const apiRequest = async (url: string, options: RequestOptions = {}) => {
 }
 
 
-export const fetchTodos = async (columnId: string) => {
+export const fetchTodos = async () => {
   try {
-    const data = await apiRequest(`${URL}/api/todos/${columnId}`);
+    const data = await apiRequest(`${URL}/api/todos`);
     return data;
   } catch (error) {
     console.error('Error fetching todos:', error);
   }
 };
 
-export const addTodo = async (todo: Todo, columnId: string) => {
+export const addTodo = async (todo: Todo) => {
   try {
-    const response = await apiRequest(`${URL}/api/todos/${columnId}`, {
+    const response = await apiRequest(`${URL}/api/todos`, {
       method: 'POST',
-      body: JSON.stringify({...todo, columnId})
+      body: JSON.stringify(todo)
     });
-    console.log(response);  
+    console.log(response);
     return response;
   } catch (error) {
     console.error('Error adding todo:', error);
@@ -53,7 +53,7 @@ export const addTodo = async (todo: Todo, columnId: string) => {
 
 export const editTodo = async (id: string) => {
   try {
-    const response = await apiRequest(`${URL}/api/todos/todo/${id}`, {
+    const response = await apiRequest(`${URL}/api/todos/${id}`, {
       method: 'PUT',
       body: JSON.stringify(id)
     });
@@ -66,59 +66,12 @@ export const editTodo = async (id: string) => {
 
 export const deleteTodo = async (id: string) => {
   try {
-    const response = await apiRequest(`${URL}/api/todos/todo/${id}`, {
+    const response = await apiRequest(`${URL}/api/todos/${id}`, {
       method: 'DELETE'
     });
     console.log(response);
     return response;
   } catch (error) {
     console.error('Error deleting todo:', error);
-  }
-};
-
-export const fetchColumns = async () => {
-  try {
-    const data = await apiRequest(`${URL}/api/columns`);
-    return data;
-  } catch (error) {
-    console.error('Error fetching columns:', error);
-  }
-};
-
-export const addColumn = async (column: Column) => {
-  try {
-    const response = await apiRequest(`${URL}/api/columns`, {
-      method: 'POST',
-      body: JSON.stringify(column)
-    });
-    console.log(response);
-    return response;
-  } catch (error) {
-    console.error('Error adding column:', error);
-  }
-};
-
-export const editColumn = async (id: string) => {
-  try {
-    const response = await apiRequest(`${URL}/api/columns/column/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(id)
-    });
-    console.log(response);
-    return response;
-  } catch (error) {
-    console.error('Error updating column:', error);
-  }
-};
-
-export const deleteColumn = async (id: string) => {
-  try {
-    const response = await apiRequest(`${URL}/api/columns/column/${id}`, {
-      method: 'DELETE'
-    });
-    console.log(response);
-    return response;
-  } catch (error) {
-    console.error('Error deleting column:', error);
   }
 };

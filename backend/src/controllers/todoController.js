@@ -1,18 +1,14 @@
 import mongoose from 'mongoose';
 import { todoSchema } from '../models/todoModel.js';
-import { columnSchema } from '../models/columnModel.js';
 
 // TODO: FIND OUT HOW TO REFRESH THE DATABASE ON PUT AND DELETE METHODS SO THAT 
 // FRONTEND DOESN'T NEED TO MESS AROUND WITH SESSION STORAGE
 
 const Todo = mongoose.model('Todo', todoSchema);
-const Column = mongoose.model('Column', columnSchema);
 
 const getTodos = async (req, res) => {
     try {
-        const columnId = req.params.columnId;
-        console.log(`Column ID: ${columnId}`);
-        const todos = await Todo.find({ columnId: columnId });
+        const todos = await Todo.find().populate('user');
         console.log(todos);
         res
             .status(200)
@@ -26,17 +22,8 @@ const getTodos = async (req, res) => {
 
 const postTodo = async (req, res) => {
     try {
-        const {title, description, columnId} = req.body; // post required body
-        const column = await Column.findById(columnId);
-        if (!column) {
-            return res
-                .status(404)
-                .json({ message: "Column not found" });
-        }
-        const newTodo = new Todo({
-            title, 
-            description,
-            columnId }); // create new todo , // REIMPLEMENT userId: req.user.id PROPERLY AT A LATER TIME
+        const {title, description} = req.body; // post required body
+        const newTodo = new Todo({ title, description }); // create new todo , // REIMPLEMENT userId: req.user.id PROPERLY AT A LATER TIME
 
         await newTodo.save(); // wait for the todo to be saved in the database
         res

@@ -6,9 +6,6 @@ export const todoSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         },
-        columnId: {
-            type: String,
-        },
         title: {
             type: String,
             required: true,
@@ -27,9 +24,3 @@ export const todoSchema = new mongoose.Schema(
         timestamps: true
         }
 );
-
-todoSchema.virtual('id').get(function() {
-  return this._id.toString();
-});
-
-todoSchema.options.toJSON = { virtuals: true };
