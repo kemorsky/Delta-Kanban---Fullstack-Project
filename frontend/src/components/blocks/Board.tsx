@@ -1,42 +1,53 @@
 import { useMemo, useState } from "react"
-import type { Column, Id, Todo } from "../../types/types"
-import ColumnContainer from "./ColumnContainer";
-import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, type UniqueIdentifier } from '@dnd-kit/core';
+import { useTodos } from "../../auth/Todo/TodoContext";
+import { useColumns } from "../../auth/Todo/ColumnContext";
+import { addColumn, addTodo, deleteColumn, fetchTodos } from "../../lib/api";
+import type { Column, Todo } from "../../types/types"
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent} from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
+import ColumnContainer from "./ColumnContainer";
 import { ButtonAddColumn } from "../ui/button";
-import { addTodo } from "../../lib/api";
-import { useTodos } from "../../auth/Todo/TodoContext";
+
 
 export default function Board() {
-    const [columns, setColumns] = useState<Column[]>([])
     const [activeColumn, setActiveColumn] = useState<Column | null>(null);
     const [newTodo, setNewTodo] = useState<Todo>()
 
     const {setTodos} = useTodos();
+    const {columns, setColumns} = useColumns();
 
     const columnsId = useMemo(() => columns.map((column) => column.id), [columns]);
 
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),);
 
-    const generateId = () => {
-        return Math.floor(Math.random() * 10001);
-    }
-
-    const handleAddColumn = () => {
+    const handleAddColumn = async () => {
         const newColumn: Column = {
-            id: generateId() as unknown as Id,
-            title: `New Column`
+            id: '',
+            title: 'New Column'
         }
-        setColumns([...columns, newColumn]);
+        try {
+            const response = await addColumn(newColumn);
+            console.log(response)
+            setColumns([...columns, newColumn]);
+        } catch (error) {
+            throw new Error (`Error adding column: ${error}`);
+        }
+        
     };
 
-    const handleDeleteColumn = (id: Id) => {
-        const filtereredColumns = columns.filter((col) => col.id !== id);
-        setColumns(filtereredColumns);
+    const handleDeleteColumn = async (id: string) => {
+        try {
+            await deleteColumn(id);
+            const filtereredColumns = columns.filter((col) => col.id !== id);
+            setColumns(filtereredColumns);
+        } catch (error) {
+            throw new Error (`Error deleting column: ${error}`);
+        }
+        
     };
 
-    const updateColumn = (id: Id, title: string) => {
+    const updateColumn = (id: string, title: string) => {
         const newColumns = columns.map((column) => {
             if (column.id !== id) return column;
             return {...column, title};
@@ -62,28 +73,26 @@ export default function Board() {
         if (!activeColumnId || !overColumnId) return;
 
         setColumns(columns => {
-            const activeColumnIndex = columns.findIndex(col => col.id as unknown as UniqueIdentifier === activeColumnId);
-            const overColumnIndex = columns.findIndex(col => col.id as unknown as UniqueIdentifier  === overColumnId);
+            const activeColumnIndex = columns.findIndex(col => col.id === activeColumnId);
+            const overColumnIndex = columns.findIndex(col => col.id === overColumnId);
             
             return arrayMove(columns, activeColumnIndex, overColumnIndex);
         })
     };
 
-    const createTodo = async (columnId: Id) => {
+    const createTodo = async () => {
         const newTodo: Todo = {
-            columnId,
+            id: '',
+            columnId: columns[0].id,
             title: 'test2',
             description: 'test2'
         };
         try {
-            if (newTodo) {
-                const response = await addTodo(newTodo);
-                setTodos((prev) => {
-                    const updated = [...prev, {...newTodo, id: response.id}]
-                    return updated;
-                });
-                setNewTodo(newTodo);
-            }
+            await addTodo(newTodo, newTodo.columnId);
+            console.log('Todo created!');
+            const updatedTodos = await fetchTodos(newTodo.columnId);
+            console.log('Updated todos:', updatedTodos);
+            setTodos(updatedTodos);
         } catch (error) {
             throw new Error(`Error adding todo: ${error}`);
         }
@@ -100,7 +109,7 @@ export default function Board() {
                                                 column={column} 
                                                 handleDeleteColumn={handleDeleteColumn} 
                                                 updateColumn={updateColumn}
-                                                createTodo={() => createTodo(column.id)}
+                                                createTodo={() => createTodo()}
                                 />
                             )
                         })}
@@ -113,7 +122,7 @@ export default function Board() {
                             <ColumnContainer column={activeColumn}
                                             handleDeleteColumn={handleDeleteColumn}
                                             updateColumn={updateColumn}
-                                            createTodo={createTodo}
+                                            createTodo={() => createTodo()}
                             />)}
                     </DragOverlay>, 
                     document.body
