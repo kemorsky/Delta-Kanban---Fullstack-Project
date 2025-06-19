@@ -7,7 +7,9 @@ export const todoSchema = new mongoose.Schema(
             ref: 'User'
         },
         columnId: {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Column',
+            required: true
         },
         title: {
             type: String,

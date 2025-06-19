@@ -3,9 +3,9 @@ import { getTodos, postTodo, editTodo, deleteTodo} from '../controllers/todoCont
 
 const router = express.Router();
 
-router.post('/:columnId', postTodo);
-router.get('/:columnId', getTodos);
-router.put('/todo/:id', editTodo);
-router.delete('/todo/:id', deleteTodo);
+router.post('/columns/:columnId/todos', postTodo);
+router.get('/columns/:columnId/todos', getTodos);
+router.put('/columns/:columnId/todos/todo/:id', editTodo);
+router.delete('/columns/:columnId/todos/todo/:id', deleteTodo);
 
 export default router;
