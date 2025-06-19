@@ -11,7 +11,7 @@ export default function ColumnContent({columnId }: {columnId: string}) {
     const [mouseIsOver, setMouseIsOver] = useState(false)
     const { todos, setTodos } = useTodos()
 
-    const columnTodos = todos.filter((todo) => todo.columnId === columnId)
+    const columnTodos = (todos ?? []).filter((todo) => todo.columnId === columnId)
 
     // const editTodo =  async (todo: Todo) => { // TODO: FIX AT A LATER TIME
     //     try {
@@ -30,7 +30,7 @@ export default function ColumnContent({columnId }: {columnId: string}) {
 
     const removeTodo = async (id: string) => {
         try {
-            await deleteTodo(id);
+            await deleteTodo(columnId, id);
             setTodos((prev) => prev?.filter((todo) => todo.id !== id))
         } catch (error) {
             throw new Error (`Error deleting todo: ${error}`);

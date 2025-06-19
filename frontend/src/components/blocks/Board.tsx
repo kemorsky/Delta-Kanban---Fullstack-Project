@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { useTodos } from "../../auth/Todo/TodoContext";
-import { useColumns } from "../../auth/Todo/ColumnContext";
-import { addColumn, addTodo, deleteColumn, fetchTodos } from "../../lib/api";
+import { useColumns } from "../../auth/Column/ColumnContext";
+import { addColumn, addTodo, deleteColumn, editColumn} from "../../lib/api";
 import type { Column, Todo } from "../../types/types"
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent} from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
@@ -12,7 +12,7 @@ import { ButtonAddColumn } from "../ui/button";
 
 export default function Board() {
     const [activeColumn, setActiveColumn] = useState<Column | null>(null);
-    const [newTodo, setNewTodo] = useState<Todo>()
+    const [ editedTitle, setEditedTitle ] = useState<Column | null>();
 
     const {setTodos} = useTodos();
     const {columns, setColumns} = useColumns();
@@ -29,11 +29,10 @@ export default function Board() {
         try {
             const response = await addColumn(newColumn);
             console.log(response)
-            setColumns([...columns, newColumn]);
+            setColumns([...columns, response.column]);
         } catch (error) {
             throw new Error (`Error adding column: ${error}`);
         }
-        
     };
 
     const handleDeleteColumn = async (id: string) => {
@@ -43,18 +42,21 @@ export default function Board() {
             setColumns(filtereredColumns);
         } catch (error) {
             throw new Error (`Error deleting column: ${error}`);
-        }
-        
+        };
     };
 
-    const updateColumn = (id: string, title: string) => {
-        const newColumns = columns.map((column) => {
-            if (column.id !== id) return column;
-            return {...column, title};
-        });
-
-        setColumns(newColumns);
-    }
+    const updateColumn = async (id: string, title: string) => {
+        try {
+            const response = await editColumn(id, title)
+            console.log(response);
+            setColumns((prevColumns) => prevColumns.map((c) => 
+                        c.id === id ? 
+                        { ...c, title: title } : c)
+                    );
+        } catch (error) {
+            throw new Error (`Error updating column: ${error}`);
+        }
+    };
 
     const handleDragStart = (event: DragStartEvent) => {
         if (event.active.data.current?.type === "Column") {
@@ -80,23 +82,28 @@ export default function Board() {
         })
     };
 
-    const createTodo = async () => {
-        const newTodo: Todo = {
-            id: '',
-            columnId: columns[0].id,
+    const createTodo = async (columnId: string) => {
+        const todoData = {
+            columnId,
             title: 'test2',
             description: 'test2'
         };
+
         try {
-            await addTodo(newTodo, newTodo.columnId);
-            console.log('Todo created!');
-            const updatedTodos = await fetchTodos(newTodo.columnId);
-            console.log('Updated todos:', updatedTodos);
-            setTodos(updatedTodos);
+            const createdTodo = await addTodo(todoData, columnId); // ⬅️ will contain real id
+
+            // Replace the todos for that column with backend-confirmed data only
+            setTodos((prevTodos) => {
+                if (prevTodos.some(todo => todo.id === createdTodo.todo.id)) {
+                    return prevTodos;
+                } else {
+                    return [...prevTodos, createdTodo.todo]; // use real returned todo
+                }
+            });
         } catch (error) {
             throw new Error(`Error adding todo: ${error}`);
         }
-    }
+    };
 
     return (
         <article className="w-full bg-blue-500 rounded-xl border-white overflow-x-scroll overflow-y-hidden">
@@ -105,11 +112,13 @@ export default function Board() {
                     <SortableContext items={columnsId}>
                         {columns.map((column) => {
                             return (
-                                <ColumnContainer key={column.id.toString()}
+                                <ColumnContainer key={column.id}
                                                 column={column} 
                                                 handleDeleteColumn={handleDeleteColumn} 
                                                 updateColumn={updateColumn}
-                                                createTodo={() => createTodo()}
+                                                createTodo={() => createTodo(column.id)}
+                                                editedTitle={editedTitle}
+                                                setEditedTitle={setEditedTitle}
                                 />
                             )
                         })}
@@ -119,10 +128,13 @@ export default function Board() {
                 {createPortal(
                     <DragOverlay>
                         {activeColumn && (
-                            <ColumnContainer column={activeColumn}
+                            <ColumnContainer key={activeColumn.id}
+                                            column={activeColumn}
                                             handleDeleteColumn={handleDeleteColumn}
                                             updateColumn={updateColumn}
-                                            createTodo={() => createTodo()}
+                                            createTodo={() => createTodo(activeColumn.id)}
+                                            editedTitle={editedTitle}
+                                            setEditedTitle={setEditedTitle}
                             />)}
                     </DragOverlay>, 
                     document.body

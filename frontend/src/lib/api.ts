@@ -29,18 +29,18 @@ export const apiRequest = async (url: string, options: RequestOptions = {}) => {
 }
 
 
-export const fetchTodos = async (columnId: string) => {
+export const fetchTodos = async () => {
   try {
-    const data = await apiRequest(`${URL}/api/todos/${columnId}`);
+    const data = await apiRequest(`${URL}/api/todos`);
     return data;
   } catch (error) {
     console.error('Error fetching todos:', error);
   }
 };
 
-export const addTodo = async (todo: Todo, columnId: string) => {
+export const addTodo = async (todo: Omit<Todo, 'id'>, columnId: string) => {
   try {
-    const response = await apiRequest(`${URL}/api/todos/${columnId}`, {
+    const response = await apiRequest(`${URL}/api/columns/${columnId}/todos`, {
       method: 'POST',
       body: JSON.stringify({...todo, columnId})
     });
@@ -51,9 +51,9 @@ export const addTodo = async (todo: Todo, columnId: string) => {
   }
 };
 
-export const editTodo = async (id: string) => {
+export const editTodo = async (columnId: string, id: string) => {
   try {
-    const response = await apiRequest(`${URL}/api/todos/todo/${id}`, {
+    const response = await apiRequest(`${URL}/api/columns/${columnId}/todos/todo/${id}`, {
       method: 'PUT',
       body: JSON.stringify(id)
     });
@@ -64,9 +64,9 @@ export const editTodo = async (id: string) => {
   }
 };
 
-export const deleteTodo = async (id: string) => {
+export const deleteTodo = async (columnId: string, id: string) => {
   try {
-    const response = await apiRequest(`${URL}/api/todos/todo/${id}`, {
+    const response = await apiRequest(`${URL}/api/columns/${columnId}/todos/todo/${id}`, {
       method: 'DELETE'
     });
     console.log(response);
@@ -98,16 +98,16 @@ export const addColumn = async (column: Column) => {
   }
 };
 
-export const editColumn = async (id: string) => {
+export const editColumn = async (id: string, title: string) => {
   try {
     const response = await apiRequest(`${URL}/api/columns/column/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(id)
+      body: JSON.stringify({id, title})
     });
     console.log(response);
     return response;
   } catch (error) {
-    console.error('Error updating column:', error);
+    throw new Error (`Error updating column: ${error}`);
   }
 };
 

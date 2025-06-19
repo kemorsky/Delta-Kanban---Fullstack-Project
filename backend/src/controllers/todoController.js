@@ -10,9 +10,7 @@ const Column = mongoose.model('Column', columnSchema);
 
 const getTodos = async (req, res) => {
     try {
-        const columnId = req.params.columnId;
-        console.log(`Column ID: ${columnId}`);
-        const todos = await Todo.find({ columnId: columnId });
+        const todos = await Todo.find().populate('user');
         console.log(todos);
         res
             .status(200)
@@ -25,32 +23,31 @@ const getTodos = async (req, res) => {
 };
 
 const postTodo = async (req, res) => {
-    try {
-        const {title, description, columnId} = req.body; // post required body
-        const column = await Column.findById(columnId);
-        if (!column) {
-            return res
-                .status(404)
-                .json({ message: "Column not found" });
-        }
-        const newTodo = new Todo({
-            title, 
-            description,
-            columnId }); // create new todo , // REIMPLEMENT userId: req.user.id PROPERLY AT A LATER TIME
+  try {
+    const columnId = req.params.columnId;
+    const { title, description } = req.body;
 
-        await newTodo.save(); // wait for the todo to be saved in the database
-        res
-            .status(201)
-            .json({
-                message: "Todo created successfully",
-                todo: newTodo
-            });
-    } catch (error) {
-        res
-            .status(error.status || 500)
-            .json({message: error.message});
+    const column = await Column.findById(columnId);
+    if (!column) {
+      return res.status(404).json({ message: "Column not found" });
     }
+
+    const newTodo = new Todo({
+      title,
+      description,
+      columnId
+    });
+
+    await newTodo.save();
+    res.status(201).json({
+      message: "Todo created successfully",
+      todo: newTodo
+    });
+  } catch (error) {
+    res.status(error.status || 500).json({ message: error.message });
+  }
 };
+
 
 const editTodo = async (req, res) => {
     const todoId = req.params.id;
