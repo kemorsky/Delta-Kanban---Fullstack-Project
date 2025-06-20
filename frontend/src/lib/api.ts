@@ -98,6 +98,19 @@ export const addColumn = async (column: Column) => {
   }
 };
 
+export const reorderColumns = async (orderIds: string[]) => {
+  try {
+    const data = await apiRequest(`${URL}/api/columns/reorder`, {
+      method: 'PUT',
+      body: JSON.stringify({order: orderIds})
+    })
+    console.log("🧪 reorderColumns response:", data);
+    return data;
+  } catch (error) {
+    throw new Error (`Error reordering columns: ${error}`);
+  }
+};
+
 export const editColumn = async (id: string, title: string) => {
   try {
     const response = await apiRequest(`${URL}/api/columns/column/${id}`, {

@@ -3,7 +3,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import type { Column, Todo } from "../../types/types"
 import {CSS} from '@dnd-kit/utilities';
 import { ButtonAddTodo, ButtonDeleteColumn } from "../ui/button";
-import ColumnWrapper from "./Column/ColumnWrapper";
+import { ColumnWrapper } from "./Column/ColumnWrapper";
 import ColumnContent from "./Column/ColumnContent";
 
 type Props = {

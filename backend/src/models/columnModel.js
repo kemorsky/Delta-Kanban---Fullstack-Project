@@ -6,7 +6,12 @@ export const columnSchema = new mongoose.Schema(
             type: String,
             required: true,
             minLength: 1
-        }
+        },
+        order: {
+            type: Number,
+            required: true,
+            default: 0
+        },
     },
         {
             timestamps: true

@@ -5,4 +5,5 @@ const columnMiddleware = (res, req, next) => {
             .json({message: "Title is missing"});
     }
     next();
-}
+};
+export default columnMiddleware;

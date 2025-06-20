@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react"
 import { useTodos } from "../../auth/Todo/TodoContext";
 import { useColumns } from "../../auth/Column/ColumnContext";
-import { addColumn, addTodo, deleteColumn, editColumn} from "../../lib/api";
-import type { Column, Todo } from "../../types/types"
+import { addColumn, addTodo, deleteColumn, editColumn, reorderColumns } from "../../lib/api";
+import type { Column } from "../../types/types"
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent} from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
@@ -58,28 +58,46 @@ export default function Board() {
         }
     };
 
-    const handleDragStart = (event: DragStartEvent) => {
+    const handleDragStart = async (event: DragStartEvent) => {
+        console.log("Starting the drag")
         if (event.active.data.current?.type === "Column") {
-            setActiveColumn(event.active.data.current?.column);
+            setActiveColumn((event.active.data.current?.column as {column: Column}).column);
             return;
         }
     };
 
-    const handleDragEnd = (event: DragEndEvent) => {
+    const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
-        if (!over) return ;
+        console.log("over:", over);
+        console.log("active.id:", active.id);
+        console.log("over.id:", over?.id);
+        if (!over || active.id === over.id) return;
 
-        const activeColumnId = active.id;
-        const overColumnId = over.id;
+        console.log("testing how far it goes - 1")
 
-        if (!activeColumnId || !overColumnId) return;
+        const oldIndex = columnsId.findIndex(id => id === active.id);
+        const newIndex = columnsId.findIndex(id => id === over.id);
 
-        setColumns(columns => {
-            const activeColumnIndex = columns.findIndex(col => col.id === activeColumnId);
-            const overColumnIndex = columns.findIndex(col => col.id === overColumnId);
-            
-            return arrayMove(columns, activeColumnIndex, overColumnIndex);
-        })
+        console.log("testing how far it goes - 2")
+
+        const reordered = arrayMove(columns, oldIndex, newIndex);
+        const newOrder = reordered.map(c => c.id)
+
+        console.log("testing how far it goes - 3")
+
+        console.log("🧪 Reorder column IDs:", newOrder); // should log real string IDs
+
+        setColumns(reordered)
+        setActiveColumn(null);
+        console.log("testing how far it goes - 4")
+
+        try {
+            const response = await reorderColumns(newOrder);
+            console.log(response)
+            setColumns(response.columns);
+        } catch (error) {
+            throw new Error (`Error reordering columns: ${error}`);
+        }
     };
 
     const createTodo = async (columnId: string) => {
@@ -107,11 +125,10 @@ export default function Board() {
 
     return (
         <article className="w-full bg-blue-500 rounded-xl border-white overflow-x-scroll overflow-y-hidden">
-            <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                <div className="w-full h-full flex gap-2 items-start">
+            <div className="w-full h-full flex gap-2 items-start">
+                <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                     <SortableContext items={columnsId}>
-                        {columns.map((column) => {
-                            return (
+                        {columns.map((column) => (
                                 <ColumnContainer key={column.id}
                                                 column={column} 
                                                 handleDeleteColumn={handleDeleteColumn} 
@@ -120,10 +137,8 @@ export default function Board() {
                                                 editedTitle={editedTitle}
                                                 setEditedTitle={setEditedTitle}
                                 />
-                            )
-                        })}
+                        ))}
                     </SortableContext>
-                </div>
                 <ButtonAddColumn onClick={() => {handleAddColumn()}}>Add column</ButtonAddColumn>
                 {createPortal(
                     <DragOverlay>
@@ -139,8 +154,9 @@ export default function Board() {
                     </DragOverlay>, 
                     document.body
                 )}
-            </DndContext>
+                </DndContext>
+            </div>
         </article>
 
     )
-}
+};

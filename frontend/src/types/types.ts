@@ -7,6 +7,7 @@ export type Todo = {
 
 export type Column = {
     id: string,
-    title: string;
-    todoIds?: string[]
+    title: string,
+    order?: number;
+
 };

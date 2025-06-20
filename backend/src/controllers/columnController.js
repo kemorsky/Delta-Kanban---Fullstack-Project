@@ -5,7 +5,7 @@ const Column = mongoose.model('Column', columnSchema);
 
 const getColumns = async (req, res) => {
     try {
-        const columns = await Column.find();
+        const columns = await Column.find().sort({ order: 1 });
         res
             .status(200)
             .send(columns);
@@ -18,9 +18,12 @@ const getColumns = async (req, res) => {
 
 const postColumn = async (req, res) => {
     try {
+        const lastColumn = await Column.findOne().sort({ order: -1});
+        const newOrder = lastColumn ? lastColumn.order + 1 : 0;
         const { title } = req.body;
         const newColumn = new Column({
-            title
+            title,
+            order: newOrder
         });
         await newColumn.save();
         res
@@ -62,7 +65,41 @@ const editColumn = async (req, res) => {
     } catch (error) {
         res
             .status(error.status || 500)
-            .json({message: "Error updating todo", error: error.message})
+            .json({message: "Error updating column", error: error.message})
+    }
+};
+
+const reorderColumns = async (req, res) => {
+    console.log("🔥 reorderColumns route hit");
+    const { order } = req.body;
+
+    // console.log("🧪 Received body:", req.body);
+    // if (!Array.isArray(order)) {
+    //     console.log("🧪 FULL req.body:", req.body);
+    //     console.error("Invalid reorder payload:", req.body);
+    //     return res.status(400).json({ message: "Order must be an array" });
+    // }
+    
+    try {
+        const bulkOps = order.map((id, index) => ({
+            updateOne: {
+                filter: {_id: id},
+                update: {order: index}
+            }
+        }));
+
+        await Column.bulkWrite(bulkOps);
+
+        const updatedColumns = await Column.find().sort({ order: 1 });
+
+        res
+            .status(200)
+            .json({ message: "Columns reordered successfully", columns: updatedColumns });
+
+    } catch (error) {
+        res
+            .status(error.status || 500)
+            .json({message: "Error reordering columns", error: error.message})
     }
 };
 
@@ -80,7 +117,7 @@ const deleteColumn = async (req, res) => {
 
         res
             .status(200)
-            .json({message: `Todo with id ${columnId} deleted successfully.`});
+            .json({message: `Column with id ${columnId} deleted successfully.`});
 
     } catch (error) {
         res
@@ -89,4 +126,4 @@ const deleteColumn = async (req, res) => {
     }
 };
 
-export { getColumns, postColumn, editColumn, deleteColumn };
+export { getColumns, reorderColumns, postColumn, editColumn, deleteColumn };
