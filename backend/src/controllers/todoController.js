@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { todoSchema } from '../models/todoModel.js';
 import { columnSchema } from '../models/columnModel.js';
 
-// TODO: FIND OUT HOW TO REFRESH THE DATABASE ON PUT AND DELETE METHODS SO THAT 
+// TODO: FIND OUT HOW TO REFRESH THE DATABASE ON PUT AND DELETE METHODS SO THAT
 // FRONTEND DOESN'T NEED TO MESS AROUND WITH SESSION STORAGE
 
 const Todo = mongoose.model('Todo', todoSchema);
@@ -51,12 +51,12 @@ const postTodo = async (req, res) => {
 
 const editTodo = async (req, res) => {
     const todoId = req.params.id;
-    const {title, description} = req.body;
+    const {title} = req.body;
 
     try {
         const updatedTodo = await Todo.findByIdAndUpdate(
             todoId,
-            {title, description}, 
+            {title}, 
             {new: true, runValidators: true}
         );
 

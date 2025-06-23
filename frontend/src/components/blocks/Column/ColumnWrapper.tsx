@@ -11,8 +11,7 @@ export const ColumnWrapper = React.forwardRef<HTMLElement, ColumnWrapperProps>((
         <article 
                 ref={ref}
                 style={style}
-                className="w-full max-w-[22rem] h-full min-h-[28rem]
-                        bg-red-200 flex flex-col rounded-xl gap-4"
+                className="w-full max-w-[18.75rem] h-full bg-[#1F2937] flex flex-shrink-0 flex-col rounded-xl gap-4 p-2"
                 >
                     {children}
         </article>

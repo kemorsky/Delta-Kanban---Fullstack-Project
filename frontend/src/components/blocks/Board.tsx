@@ -8,10 +8,10 @@ import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import ColumnContainer from "./ColumnContainer";
 import { ButtonAddColumn } from "../ui/button";
-
+import { Plus } from "lucide-react";
 
 export default function Board() {
-    const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+    const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
     const [ editedTitle, setEditedTitle ] = useState<Column | null>();
 
     const {setTodos} = useTodos();
@@ -35,7 +35,7 @@ export default function Board() {
         }
     };
 
-    const handleDeleteColumn = async (id: string) => {
+    const handleDeleteColumn = async (id: string) => { // TODO: delete todos assigned to deleted column
         try {
             await deleteColumn(id);
             const filtereredColumns = columns.filter((col) => col.id !== id);
@@ -59,7 +59,6 @@ export default function Board() {
     };
 
     const handleDragStart = async (event: DragStartEvent) => {
-        console.log("Starting the drag")
         if (event.active.data.current?.type === "Column") {
             setActiveColumn((event.active.data.current?.column as {column: Column}).column);
             return;
@@ -68,32 +67,31 @@ export default function Board() {
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
-        console.log("over:", over);
-        console.log("active.id:", active.id);
-        console.log("over.id:", over?.id);
-        if (!over || active.id === over.id) return;
-
-        console.log("testing how far it goes - 1")
 
         const oldIndex = columnsId.findIndex(id => id === active.id);
-        const newIndex = columnsId.findIndex(id => id === over.id);
+        let newIndex;
 
-        console.log("testing how far it goes - 2")
+        if (!over) { // allows to reorder columns even if dropped past the appliable area (defaults to last place)
+            newIndex = columnsId.length - 1;
+        } else if (active.id === over.id) {
+            return;
+        } else {
+            newIndex = columnsId.findIndex(id => id === over.id);
+        };
+
+        if (newIndex === -1) {
+            console.log("New index not found — aborting reorder");
+            return;
+        }
 
         const reordered = arrayMove(columns, oldIndex, newIndex);
         const newOrder = reordered.map(c => c.id)
 
-        console.log("testing how far it goes - 3")
-
-        console.log("🧪 Reorder column IDs:", newOrder); // should log real string IDs
-
+        console.log("Reorder column IDs:", newOrder);
         setColumns(reordered)
-        setActiveColumn(null);
-        console.log("testing how far it goes - 4")
 
         try {
             const response = await reorderColumns(newOrder);
-            console.log(response)
             setColumns(response.columns);
         } catch (error) {
             throw new Error (`Error reordering columns: ${error}`);
@@ -103,12 +101,12 @@ export default function Board() {
     const createTodo = async (columnId: string) => {
         const todoData = {
             columnId,
-            title: 'test2',
-            description: 'test2'
+            title: 'New Todo',
+            description: 'Description'
         };
 
         try {
-            const createdTodo = await addTodo(todoData, columnId); // ⬅️ will contain real id
+            const createdTodo = await addTodo(todoData, columnId);
 
             // Replace the todos for that column with backend-confirmed data only
             setTodos((prevTodos) => {
@@ -124,8 +122,8 @@ export default function Board() {
     };
 
     return (
-        <article className="w-full bg-blue-500 rounded-xl border-white overflow-x-scroll overflow-y-hidden">
-            <div className="w-full h-full flex gap-2 items-start">
+        <article className="w-full bg-blue-500 rounded-xl border-white">
+            <div className="w-full h-full flex gap-2 items-start overflow-x-scroll overflow-y-hidden">
                 <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                     <SortableContext items={columnsId}>
                         {columns.map((column) => (
@@ -139,7 +137,7 @@ export default function Board() {
                                 />
                         ))}
                     </SortableContext>
-                <ButtonAddColumn onClick={() => {handleAddColumn()}}>Add column</ButtonAddColumn>
+                <ButtonAddColumn onClick={() => {handleAddColumn()}}><Plus className="w-[1.3125rem] h-[1.3125rem]" />Add column</ButtonAddColumn>
                 {createPortal(
                     <DragOverlay>
                         {activeColumn && (

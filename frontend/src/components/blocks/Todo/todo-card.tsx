@@ -7,7 +7,7 @@ const TodoCard = React.forwardRef<
     >(({ className, ...props },ref) => (
         <article 
             ref={ref}
-            className={cn("bg-blue-500 rounded-md p-2 cursor-grab", className)}
+            className={cn("bg-blue-500 rounded-md flex flex-col p-2 gap-2 cursor-grab relative", className)}
         {...props}
         />
     ))
@@ -19,7 +19,7 @@ const TodoCard = React.forwardRef<
     >(({ className, ...props },ref) => (
         <h2 
             ref={ref}
-            className={cn("bg-blue-500 rounded-md p-2", className)}
+            className={cn("bg-blue-500 rounded-md", className)}
         {...props}
         />
     ))
@@ -31,7 +31,7 @@ const TodoCard = React.forwardRef<
     >(({ className, ...props },ref) => (
         <h3 
             ref={ref}
-            className={cn("bg-blue-500 rounded-md p-2", className)}
+            className={cn("bg-blue-500 rounded-md", className)}
         {...props}
         />
     ))
@@ -43,7 +43,7 @@ const TodoCard = React.forwardRef<
     >(({ className, ...props },ref) => (
         <p 
             ref={ref}
-            className={cn("bg-blue-500 rounded-md p-2", className)}
+            className={cn("bg-blue-500 rounded-md", className)}
         {...props}
         />
     ))

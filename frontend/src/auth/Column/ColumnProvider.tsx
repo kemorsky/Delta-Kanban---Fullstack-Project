@@ -24,4 +24,4 @@ export default function ColumnProvider({ children }: ColumnProviderProps) {
     return (
         <ColumnContext.Provider value={{columns, setColumns}}>{children}</ColumnContext.Provider>
     )
-}
+};

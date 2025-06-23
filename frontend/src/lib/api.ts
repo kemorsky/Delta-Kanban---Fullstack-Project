@@ -51,11 +51,11 @@ export const addTodo = async (todo: Omit<Todo, 'id'>, columnId: string) => {
   }
 };
 
-export const editTodo = async (columnId: string, id: string) => {
+export const editTodo = async (columnId: string, id: string, title: string, description: string) => {
   try {
     const response = await apiRequest(`${URL}/api/columns/${columnId}/todos/todo/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(id)
+      body: JSON.stringify({columnId, id, title, description})
     });
     console.log(response);
     return response;
@@ -104,7 +104,7 @@ export const reorderColumns = async (orderIds: string[]) => {
       method: 'PUT',
       body: JSON.stringify({order: orderIds})
     })
-    console.log("🧪 reorderColumns response:", data);
+    console.log(data);
     return data;
   } catch (error) {
     throw new Error (`Error reordering columns: ${error}`);

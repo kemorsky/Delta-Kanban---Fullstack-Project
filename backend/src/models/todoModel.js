@@ -18,8 +18,6 @@ export const todoSchema = new mongoose.Schema(
         },
         description: {
             type: String,
-            required: true,
-            minLength: 1
         },
         comment: {
             type: String,
