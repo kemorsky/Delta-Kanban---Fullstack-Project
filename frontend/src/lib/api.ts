@@ -51,6 +51,19 @@ export const addTodo = async (todo: Omit<Todo, 'id'>, columnId: string) => {
   }
 };
 
+export const reorderTodos = async (orderId: string[], columnId: string) => {
+  try {
+    const data = await apiRequest(`${URL}/api/todos/reorder`, {
+      method: 'PUT',
+      body: JSON.stringify({order: orderId, columnId: columnId})
+    })
+    console.log(data);
+    return data;
+  } catch (error) {
+    throw new Error (`Error reordering columns: ${error}`);
+  }
+};
+
 export const editTodo = async (columnId: string, id: string, title: string, description: string) => {
   try {
     const response = await apiRequest(`${URL}/api/columns/${columnId}/todos/todo/${id}`, {

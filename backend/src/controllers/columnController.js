@@ -72,13 +72,6 @@ const editColumn = async (req, res) => {
 const reorderColumns = async (req, res) => {
     console.log("🔥 reorderColumns route hit");
     const { order } = req.body;
-
-    // console.log("🧪 Received body:", req.body);
-    // if (!Array.isArray(order)) {
-    //     console.log("🧪 FULL req.body:", req.body);
-    //     console.error("Invalid reorder payload:", req.body);
-    //     return res.status(400).json({ message: "Order must be an array" });
-    // }
     
     try {
         const bulkOps = order.map((id, index) => ({

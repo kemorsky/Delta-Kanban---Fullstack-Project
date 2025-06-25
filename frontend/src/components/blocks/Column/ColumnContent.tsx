@@ -1,15 +1,29 @@
 import { useState } from "react";
 import { useTodos } from "../../../auth/Todo/TodoContext"
-import { TodoCard, TodoCardTitle, TodoCardDescription } from "../Todo/todo-card"
+import { TodoCardTitle, TodoCardDescription } from "../Todo/todo-card"
+import DraggableTodoCard from "../DraggableTodo/draggable-todo";
 import { editTodo, deleteTodo } from "../../../lib/api";
 import { InputEdit } from "../../ui/input";
+import { useDroppable } from "@dnd-kit/core";
+import type { Column } from "../../../types/types";
 
-export default function ColumnContent({columnId }: {columnId: string}) {
-    const [editTitle, setEditTitle] = useState<string | null>(null);
-    const [editDescription, setEditDescription] = useState<string | null>(null);
+type Props = {
+    columnId: string,
+    column: Column
+};
+
+export default function ColumnContent(props: Props) {
+    const { columnId, column } = props
     const { todos, setTodos } = useTodos()
 
-    const columnTodos = (todos ?? []).filter((todo) => todo.columnId === columnId)
+    const [editTitle, setEditTitle] = useState<string | null>(null);
+    const [editDescription, setEditDescription] = useState<string | null>(null);
+
+    const columnTodos = (todos ?? []).filter((todo) => todo.columnId === columnId) // TODO: make this run once, not multiple times
+
+    const { setNodeRef } = useDroppable({
+        id: column.id,
+    })
 
     const updateTodo =  async (columnId: string, id: string, title: string, description: string) => {
         try {
@@ -34,10 +48,10 @@ export default function ColumnContent({columnId }: {columnId: string}) {
     };
 
     return (
-        <article className="w-full flex flex-col gap-2 overflow-x-hidden overflow-y-auto">
+        <article ref={setNodeRef} className="w-full flex flex-col gap-2 overflow-x-hidden overflow-y-auto">
             {columnTodos.map((todo) => {
                 return (
-                    <TodoCard key={todo.id}>
+                    <DraggableTodoCard key={todo.id} todo={todo}>
                         {editTitle === todo.id && (
                             <InputEdit type="text" 
                                     value={todo.title}
@@ -85,7 +99,7 @@ export default function ColumnContent({columnId }: {columnId: string}) {
                         )}
         
                         <button className="absolute bottom-2 right-2 self-end p-2 bg-red-600" onClick={() => {removeTodo(todo.id!)}}>Delete</button>
-                    </TodoCard>
+                    </DraggableTodoCard>
                 )
             })}
         </article>

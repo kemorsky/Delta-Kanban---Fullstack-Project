@@ -1,9 +1,14 @@
 import * as React from "react"
 import { cn } from "../../../lib/utils";
+import type { Todo } from "../../../types/types";
 
-const TodoCard = React.forwardRef<
-    HTMLElement,
-    React.HTMLAttributes<HTMLElement>
+type TodoCardProps = React.HTMLAttributes<HTMLElement> & {
+    children: React.ReactNode,
+    ref?: React.Ref<HTMLElement>,
+    todo: Todo
+};
+
+const TodoCard = React.forwardRef<HTMLElement, TodoCardProps
     >(({ className, ...props },ref) => (
         <article 
             ref={ref}
@@ -13,7 +18,7 @@ const TodoCard = React.forwardRef<
     ))
     TodoCard.displayName = "TodoCard";
 
-    const TodoCardId = React.forwardRef<
+const TodoCardId = React.forwardRef<
     HTMLHeadingElement,
     React.HTMLAttributes<HTMLHeadingElement>
     >(({ className, ...props },ref) => (
@@ -25,7 +30,7 @@ const TodoCard = React.forwardRef<
     ))
     TodoCard.displayName = "TodoCardId";
 
-    const TodoCardTitle = React.forwardRef<
+const TodoCardTitle = React.forwardRef<
     HTMLHeadingElement,
     React.HTMLAttributes<HTMLHeadingElement>
     >(({ className, ...props },ref) => (
@@ -37,7 +42,7 @@ const TodoCard = React.forwardRef<
     ))
     TodoCard.displayName = "TodoCardTitle";
 
-    const TodoCardDescription = React.forwardRef<
+const TodoCardDescription = React.forwardRef<
     HTMLParagraphElement,
     React.HTMLAttributes<HTMLParagraphElement>
     >(({ className, ...props },ref) => (
@@ -49,4 +54,4 @@ const TodoCard = React.forwardRef<
     ))
     TodoCard.displayName = "TodoCardDescription";
 
-    export {TodoCard, TodoCardId, TodoCardTitle, TodoCardDescription}
+export {TodoCard, TodoCardId, TodoCardTitle, TodoCardDescription}

@@ -10,7 +10,7 @@ const Column = mongoose.model('Column', columnSchema);
 
 const getTodos = async (req, res) => {
     try {
-        const todos = await Todo.find().populate('user');
+        const todos = await Todo.find().sort({ order: 1 }).populate('user');
         console.log(todos);
         res
             .status(200)
@@ -79,6 +79,45 @@ const editTodo = async (req, res) => {
     }
 };
 
+const reorderTodos = async (req, res) => {
+    const { order, columnId, movedTodoId } = req.body;
+
+    console.log("reorderTodos route hit");
+    
+    try {
+        const bulkOps = order.map((id, index) => ({
+            updateOne: {
+                filter: {_id: id},
+                update: { columnId, order: index}
+            }
+        }));
+
+         console.log("🚀 Bulk operations prepared:", bulkOps);
+
+        if (movedTodoId) {
+            bulkOps.push({
+                updateOne: {
+                    filter: {_id: movedTodoId},
+                    update: { columnId }
+                }
+            })
+        }
+
+        console.log("🚀 Bulk operations prepared:", bulkOps);
+
+        await Todo.bulkWrite(bulkOps);
+
+        const updatedTodos = await Todo.find({ columnId }).sort({ order: 1 });
+
+        res.status(200).json({ message: "Todos reordered successfully", todos: updatedTodos });
+
+    } catch (error) {
+        res
+            .status(error.status || 500)
+            .json({message: "Error reordering todos", error: error.message})
+    }
+};
+
 const deleteTodo = async (req, res) => {
     const todoId = req.params.id;
     
@@ -102,4 +141,4 @@ const deleteTodo = async (req, res) => {
     }
 };
 
-export { getTodos, postTodo, editTodo, deleteTodo };
+export { getTodos, postTodo, editTodo, reorderTodos, deleteTodo };

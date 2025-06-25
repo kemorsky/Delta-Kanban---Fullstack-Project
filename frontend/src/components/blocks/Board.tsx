@@ -62,7 +62,7 @@ export default function Board() {
         if (event.active.data.current?.type === "Column") {
             setActiveColumn((event.active.data.current?.column as {column: Column}).column);
             return;
-        }
+        };
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
@@ -101,8 +101,8 @@ export default function Board() {
     const createTodo = async (columnId: string) => {
         const todoData = {
             columnId,
-            title: 'New Todo',
-            description: 'Description'
+            title: 'testing drag',
+            description: 'draggy drag'
         };
 
         try {
