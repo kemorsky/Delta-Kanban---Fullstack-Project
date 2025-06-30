@@ -3,7 +3,7 @@ import * as React from 'react';
 type ColumnWrapperProps = {
     children: React.ReactNode,
     ref?: React.Ref<HTMLElement>,
-    style?: React.CSSProperties
+    style?: React.CSSProperties,
 }
 
 export const ColumnWrapper = React.forwardRef<HTMLElement, ColumnWrapperProps>(({children, style}, ref) => {

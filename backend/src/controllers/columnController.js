@@ -59,7 +59,7 @@ const editColumn = async (req, res) => {
         res
             .status(200)
             .json({
-                message: `Todo with id ${columnId} edited successfully`,
+                message: `Column with id ${columnId} edited successfully`,
                 column: updatedColumn
             });
     } catch (error) {

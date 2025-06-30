@@ -1,94 +1,147 @@
 import { useMemo, useState } from "react"
 import { useTodos } from "../../auth/Todo/TodoContext";
 import { useColumns } from "../../auth/Column/ColumnContext";
-import { addColumn, addTodo, deleteColumn, editColumn, reorderColumns } from "../../lib/api";
-import type { Column } from "../../types/types"
-import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent} from '@dnd-kit/core';
+import { reorderColumns, reorderTodos } from "../../lib/api";
+import type { Column, Todo } from "../../types/types"
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, closestCenter} from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import ColumnContainer from "./ColumnContainer";
 import { ButtonAddColumn } from "../ui/button";
 import { Plus } from "lucide-react";
+import TodoModal from "./todo-modal";
 
-export default function Board() {
+type BoardProps = {
+    createTodo: (columnId: string) => void,
+    getTodo: (id: string) => void,
+    todoData: Todo | null,
+    updateTodo: (columnId: string, id: string, title: string, description: string) => void,
+    removeTodo: (columnId: string, id: string) => void,
+    handleAddColumn: () => void,
+    handleEditColumn: (id: string, title: string) => void,
+    handleDeleteColumn: (id: string) => void
+}
+
+export default function Board(props :BoardProps) {
+    const {createTodo, getTodo, todoData, updateTodo, removeTodo, handleAddColumn, handleEditColumn, handleDeleteColumn} = props;
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
-    const [ editedTitle, setEditedTitle ] = useState<Column | null>();
-
-    const {setTodos} = useTodos();
-    const {columns, setColumns} = useColumns();
+    const [ activeTodo, setActiveTodo ] = useState<Todo | null>(null);
+    const [editTitle, setEditTitle] = useState<string | null>(null);
+    const [editDescription, setEditDescription] = useState<string | null>(null);
+    
+    const { todos, setTodos } = useTodos();
+    const { columns, setColumns } = useColumns();
 
     const columnsId = useMemo(() => columns.map((column) => column.id), [columns]);
 
+    const groupedTodos = useMemo(() => {
+        const map = new Map();
+        columns.forEach((c) => map.set(c.id, []));
+        todos.forEach((t) => map.get(t.columnId)?.push(t));
+        return map;
+    }, [columns, todos]);
+
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),);
 
-    const handleAddColumn = async () => {
-        const newColumn: Column = {
-            id: '',
-            title: 'New Column'
-        }
-        try {
-            const response = await addColumn(newColumn);
-            console.log(response)
-            setColumns([...columns, response.column]);
-        } catch (error) {
-            throw new Error (`Error adding column: ${error}`);
-        }
-    };
-
-    const handleDeleteColumn = async (id: string) => { // TODO: delete todos assigned to deleted column
-        try {
-            await deleteColumn(id);
-            const filtereredColumns = columns.filter((col) => col.id !== id);
-            setColumns(filtereredColumns);
-        } catch (error) {
-            throw new Error (`Error deleting column: ${error}`);
-        };
-    };
-
-    const updateColumn = async (id: string, title: string) => {
-        try {
-            const response = await editColumn(id, title)
-            console.log(response);
-            setColumns((prevColumns) => prevColumns.map((c) => 
-                        c.id === id ? 
-                        { ...c, title: title } : c)
-                    );
-        } catch (error) {
-            throw new Error (`Error updating column: ${error}`);
-        }
-    };
-
     const handleDragStart = async (event: DragStartEvent) => {
-        if (event.active.data.current?.type === "Column") {
-            setActiveColumn((event.active.data.current?.column as {column: Column}).column);
-            return;
-        };
+        const { active } = event;
+        const type = active.data.current?.type;
+
+        if (type === 'Column') {
+            setActiveColumn(active.data.current?.column);
+        } else if (type === 'Todo') {
+            setActiveTodo(active.data.current?.todo);
+        }
     };
+
+    // const handleDragOver = async (event: DragOverEvent) => {
+    //     const { active, over } = event;
+
+    //     if (!over) return;
+
+    //     if (active.data.current?.type === 'Todo' && over.data.current?.type === 'Column') {
+    //         // Could show visual feedback that the todo is being hovered over a new column
+    //         console.log("is being dragged over")
+    //     };
+    // }
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
+        if (!over) return;
 
-        const oldIndex = columnsId.findIndex(id => id === active.id);
-        let newIndex;
+        const activeType = active.data.current?.type;
+        const overType = over.data.current?.type;
 
-        if (!over) { // allows to reorder columns even if dropped past the appliable area (defaults to last place)
-            newIndex = columnsId.length - 1;
-        } else if (active.id === over.id) {
+        if (activeType === 'Column') {
+            await handleColumnOrder(active.id.toString(), over.id.toString())
+            setActiveColumn(null);
             return;
-        } else {
-            newIndex = columnsId.findIndex(id => id === over.id);
         };
 
-        if (newIndex === -1) {
-            console.log("New index not found — aborting reorder");
-            return;
+        if (activeType !== 'Todo') return;
+        
+        const activeTodo = active.data.current?.todo as Todo;
+        const sourceColumnId = activeTodo.columnId;
+
+        let targetColumnId = sourceColumnId;
+        let overTodoId: string | null = null;
+
+        if (overType === 'Todo') {
+            const overTodo = over.data.current?.todo as Todo;
+            targetColumnId = overTodo.columnId;
+            overTodoId = overTodo.id;
+        } else if (overType === 'Column') {
+            targetColumnId = over.id.toString();
         }
+
+        const updatedTodos = [...todos];
+        const sourceIndex = updatedTodos.findIndex(t => t.id === activeTodo.id);
+        if (sourceIndex === -1) return;
+        updatedTodos.splice(sourceIndex, 1);
+
+        const targetTodos = updatedTodos.filter(t => t.columnId === targetColumnId);
+        let newIndex = targetTodos.length;
+
+        if (overTodoId) {
+            const overIndex = targetTodos.findIndex(t => t.id === overTodoId);
+            if (overIndex !== -1) newIndex = overIndex
+        }
+
+        const newTodo = {...activeTodo, columnId: targetColumnId}
+        const targetInsertIndex = updatedTodos.findIndex((t) => {
+            if (newIndex === 0) return t.columnId === targetColumnId;
+            return t.id === targetTodos[newIndex]?.id;
+        })
+
+        if (targetInsertIndex === -1) {
+            updatedTodos.push(newTodo);
+        } else {
+            updatedTodos.splice(targetInsertIndex, 0, newTodo);
+        }
+
+        setTodos(updatedTodos);
+
+        const newOrder = updatedTodos
+            .filter(t => t.columnId === targetColumnId)
+            .map(t => t.id);
+
+        try {
+            await reorderTodos(newOrder, targetColumnId);
+        } catch (error) {
+            throw new Error(`Error reordering todos, ${error}`);
+        }
+        
+        setActiveTodo(null);
+    };
+
+    const handleColumnOrder = async (activeId: string, overId: string) => {
+        const oldIndex = columnsId.findIndex(id => id === activeId);
+        const newIndex = columnsId.findIndex(id => id === overId);
+
+        if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return;
 
         const reordered = arrayMove(columns, oldIndex, newIndex);
         const newOrder = reordered.map(c => c.id)
-
-        console.log("Reorder column IDs:", newOrder);
-        setColumns(reordered)
 
         try {
             const response = await reorderColumns(newOrder);
@@ -98,42 +151,25 @@ export default function Board() {
         }
     };
 
-    const createTodo = async (columnId: string) => {
-        const todoData = {
-            columnId,
-            title: 'testing drag',
-            description: 'draggy drag'
-        };
-
-        try {
-            const createdTodo = await addTodo(todoData, columnId);
-
-            // Replace the todos for that column with backend-confirmed data only
-            setTodos((prevTodos) => {
-                if (prevTodos.some(todo => todo.id === createdTodo.todo.id)) {
-                    return prevTodos;
-                } else {
-                    return [...prevTodos, createdTodo.todo]; // use real returned todo
-                }
-            });
-        } catch (error) {
-            throw new Error(`Error adding todo: ${error}`);
-        }
-    };
-
     return (
         <article className="w-full bg-blue-500 rounded-xl border-white">
             <div className="w-full h-full flex gap-2 items-start overflow-x-scroll overflow-y-hidden">
-                <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+                <DndContext sensors={sensors} 
+                            collisionDetection={closestCenter} 
+                            onDragStart={handleDragStart} 
+                            onDragEnd={handleDragEnd} 
+                            >
                     <SortableContext items={columnsId}>
                         {columns.map((column) => (
                                 <ColumnContainer key={column.id}
-                                                column={column} 
+                                                column={column}
+                                                getTodo={getTodo}
+                                                removeTodo={removeTodo}
+                                                setColumns={setColumns}
+                                                todos={groupedTodos.get(column.id) ?? []}
                                                 handleDeleteColumn={handleDeleteColumn} 
-                                                updateColumn={updateColumn}
+                                                handleEditColumn={handleEditColumn}
                                                 createTodo={() => createTodo(column.id)}
-                                                editedTitle={editedTitle}
-                                                setEditedTitle={setEditedTitle}
                                 />
                         ))}
                     </SortableContext>
@@ -143,18 +179,27 @@ export default function Board() {
                         {activeColumn && (
                             <ColumnContainer key={activeColumn.id}
                                             column={activeColumn}
+                                            getTodo={getTodo}
+                                            removeTodo={removeTodo}
+                                            setColumns={setColumns}
+                                            todos={groupedTodos.get(activeColumn.id) ?? []}
                                             handleDeleteColumn={handleDeleteColumn}
-                                            updateColumn={updateColumn}
+                                            handleEditColumn={handleEditColumn}
                                             createTodo={() => createTodo(activeColumn.id)}
-                                            editedTitle={editedTitle}
-                                            setEditedTitle={setEditedTitle}
                             />)}
                     </DragOverlay>, 
                     document.body
                 )}
                 </DndContext>
+                <TodoModal getTodo={getTodo}
+                        todoData={todoData}
+                        updateTodo={updateTodo} 
+                        removeTodo={removeTodo} 
+                        editTitle={editTitle} 
+                        setEditTitle={setEditTitle} 
+                        editDescription={editDescription} 
+                        setEditDescription={setEditDescription} />
             </div>
         </article>
-
     )
 };

@@ -5,13 +5,18 @@ import { CSS } from "@dnd-kit/utilities";
 
 type DraggableTodoProps = {
     todo: Todo,
-    children: React.ReactNode
+    children: React.ReactNode,
+    onClick: () => void
 }
 
-export default function DraggableTodoCard({todo, children}: DraggableTodoProps) {
+export default function DraggableTodoCard({todo, children, onClick}: DraggableTodoProps) {
 
     const { setNodeRef, attributes, listeners, transform } = useDraggable({
-        id: todo.id ?? ''
+        id: todo.id,
+        data: {
+            type: 'Todo',
+            todo
+        }
     });
 
      const style = {
@@ -21,6 +26,7 @@ export default function DraggableTodoCard({todo, children}: DraggableTodoProps) 
     return (
         <TodoCard ref={setNodeRef}
                   todo={todo}
+                  onClick={onClick}
                   {...attributes}
                   {...listeners} 
                   style={style}>

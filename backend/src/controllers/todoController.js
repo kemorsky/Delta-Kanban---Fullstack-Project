@@ -22,6 +22,20 @@ const getTodos = async (req, res) => {
     }
 };
 
+const getTodoById = async (req, res) => {
+    try {
+        const todoId = req.params.id;
+        const todo = await Todo.findById(todoId);
+        res
+            .status(200)
+            .json(todo)
+    } catch (error) {
+        return res
+            .status(404)
+            .json({message: "Todo not found"})
+    }
+};
+
 const postTodo = async (req, res) => {
   try {
     const columnId = req.params.columnId;
@@ -141,4 +155,4 @@ const deleteTodo = async (req, res) => {
     }
 };
 
-export { getTodos, postTodo, editTodo, reorderTodos, deleteTodo };
+export { getTodos, getTodoById, postTodo, editTodo, reorderTodos, deleteTodo };

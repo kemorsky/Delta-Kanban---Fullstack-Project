@@ -38,6 +38,15 @@ export const fetchTodos = async () => {
   }
 };
 
+export const fetchTodoById = async (id: string) => {
+  try {
+    const response = await apiRequest(`${URL}/api/todos/todo/${id}`);
+    return response;
+  } catch (error) {
+    throw new Error (`Error fetching todo: ${error}`);
+  }
+}
+
 export const addTodo = async (todo: Omit<Todo, 'id'>, columnId: string) => {
   try {
     const response = await apiRequest(`${URL}/api/columns/${columnId}/todos`, {
