@@ -7,9 +7,9 @@ type TodoModalProps = {
     todoData: Todo | null,
     updateTodo: (columnId: string, id: string, title: string, description: string) => void,
     removeTodo: (columnId: string, id: string) => void,
-    editTitle: string | null | undefined,
+    editTitle: string | null,
     setEditTitle: React.Dispatch<React.SetStateAction<string | null >>,
-    editDescription: string | null | undefined,
+    editDescription: string | null,
     setEditDescription: React.Dispatch<React.SetStateAction<string | null >>,
 };
 
@@ -21,7 +21,7 @@ export default function TodoModal(props: TodoModalProps) {
     if (!todoData) return;
 
     return (
-        <article className="bg-green-700 mx-auto w-[60rem] h-[30rem] space-y-4 p-6 rounded-2xl border border-gray-300">
+        <article className="bg-green-700 mx-auto w-[60rem] h-[30rem] space-y-4 p-6 rounded-2xl border border-gray-300 absolute inset-x-0 top-1/2 -translate-y-1/2">
             <header className="flex justify-between items-center border-b">
                 <article className="pb-4 flex flex-col gap-2">
                     <p>Date</p>

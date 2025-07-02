@@ -11,6 +11,7 @@ import { Plus } from "lucide-react";
 
 
 type Props = {
+    className?: string,
     column: Column,
     todos: Todo[],
     handleEditColumn: (id: string, title: string) => void,
@@ -18,40 +19,34 @@ type Props = {
     createTodo: (columnId: string) => void,
     getTodo: (id: string) => void,
     removeTodo: (columnId: string, id: string) => void
-    // editedTitle: Column | null | undefined,
-    // setEditedTitle: React.Dispatch<React.SetStateAction<Column | null | undefined>>,
     setColumns: React.Dispatch<React.SetStateAction<Column[]>>
-}
+};
 
 export default function ColumnContainer(props: Props) {
     const { column, handleDeleteColumn, handleEditColumn, createTodo, setColumns, getTodo, removeTodo } = props;
 
     const [editMode, setEditMode] = useState(false);
 
-    const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({
-        id: column.id,
-        data: {
-            type: "Column",
-            columnId: column.id
-        }},
-        // disabled: editMode, // FIX LATER
-    );
+    // const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    //     id: column.id,
+    //     data: {
+    //         type: "Column",
+    //         columnId: column.id
+    //     }},
+    //     // disabled: editMode, // FIX LATER
+    // );
   
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
-
-    if (isDragging) {
-        return <article className="w-full max-w-[22rem] h-full min-h-[28rem] rounded-xl opacity-80 border-2 border-dashed" 
-                        ref={setNodeRef} 
-                        style={style}>
-                </article>
-    }
+    // const style = {
+    //     transform: CSS.Transform.toString(transform),
+    //     opacity: isDragging ? 0.5 : 1,
+    //     border: isDragging ? "2px dashed #ffffff" : "",
+    //     height: isDragging ? "min-h-[139px] max-h-[515px]" : "",
+    //     transition,
+    // };
     
     return (
-        <ColumnWrapper ref={setNodeRef} style={style}>
-            <section className="flex items-center justify-between pb-2 border-b border-[#324067]" onClick={() => {setEditMode(true)}} {...attributes} {...listeners}>
+        <ColumnWrapper column={column}>
+            <section className="flex items-center justify-between pb-2 border-b border-[#324067]" onClick={() => {setEditMode(true)}}>
                 {editMode && (
                     <InputEdit 
                             className="m-0"

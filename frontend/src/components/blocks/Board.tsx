@@ -3,13 +3,14 @@ import { useTodos } from "../../auth/Todo/TodoContext";
 import { useColumns } from "../../auth/Column/ColumnContext";
 import { reorderColumns, reorderTodos } from "../../lib/api";
 import type { Column, Todo } from "../../types/types"
-import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, closestCenter} from '@dnd-kit/core';
+import { DndContext, DragOverlay, MouseSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, type DragOverEvent, closestCorners, rectIntersection} from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import ColumnContainer from "./ColumnContainer";
 import { ButtonAddColumn } from "../ui/button";
 import { Plus } from "lucide-react";
 import TodoModal from "./todo-modal";
+import { TodoCard, TodoCardDescription, TodoCardTitle } from "./Todo/todo-card";
 
 type BoardProps = {
     createTodo: (columnId: string) => void,
@@ -22,12 +23,12 @@ type BoardProps = {
     handleDeleteColumn: (id: string) => void
 }
 
-export default function Board(props :BoardProps) {
-    const {createTodo, getTodo, todoData, updateTodo, removeTodo, handleAddColumn, handleEditColumn, handleDeleteColumn} = props;
+export default function Board(props: BoardProps) {
+    const { createTodo, getTodo, todoData, updateTodo, removeTodo, handleAddColumn, handleEditColumn, handleDeleteColumn } = props;
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
     const [ activeTodo, setActiveTodo ] = useState<Todo | null>(null);
-    const [editTitle, setEditTitle] = useState<string | null>(null);
-    const [editDescription, setEditDescription] = useState<string | null>(null);
+    const [ editTitle, setEditTitle ] = useState<string | null>(null);
+    const [ editDescription, setEditDescription ] = useState<string | null>(null);
     
     const { todos, setTodos } = useTodos();
     const { columns, setColumns } = useColumns();
@@ -41,7 +42,7 @@ export default function Board(props :BoardProps) {
         return map;
     }, [columns, todos]);
 
-    const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),);
+    const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),);
 
     const handleDragStart = async (event: DragStartEvent) => {
         const { active } = event;
@@ -54,20 +55,40 @@ export default function Board(props :BoardProps) {
         }
     };
 
-    // const handleDragOver = async (event: DragOverEvent) => {
-    //     const { active, over } = event;
-
-    //     if (!over) return;
-
-    //     if (active.data.current?.type === 'Todo' && over.data.current?.type === 'Column') {
-    //         // Could show visual feedback that the todo is being hovered over a new column
-    //         console.log("is being dragged over")
-    //     };
-    // }
-
-    const handleDragEnd = async (event: DragEndEvent) => {
+    const handleDragOver = async (event: DragOverEvent) => {
         const { active, over } = event;
         if (!over) return;
+
+        const isActiveTodo = active.data.current?.type === 'Todo';
+        if (!isActiveTodo) return;
+
+        const isOverColumn = over.data.current?.type === 'Column';
+        
+        // Only move todos between columns during hover
+        if (isOverColumn) {
+            const activeId = active.id;
+            const overColumnId = over.id.toString();
+
+            setTodos((todos) => {
+                const activeIndex = todos.findIndex(t => t.id === activeId);
+                const activeTodo = todos[activeIndex];
+                if (!activeTodo || activeTodo.columnId === overColumnId) return todos;
+
+                const newTodos = [...todos];
+                newTodos.splice(activeIndex, 1);
+                newTodos.push({ ...activeTodo, columnId: overColumnId });
+                return newTodos;
+            });
+        }
+    };
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        setActiveColumn(null);
+        setActiveTodo(null);
+        const { active, over } = event;
+        if (!over) return;
+  
+        if (over.id === active.id) return;
 
         const activeType = active.data.current?.type;
         const overType = over.data.current?.type;
@@ -77,6 +98,48 @@ export default function Board(props :BoardProps) {
             setActiveColumn(null);
             return;
         };
+
+        // if (activeType !== 'Todo') return;
+        // if (over.id === active.id) return;
+
+        // const activeTodo = active.data.current?.todo as Todo;
+        // const overTodo = over.data.current?.todo as Todo | undefined;
+        // const overColumn = over.data.current?.column as Column | undefined;
+
+        // let targetColumnId = activeTodo.columnId;
+
+        // if (overTodo) {
+        //     targetColumnId = overTodo.columnId;
+        // } else if (overColumn) {
+        //     targetColumnId = overColumn.id;
+        // }
+
+        // setTodos((prevTodos) => {
+        //     const filteredTodos = prevTodos.filter(t => t.id !== activeTodo.id);
+        //     const newTodo = { ...activeTodo, columnId: targetColumnId };
+
+        //     if (overTodo) {
+        //         const targetIndex = filteredTodos.findIndex(t => t.id === overTodo.id);
+        //         filteredTodos.splice(targetIndex, 0, newTodo);
+        //     } else {
+        //         filteredTodos.push(newTodo); // Drop at end if over empty space or column container
+        //     }
+
+        //     return filteredTodos;
+        // });
+
+        // // Persist new order to backend for target column
+        // const newOrder = todos
+        //     .filter(t => t.columnId === targetColumnId && t.id !== activeTodo.id)
+        //     .map(t => t.id);
+
+        // newOrder.push(activeTodo.id); // Add dragged todo to end or correct position
+
+        // try {
+        //     await reorderTodos(newOrder, targetColumnId);
+        // } catch (error) {
+        //     throw new Error(`Error reordering todos, ${error}`);
+        // }
 
         if (activeType !== 'Todo') return;
         
@@ -128,7 +191,7 @@ export default function Board(props :BoardProps) {
         try {
             await reorderTodos(newOrder, targetColumnId);
         } catch (error) {
-            throw new Error(`Error reordering todos, ${error}`);
+            console.error(`Error reordering todos`, error);
         }
         
         setActiveTodo(null);
@@ -147,59 +210,65 @@ export default function Board(props :BoardProps) {
             const response = await reorderColumns(newOrder);
             setColumns(response.columns);
         } catch (error) {
-            throw new Error (`Error reordering columns: ${error}`);
+            console.error(`Error reordering columns`, error);
         }
     };
 
     return (
-        <article className="w-full bg-blue-500 rounded-xl border-white">
-            <div className="w-full h-full flex gap-2 items-start overflow-x-scroll overflow-y-hidden">
-                <DndContext sensors={sensors} 
-                            collisionDetection={closestCenter} 
-                            onDragStart={handleDragStart} 
-                            onDragEnd={handleDragEnd} 
-                            >
-                    <SortableContext items={columnsId}>
-                        {columns.map((column) => (
-                                <ColumnContainer key={column.id}
-                                                column={column}
-                                                getTodo={getTodo}
-                                                removeTodo={removeTodo}
-                                                setColumns={setColumns}
-                                                todos={groupedTodos.get(column.id) ?? []}
-                                                handleDeleteColumn={handleDeleteColumn} 
-                                                handleEditColumn={handleEditColumn}
-                                                createTodo={() => createTodo(column.id)}
-                                />
-                        ))}
-                    </SortableContext>
-                <ButtonAddColumn onClick={() => {handleAddColumn()}}><Plus className="w-[1.3125rem] h-[1.3125rem]" />Add column</ButtonAddColumn>
-                {createPortal(
-                    <DragOverlay>
-                        {activeColumn && (
-                            <ColumnContainer key={activeColumn.id}
-                                            column={activeColumn}
+        <article className="w-full h-full max-h-[40rem] bg-blue-500 rounded-xl border-w flex gap-2 items-start justify-start overflow-x-auto overflow-y-hidden">
+            <DndContext sensors={sensors} 
+                        collisionDetection={closestCorners}
+                        onDragStart={handleDragStart} 
+                        onDragEnd={handleDragEnd}
+                        onDragOver={handleDragOver}
+                        >
+                <SortableContext id="board" items={columnsId}>
+                    {columns.map((column) => (
+                            <ColumnContainer key={column.id}
+                                            column={column}
                                             getTodo={getTodo}
                                             removeTodo={removeTodo}
                                             setColumns={setColumns}
-                                            todos={groupedTodos.get(activeColumn.id) ?? []}
-                                            handleDeleteColumn={handleDeleteColumn}
+                                            todos={groupedTodos.get(column.id) ?? []}
+                                            handleDeleteColumn={handleDeleteColumn} 
                                             handleEditColumn={handleEditColumn}
-                                            createTodo={() => createTodo(activeColumn.id)}
-                            />)}
-                    </DragOverlay>, 
-                    document.body
-                )}
-                </DndContext>
-                <TodoModal getTodo={getTodo}
-                        todoData={todoData}
-                        updateTodo={updateTodo} 
-                        removeTodo={removeTodo} 
-                        editTitle={editTitle} 
-                        setEditTitle={setEditTitle} 
-                        editDescription={editDescription} 
-                        setEditDescription={setEditDescription} />
-            </div>
+                                            createTodo={() => createTodo(column.id)}
+                            />
+                    ))}
+                    <ButtonAddColumn onClick={() => {handleAddColumn()}}><Plus className="w-[1.3125rem] h-[1.3125rem]" />Add column</ButtonAddColumn>
+                </SortableContext>
+            {createPortal(
+                <DragOverlay>
+                    {activeColumn && (
+                        <ColumnContainer // key={activeColumn.id}
+                                        column={activeColumn}
+                                        getTodo={getTodo}
+                                        removeTodo={removeTodo}
+                                        setColumns={setColumns}
+                                        todos={groupedTodos.get(activeColumn.id) ?? []}
+                                        handleDeleteColumn={handleDeleteColumn}
+                                        handleEditColumn={handleEditColumn}
+                                        createTodo={() => createTodo(activeColumn.id)}
+                        />)}
+
+                    {activeTodo && (
+                        <TodoCard className="opacity-80 border-2 border-dashed" todo={activeTodo}>
+                            <TodoCardTitle>{activeTodo.title}</TodoCardTitle>
+                            <TodoCardDescription>{activeTodo.description}</TodoCardDescription>
+                        </TodoCard>
+                    )}
+                </DragOverlay>, 
+                document.body
+            )}
+            </DndContext>
+            <TodoModal getTodo={getTodo}
+                    todoData={todoData}
+                    updateTodo={updateTodo} 
+                    removeTodo={removeTodo} 
+                    editTitle={editTitle} 
+                    setEditTitle={setEditTitle} 
+                    editDescription={editDescription} 
+                    setEditDescription={setEditDescription} />
         </article>
     )
 };

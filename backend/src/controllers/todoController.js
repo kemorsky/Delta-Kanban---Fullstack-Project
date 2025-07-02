@@ -106,9 +106,9 @@ const reorderTodos = async (req, res) => {
             }
         }));
 
-         console.log("🚀 Bulk operations prepared:", bulkOps);
+         console.log("🚀 Bulk operations prepared1:", bulkOps);
 
-        if (movedTodoId) {
+        if (movedTodoId && !order.includes(movedTodoId)) {
             bulkOps.push({
                 updateOne: {
                     filter: {_id: movedTodoId},
@@ -117,7 +117,7 @@ const reorderTodos = async (req, res) => {
             })
         }
 
-        console.log("🚀 Bulk operations prepared:", bulkOps);
+        console.log("🚀 Bulk operations prepared2:", bulkOps);
 
         await Todo.bulkWrite(bulkOps);
 

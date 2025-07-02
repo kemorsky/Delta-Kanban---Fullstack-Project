@@ -5,14 +5,14 @@ import type { Todo } from "../../../types/types";
 type TodoCardProps = React.HTMLAttributes<HTMLElement> & {
     children: React.ReactNode,
     ref?: React.Ref<HTMLElement>,
-    todo: Todo
+    todo: Todo,
 };
 
 const TodoCard = React.forwardRef<HTMLElement, TodoCardProps
-    >(({ className, ...props },ref) => (
+    >(({ className, ...props }, ref) => (
         <article 
             ref={ref}
-            className={cn("bg-blue-500 rounded-md flex flex-col p-2 gap-2 cursor-grab relative", className)}
+            className={cn("w-[284px] h-[74px] bg-blue-500 rounded-md flex flex-col p-2 gap-2 cursor-grab relative", className)}
         {...props}
         />
     ))
@@ -21,7 +21,7 @@ const TodoCard = React.forwardRef<HTMLElement, TodoCardProps
 const TodoCardId = React.forwardRef<
     HTMLHeadingElement,
     React.HTMLAttributes<HTMLHeadingElement>
-    >(({ className, ...props },ref) => (
+    >(({ className, ...props }, ref) => (
         <h2 
             ref={ref}
             className={cn("bg-blue-500 rounded-md", className)}
@@ -33,7 +33,7 @@ const TodoCardId = React.forwardRef<
 const TodoCardTitle = React.forwardRef<
     HTMLHeadingElement,
     React.HTMLAttributes<HTMLHeadingElement>
-    >(({ className, ...props },ref) => (
+    >(({ className, ...props }, ref) => (
         <h3 
             ref={ref}
             className={cn("bg-blue-500 rounded-md", className)}
@@ -45,7 +45,7 @@ const TodoCardTitle = React.forwardRef<
 const TodoCardDescription = React.forwardRef<
     HTMLParagraphElement,
     React.HTMLAttributes<HTMLParagraphElement>
-    >(({ className, ...props },ref) => (
+    >(({ className, ...props }, ref) => (
         <p 
             ref={ref}
             className={cn("bg-blue-500 rounded-md", className)}

@@ -8,9 +8,9 @@ import { addTodo, addColumn, editColumn, deleteColumn, fetchTodoById, deleteTodo
 import type { Column, Todo } from './types/types';
 
 function App() {
-    const {setTodos} = useTodos();
-    const {columns, setColumns} = useColumns();
-    const [ todoById, setTodoById ] = useState<Todo | null>(null);
+    const { setTodos } = useTodos();
+    const { columns, setColumns } = useColumns();
+    const [ todoData, setTodoData ] = useState<Todo | null>(null);
 
     const createTodo = async (columnId: string) => {
         const todoData = {
@@ -37,7 +37,7 @@ function App() {
     const getTodo = async (id: string) => {
         try {
             const todoData = await fetchTodoById(id);
-            setTodoById(todoData);
+            setTodoData(todoData);
         } catch (error) {
             throw new Error (`Error fetching todo: ${error}`);
         }
@@ -106,7 +106,7 @@ function App() {
     <main className='w-full max-w-[90rem] mx-auto h-full bg-orange-300'>
       <Board createTodo={createTodo}
              getTodo={getTodo}
-             todoData={todoById}
+             todoData={todoData}
              updateTodo={updateTodo}
              removeTodo={removeTodo}
              handleAddColumn={handleAddColumn}
