@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { useSortable } from "@dnd-kit/sortable";
 import type { Column, Todo } from "../../types/types"
-import { CSS } from '@dnd-kit/utilities';
 // import { PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { ButtonAddTodo, ButtonDeleteColumn } from "../ui/button";
 import { ColumnWrapper } from "./Column/ColumnWrapper";
@@ -26,23 +24,6 @@ export default function ColumnContainer(props: Props) {
     const { column, handleDeleteColumn, handleEditColumn, createTodo, setColumns, getTodo, removeTodo } = props;
 
     const [editMode, setEditMode] = useState(false);
-
-    // const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    //     id: column.id,
-    //     data: {
-    //         type: "Column",
-    //         columnId: column.id
-    //     }},
-    //     // disabled: editMode, // FIX LATER
-    // );
-  
-    // const style = {
-    //     transform: CSS.Transform.toString(transform),
-    //     opacity: isDragging ? 0.5 : 1,
-    //     border: isDragging ? "2px dashed #ffffff" : "",
-    //     height: isDragging ? "min-h-[139px] max-h-[515px]" : "",
-    //     transition,
-    // };
     
     return (
         <ColumnWrapper column={column}>
@@ -68,7 +49,6 @@ export default function ColumnContainer(props: Props) {
                 {!editMode && (
                     <h3>{column.title}</h3>
                 )}
-
                 <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}}>Delete</ButtonDeleteColumn>
             </section>
             <ColumnContent columnId={column.id} column={column} getTodo={getTodo} removeTodo={removeTodo}/>

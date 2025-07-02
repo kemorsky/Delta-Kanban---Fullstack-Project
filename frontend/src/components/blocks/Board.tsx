@@ -3,7 +3,7 @@ import { useTodos } from "../../auth/Todo/TodoContext";
 import { useColumns } from "../../auth/Column/ColumnContext";
 import { reorderColumns, reorderTodos } from "../../lib/api";
 import type { Column, Todo } from "../../types/types"
-import { DndContext, DragOverlay, MouseSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, type DragOverEvent, closestCorners, rectIntersection} from '@dnd-kit/core';
+import { DndContext, DragOverlay, MouseSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, type DragOverEvent, closestCorners } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import ColumnContainer from "./ColumnContainer";
@@ -55,34 +55,52 @@ export default function Board(props: BoardProps) {
         }
     };
 
-    const handleDragOver = async (event: DragOverEvent) => {
+    const handleDragOver = (event: DragOverEvent) => { //TODO: FIX INFINITE LOOP IN HERE WITH setTodos
         const { active, over } = event;
         if (!over) return;
 
-        const isActiveTodo = active.data.current?.type === 'Todo';
-        if (!isActiveTodo) return;
+        const activeType = active.data.current?.type;
+        const overType = over.data.current?.type;
 
-        const isOverColumn = over.data.current?.type === 'Column';
-        
-        // Only move todos between columns during hover
-        if (isOverColumn) {
-            const activeId = active.id;
-            const overColumnId = over.id.toString();
+        if (activeType !== 'Todo') return;
+
+        const activeTodo = active.data.current?.todo as Todo;
+        const activeId = active.id;
+
+        if (overType === 'Todo') {
+            const overTodo = over.data.current?.todo as Todo;
+            if (activeId === overTodo.id) return;
 
             setTodos((todos) => {
-                const activeIndex = todos.findIndex(t => t.id === activeId);
-                const activeTodo = todos[activeIndex];
-                if (!activeTodo || activeTodo.columnId === overColumnId) return todos;
+                const updatedTodos = [...todos];
+                const activeIndex = updatedTodos.findIndex(t => t.id === activeId);
+                const overIndex = updatedTodos.findIndex(t => t.id === overTodo.id);
 
-                const newTodos = [...todos];
-                newTodos.splice(activeIndex, 1);
-                newTodos.push({ ...activeTodo, columnId: overColumnId });
-                return newTodos;
+                if (activeIndex === -1 || overIndex === -1) return todos;
+
+                const activeItem = updatedTodos[activeIndex];
+                updatedTodos.splice(activeIndex, 1);
+                updatedTodos.splice(overIndex, 0, { ...activeItem, columnId: overTodo.columnId });
+
+                return updatedTodos;
+            });
+        } else if (overType === 'Column') {
+            const overColumnId = over.id.toString();
+
+            if (activeTodo.columnId === overColumnId) return;
+
+            setTodos((todos) => {
+                const updatedTodos = [...todos];
+                const activeIndex = updatedTodos.findIndex(t => t.id === activeId);
+                if (activeIndex === -1) return todos;
+
+                updatedTodos[activeIndex] = { ...updatedTodos[activeIndex], columnId: overColumnId };
+                return updatedTodos;
             });
         }
     };
 
-    const handleDragEnd = async (event: DragEndEvent) => {
+    const handleDragEnd = async (event: DragEndEvent) => { // TODO: FIX MISALIGNMENT BETWEEN DRAGOVER AND DRAGEND
         setActiveColumn(null);
         setActiveTodo(null);
         const { active, over } = event;
@@ -98,48 +116,6 @@ export default function Board(props: BoardProps) {
             setActiveColumn(null);
             return;
         };
-
-        // if (activeType !== 'Todo') return;
-        // if (over.id === active.id) return;
-
-        // const activeTodo = active.data.current?.todo as Todo;
-        // const overTodo = over.data.current?.todo as Todo | undefined;
-        // const overColumn = over.data.current?.column as Column | undefined;
-
-        // let targetColumnId = activeTodo.columnId;
-
-        // if (overTodo) {
-        //     targetColumnId = overTodo.columnId;
-        // } else if (overColumn) {
-        //     targetColumnId = overColumn.id;
-        // }
-
-        // setTodos((prevTodos) => {
-        //     const filteredTodos = prevTodos.filter(t => t.id !== activeTodo.id);
-        //     const newTodo = { ...activeTodo, columnId: targetColumnId };
-
-        //     if (overTodo) {
-        //         const targetIndex = filteredTodos.findIndex(t => t.id === overTodo.id);
-        //         filteredTodos.splice(targetIndex, 0, newTodo);
-        //     } else {
-        //         filteredTodos.push(newTodo); // Drop at end if over empty space or column container
-        //     }
-
-        //     return filteredTodos;
-        // });
-
-        // // Persist new order to backend for target column
-        // const newOrder = todos
-        //     .filter(t => t.columnId === targetColumnId && t.id !== activeTodo.id)
-        //     .map(t => t.id);
-
-        // newOrder.push(activeTodo.id); // Add dragged todo to end or correct position
-
-        // try {
-        //     await reorderTodos(newOrder, targetColumnId);
-        // } catch (error) {
-        //     throw new Error(`Error reordering todos, ${error}`);
-        // }
 
         if (activeType !== 'Todo') return;
         
@@ -193,8 +169,6 @@ export default function Board(props: BoardProps) {
         } catch (error) {
             console.error(`Error reordering todos`, error);
         }
-        
-        setActiveTodo(null);
     };
 
     const handleColumnOrder = async (activeId: string, overId: string) => {

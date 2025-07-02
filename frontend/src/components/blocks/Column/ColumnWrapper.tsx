@@ -28,7 +28,6 @@ export const ColumnWrapper: React.FC<ColumnWrapperProps> = (({...props}) => {
         transition,
     };
 
-
     return (
         <article 
                 ref={setNodeRef}
