@@ -1,5 +1,5 @@
 export type Todo = {
-    id: string;
+    id?: string | undefined;
     columnId: string;
     title?: string;
     description?: string;

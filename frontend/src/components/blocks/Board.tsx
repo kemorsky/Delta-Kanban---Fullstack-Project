@@ -1,48 +1,51 @@
 import { useMemo, useState } from "react"
-import { useTodos } from "../../auth/Todo/TodoContext";
-import { useColumns } from "../../auth/Column/ColumnContext";
+import { createPortal } from "react-dom";
 import { reorderColumns, reorderTodos } from "../../lib/api";
 import type { Column, Todo } from "../../types/types"
 import { DndContext, DragOverlay, MouseSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, type DragOverEvent, closestCorners } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
-import { createPortal } from "react-dom";
-import ColumnContainer from "./ColumnContainer";
-import { ButtonAddColumn } from "../ui/button";
-import { Plus } from "lucide-react";
-import TodoModal from "./todo-modal";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import createColumnQueryOptions from "../../queries/createColumnQueryOptions";
+import createTodoQueryOptions from "../../queries/createTodoQueryOptions";
 import { TodoCard, TodoCardDescription, TodoCardTitle } from "./Todo/todo-card";
+import { ButtonAddColumn } from "../ui/button";
+import ColumnContainer from "./ColumnContainer";
+import TodoModal from "./todo-modal";
 
 type BoardProps = {
-    createTodo: (columnId: string) => void,
-    getTodo: (id: string) => void,
-    todoData: Todo | null,
-    updateTodo: (columnId: string, id: string, title: string, description: string) => void,
-    removeTodo: (columnId: string, id: string) => void,
+    todos: Todo[],
+    columns: Column[],
+    handleAddTodo: (columnId: string) => void,
+    // getTodo: (id: string) => void,
+    handleEditTodo: (columnId: string, id: string, title: string, description: string) => void,
+    handleDeleteTodo: (columnId: string, id: string) => void,
     handleAddColumn: () => void,
     handleEditColumn: (id: string, title: string) => void,
     handleDeleteColumn: (id: string) => void
 }
 
 export default function Board(props: BoardProps) {
-    const { createTodo, getTodo, todoData, updateTodo, removeTodo, handleAddColumn, handleEditColumn, handleDeleteColumn } = props;
+    const { todos, columns, handleAddTodo, getTodo, handleEditTodo, handleDeleteTodo, handleAddColumn, handleEditColumn, handleDeleteColumn  } = props;
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
     const [ activeTodo, setActiveTodo ] = useState<Todo | null>(null);
-    const [ editTitle, setEditTitle ] = useState<string | null>(null);
-    const [ editDescription, setEditDescription ] = useState<string | null>(null);
-    
-    const { todos, setTodos } = useTodos();
-    const { columns, setColumns } = useColumns();
 
     const columnsId = useMemo(() => columns.map((column) => column.id), [columns]);
 
-    const groupedTodos = useMemo(() => {
-        const map = new Map();
-        columns.forEach((c) => map.set(c.id, []));
-        todos.forEach((t) => map.get(t.columnId)?.push(t));
-        return map;
-    }, [columns, todos]);
-
     const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),);
+
+    const { mutate: mutateReorderColumns } = useMutation({ mutationFn: (orderIds: string[]) => reorderColumns(orderIds),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: createColumnQueryOptions().queryKey })
+        }
+    })
+
+    const { mutate: mutateReorderTodos } = useMutation({ mutationFn: ({orderId, columnId} : {orderId: string[], columnId: string}) => reorderTodos(orderId, columnId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: createTodoQueryOptions().queryKey });
+        }
+    })
+
+    const queryClient = useQueryClient();
 
     const handleDragStart = async (event: DragStartEvent) => {
         const { active } = event;
@@ -67,37 +70,37 @@ export default function Board(props: BoardProps) {
         const activeTodo = active.data.current?.todo as Todo;
         const activeId = active.id;
 
-        if (overType === 'Todo') {
-            const overTodo = over.data.current?.todo as Todo;
-            if (activeId === overTodo.id) return;
+        // if (overType === 'Todo') {
+        //     const overTodo = over.data.current?.todo as Todo;
+        //     if (activeId === overTodo.id) return;
 
-            setTodos((todos) => {
-                const updatedTodos = [...todos];
-                const activeIndex = updatedTodos.findIndex(t => t.id === activeId);
-                const overIndex = updatedTodos.findIndex(t => t.id === overTodo.id);
+        //     setTodos((todos) => {
+        //         const updatedTodos = [...todos];
+        //         const activeIndex = updatedTodos.findIndex(t => t.id === activeId);
+        //         const overIndex = updatedTodos.findIndex(t => t.id === overTodo.id);
 
-                if (activeIndex === -1 || overIndex === -1) return todos;
+        //         if (activeIndex === -1 || overIndex === -1) return todos;
 
-                const activeItem = updatedTodos[activeIndex];
-                updatedTodos.splice(activeIndex, 1);
-                updatedTodos.splice(overIndex, 0, { ...activeItem, columnId: overTodo.columnId });
+        //         const activeItem = updatedTodos[activeIndex];
+        //         updatedTodos.splice(activeIndex, 1);
+        //         updatedTodos.splice(overIndex, 0, { ...activeItem, columnId: overTodo.columnId });
 
-                return updatedTodos;
-            });
-        } else if (overType === 'Column') {
-            const overColumnId = over.id.toString();
+        //         return updatedTodos;
+        //     });
+        // } else if (overType === 'Column') {
+        //     const overColumnId = over.id.toString();
 
-            if (activeTodo.columnId === overColumnId) return;
+        //     if (activeTodo.columnId === overColumnId) return;
 
-            setTodos((todos) => {
-                const updatedTodos = [...todos];
-                const activeIndex = updatedTodos.findIndex(t => t.id === activeId);
-                if (activeIndex === -1) return todos;
+        //     setTodos((todos) => {
+        //         const updatedTodos = [...todos];
+        //         const activeIndex = updatedTodos.findIndex(t => t.id === activeId);
+        //         if (activeIndex === -1) return todos;
 
-                updatedTodos[activeIndex] = { ...updatedTodos[activeIndex], columnId: overColumnId };
-                return updatedTodos;
-            });
-        }
+        //         updatedTodos[activeIndex] = { ...updatedTodos[activeIndex], columnId: overColumnId };
+        //         return updatedTodos;
+        //     });
+        // }
     };
 
     const handleDragEnd = async (event: DragEndEvent) => { // TODO: FIX MISALIGNMENT BETWEEN DRAGOVER AND DRAGEND
@@ -117,58 +120,38 @@ export default function Board(props: BoardProps) {
             return;
         };
 
-        if (activeType !== 'Todo') return;
-        
-        const activeTodo = active.data.current?.todo as Todo;
-        const sourceColumnId = activeTodo.columnId;
+        if (activeType === 'Todo') {
+            const activeTodo = active.data.current?.todo as Todo;
+            const sourceColumnId = activeTodo.columnId;
 
-        let targetColumnId = sourceColumnId;
-        let overTodoId: string | null = null;
+            let targetColumnId = sourceColumnId;
+            let overTodoId: string | null = null;
 
-        if (overType === 'Todo') {
-            const overTodo = over.data.current?.todo as Todo;
-            targetColumnId = overTodo.columnId;
-            overTodoId = overTodo.id;
-        } else if (overType === 'Column') {
-            targetColumnId = over.id.toString();
-        }
+            if (overType === 'Todo') {
+                const overTodo = over.data.current?.todo as Todo;
+                targetColumnId = overTodo.columnId;
+                overTodoId = overTodo.id ?? '';
+            } else if (overType === 'Column') {
+                targetColumnId = over.id.toString();
+            }
 
-        const updatedTodos = [...todos];
-        const sourceIndex = updatedTodos.findIndex(t => t.id === activeTodo.id);
-        if (sourceIndex === -1) return;
-        updatedTodos.splice(sourceIndex, 1);
+            const targetTodos = todos.filter(t => t.columnId === targetColumnId && t.id !== activeTodo.id);
 
-        const targetTodos = updatedTodos.filter(t => t.columnId === targetColumnId);
-        let newIndex = targetTodos.length;
+            if (overTodoId) {
+                const overIndex = targetTodos.findIndex(t => t.id === overTodoId);
+                targetTodos.splice(overIndex, 0, { ...activeTodo, columnId: targetColumnId });
+            } else {
+                targetTodos.push({ ...activeTodo, columnId: targetColumnId });
+            }
 
-        if (overTodoId) {
-            const overIndex = targetTodos.findIndex(t => t.id === overTodoId);
-            if (overIndex !== -1) newIndex = overIndex
-        }
+            const newOrder = targetTodos.map(t => t.id ?? '');
 
-        const newTodo = {...activeTodo, columnId: targetColumnId}
-        const targetInsertIndex = updatedTodos.findIndex((t) => {
-            if (newIndex === 0) return t.columnId === targetColumnId;
-            return t.id === targetTodos[newIndex]?.id;
-        })
-
-        if (targetInsertIndex === -1) {
-            updatedTodos.push(newTodo);
-        } else {
-            updatedTodos.splice(targetInsertIndex, 0, newTodo);
-        }
-
-        setTodos(updatedTodos);
-
-        const newOrder = updatedTodos
-            .filter(t => t.columnId === targetColumnId)
-            .map(t => t.id);
-
-        try {
-            await reorderTodos(newOrder, targetColumnId);
-        } catch (error) {
-            console.error(`Error reordering todos`, error);
-        }
+            try {
+                mutateReorderTodos({orderId: newOrder, columnId: targetColumnId});
+            } catch (error) {
+                console.error(`Error reordering todos`, error);
+            }
+        };
     };
 
     const handleColumnOrder = async (activeId: string, overId: string) => {
@@ -181,8 +164,7 @@ export default function Board(props: BoardProps) {
         const newOrder = reordered.map(c => c.id)
 
         try {
-            const response = await reorderColumns(newOrder);
-            setColumns(response.columns);
+            mutateReorderColumns(newOrder)
         } catch (error) {
             console.error(`Error reordering columns`, error);
         }
@@ -199,30 +181,32 @@ export default function Board(props: BoardProps) {
                 <SortableContext id="board" items={columnsId}>
                     {columns.map((column) => (
                             <ColumnContainer key={column.id}
+                                            todos={todos}
+                                            columns={columns}
                                             column={column}
-                                            getTodo={getTodo}
-                                            removeTodo={removeTodo}
-                                            setColumns={setColumns}
-                                            todos={groupedTodos.get(column.id) ?? []}
+                                            // getTodo={getTodo}
+                                            handleEditTodo={handleEditTodo}
+                                            handleDeleteTodo={handleDeleteTodo}
                                             handleDeleteColumn={handleDeleteColumn} 
                                             handleEditColumn={handleEditColumn}
-                                            createTodo={() => createTodo(column.id)}
+                                            handleAddTodo={() => handleAddTodo(column.id)}
                             />
                     ))}
-                    <ButtonAddColumn onClick={() => {handleAddColumn()}}><Plus className="w-[1.3125rem] h-[1.3125rem]" />Add column</ButtonAddColumn>
+                    <ButtonAddColumn onClick={() => {handleAddColumn()}}/>
                 </SortableContext>
             {createPortal(
                 <DragOverlay>
                     {activeColumn && (
                         <ColumnContainer // key={activeColumn.id}
+                                        todos={todos}
+                                        columns={columns}
                                         column={activeColumn}
-                                        getTodo={getTodo}
-                                        removeTodo={removeTodo}
-                                        setColumns={setColumns}
-                                        todos={groupedTodos.get(activeColumn.id) ?? []}
+                                        // getTodo={getTodo}
+                                        handleEditTodo={handleEditTodo}
+                                        handleDeleteTodo={handleDeleteTodo}
                                         handleDeleteColumn={handleDeleteColumn}
                                         handleEditColumn={handleEditColumn}
-                                        createTodo={() => createTodo(activeColumn.id)}
+                                        handleAddTodo={() => handleAddTodo(activeColumn.id)}
                         />)}
 
                     {activeTodo && (
@@ -235,14 +219,14 @@ export default function Board(props: BoardProps) {
                 document.body
             )}
             </DndContext>
-            <TodoModal getTodo={getTodo}
+            {/* <TodoModal getTodo={getTodo}
                     todoData={todoData}
                     updateTodo={updateTodo} 
                     removeTodo={removeTodo} 
                     editTitle={editTitle} 
                     setEditTitle={setEditTitle} 
                     editDescription={editDescription} 
-                    setEditDescription={setEditDescription} />
+                    setEditDescription={setEditDescription} /> */}
         </article>
     )
 };

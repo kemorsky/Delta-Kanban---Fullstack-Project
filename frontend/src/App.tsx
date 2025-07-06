@@ -1,120 +1,121 @@
-import { useState } from 'react';
 import './App.css'
-import { useColumns } from './auth/Column/ColumnContext';
-import { useTodos } from './auth/Todo/TodoContext';
-import Board from './components/blocks/Board';
-// import TodoModal from './components/blocks/todo-modal';
 import { addTodo, addColumn, editColumn, deleteColumn, fetchTodoById, deleteTodo, editTodo } from './lib/api';
 import type { Column, Todo } from './types/types';
+import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
+import createTodoQueryOptions from "./queries/createTodoQueryOptions";
+import createColumnQueryOptions from "./queries/createColumnQueryOptions";
+import Board from './components/blocks/Board';
+// import TodoModal from './components/blocks/todo-modal';
 
-function App() {
-    const { setTodos } = useTodos();
-    const { columns, setColumns } = useColumns();
-    const [ todoData, setTodoData ] = useState<Todo | null>(null);
+export default function App() {
 
-    const createTodo = async (columnId: string) => {
+    const [{ data: todos, error }, { data: columns } ] = useQueries( // main fetch of data of todos and columns
+        {queries: [createTodoQueryOptions(), createColumnQueryOptions()]} 
+    );
+    
+    const { mutate: mutateAddTodo } = useMutation({ mutationFn: ({todoData, columnId}: {todoData: Todo, columnId: string}) => addTodo(todoData, columnId),
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
+            }
+        });
+
+    const { mutate: mutateEditTodo } = useMutation({ mutationFn: ({columndId, id, title, description}: {columndId: string, id: string, title: string, description: string}) => editTodo(columndId, id, title, description),
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
+            }
+        });
+
+    const { mutate: mutateDeleteTodo } = useMutation({ mutationFn: ({columnId, id}: {columnId: string, id: string}) => deleteTodo(columnId, id),
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
+            }
+        });
+
+    const { mutate: mutateAddColumn } = useMutation({ mutationFn: (columnData: Column) => addColumn(columnData),
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
+            }
+        }); 
+
+    const { mutate: mutateEditColumn } = useMutation({ mutationFn: ({id, title}: {id: string, title: string }) => editColumn(id, title),
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
+            }
+        });
+
+    const { mutate: mutateDeleteColumn } = useMutation({ mutationFn: (id: string) => deleteColumn(id),
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
+            }
+        });
+
+    const queryClient = useQueryClient();
+
+    if (!todos || !columns) return <p>Loading...</p>;
+    
+    if (error) {
+        console.error(error);
+    };
+
+    const handleAddTodo = async (columnId: string) => {
         const todoData = {
             columnId,
             title: 'testing drag',
             description: 'draggy drag'
         };
-
-        try {
-            const createdTodo = await addTodo(todoData, columnId);
-            // Replace the todos for that column with backend-confirmed data only
-            setTodos((prevTodos) => {
-                if (prevTodos.some(todo => todo.id === createdTodo.todo.id)) {
-                    return prevTodos;
-                } else {
-                    return [...prevTodos, createdTodo.todo]; // use real returned todo
-                }
-            });
-        } catch (error) {
-            throw new Error(`Error adding todo: ${error}`);
-        }
+        mutateAddTodo({todoData, columnId})
+        console.log('todo added');
+        
     };
 
-    const getTodo = async (id: string) => {
-        try {
-            const todoData = await fetchTodoById(id);
-            setTodoData(todoData);
-        } catch (error) {
-            throw new Error (`Error fetching todo: ${error}`);
-        }
+    const handleEditTodo = async (columndId: string, id: string, title: string, description: string) => {
+        mutateEditTodo({columndId, id, title, description})
     };
 
-    const updateTodo =  async (columnId: string, id: string, title: string, description: string) => {
-        try {
-            const response = await editTodo(columnId, id, title, description);
-            console.log(response);
-            setTodos((prevTodos) => prevTodos.map((t) => 
-                t.id === id ? {...t, title, description} : t
-            ));
-            }
-        catch (error) {
-            throw new Error (`Error updating todo: ${error}`);
-        }
-    };
-
-    const removeTodo = async (columnId: string, id: string) => {
-        try {
-            await deleteTodo(columnId, id);
-            setTodos((prev) => prev?.filter((todo) => todo.id !== id))
-        } catch (error) {
-            throw new Error (`Error deleting todo: ${error}`);
-        }
-    };
-
+    const handleDeleteTodo = async (columnId: string, id: string) => {
+        mutateDeleteTodo({columnId, id})
+        console.log('todo deleted');
+    }
+    
     const handleAddColumn = async () => {
-        const newColumn: Column = {
+        const columnData = {
             id: '',
-            title: 'New Column'
-        }
-        try {
-            const response = await addColumn(newColumn);
-            console.log(response)
-            setColumns([...columns, response.column]);
-        } catch (error) {
-            throw new Error (`Error adding column: ${error}`);
-        }
-    };
-
-    const handleDeleteColumn = async (id: string) => { // TODO: delete todos assigned to deleted column
-        try {
-            await deleteColumn(id);
-            const filtereredColumns = columns.filter((col) => col.id !== id);
-            setColumns(filtereredColumns);
-        } catch (error) {
-            throw new Error (`Error deleting column: ${error}`);
+            title: 'New Column Query Test',
         };
+        mutateAddColumn(columnData)
+        console.log('column added');
     };
 
-    const handleEditColumn = async (id: string, title: string) => {
-        try {
-            const response = await editColumn(id, title)
-            console.log(response);
-            setColumns((prevColumns) => prevColumns.map((c) => 
-                        c.id === id ? 
-                        { ...c, title: title } : c)
-                    );
-        } catch (error) {
-            throw new Error (`Error updating column: ${error}`);
-        }
+    const handleEditColumn = async (id: string, title: string ) => {
+        mutateEditColumn({ id, title })
     };
+
+    const handleDeleteColumn = async (id: string) => {
+        mutateDeleteColumn(id)
+    };
+
+    // const getTodo = async (id: string) => {
+    //     try {
+    //         const todoData = await fetchTodoById(id);
+    //         setTodoData(todoData);
+    //     } catch (error) {
+    //         throw new Error (`Error fetching todo: ${error}`);
+    //     }
+    // };
 
   return (
     <main className='w-full max-w-[90rem] mx-auto h-full bg-orange-300'>
-      <Board createTodo={createTodo}
-             getTodo={getTodo}
-             todoData={todoData}
-             updateTodo={updateTodo}
-             removeTodo={removeTodo}
-             handleAddColumn={handleAddColumn}
-             handleEditColumn={handleEditColumn}
-             handleDeleteColumn={handleDeleteColumn}
+      <Board 
+            todos={todos}
+            columns={columns}
+            handleAddTodo={handleAddTodo}
+            //  getTodo={getTodo}
+            handleEditTodo={handleEditTodo}
+            handleDeleteTodo={handleDeleteTodo}
+            handleAddColumn={handleAddColumn}
+            handleEditColumn={handleEditColumn}
+            handleDeleteColumn={handleDeleteColumn}
        />
     </main>
   )
 }
-
-export default App

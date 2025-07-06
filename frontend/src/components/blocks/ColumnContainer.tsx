@@ -7,35 +7,34 @@ import ColumnContent from "./Column/ColumnContent";
 import { InputEdit } from "../ui/input";
 import { Plus } from "lucide-react";
 
-
 type Props = {
     className?: string,
-    column: Column,
     todos: Todo[],
+    columns: Column[],
+    column: Column,
     handleEditColumn: (id: string, title: string) => void,
     handleDeleteColumn: (id: string) => void,
-    createTodo: (columnId: string) => void,
-    getTodo: (id: string) => void,
-    removeTodo: (columnId: string, id: string) => void
-    setColumns: React.Dispatch<React.SetStateAction<Column[]>>
+    handleAddTodo: (columnId: string) => void,
+    handleEditTodo: (columnId: string, id: string, title: string, description: string) => void,
+    // getTodo: (id: string) => void,
+    handleDeleteTodo: (columnId: string, id: string) => void
 };
 
 export default function ColumnContainer(props: Props) {
-    const { column, handleDeleteColumn, handleEditColumn, createTodo, setColumns, getTodo, removeTodo } = props;
+    const { todos, columns, column, handleDeleteColumn, handleEditColumn, handleAddTodo, handleEditTodo, handleDeleteTodo } = props;
 
-    const [editMode, setEditMode] = useState(false);
+    const [ editColumnId, setEditColumnId ] = useState<string | null>(null);
     
     return (
         <ColumnWrapper column={column}>
-            <section className="flex items-center justify-between pb-2 border-b border-[#324067]" onClick={() => {setEditMode(true)}}>
-                {editMode && (
+            <section className="flex items-center justify-between pb-2 border-b border-[#324067]">
+                {editColumnId === column.id && (
                     <InputEdit 
                             className="m-0"
-                            value={column.title}
-                            onChange={(e) => setColumns((prev) => prev.map((c) => c.id === column.id ? {...c, title: e.target.value} : c))   }
+                            defaultValue={column.title}
                             onBlur={(e) => {
                                 handleEditColumn(column.id, e.target.value);
-                                setEditMode(false)
+                                setEditColumnId(null)
                             }}
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
@@ -46,14 +45,14 @@ export default function ColumnContainer(props: Props) {
                             />
                 )}
 
-                {!editMode && (
-                    <h3>{column.title}</h3>
+                {editColumnId !== column.id && (
+                    <p onClick={() => {setEditColumnId(column.id)}}>{column.title}</p>
                 )}
                 <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}}>Delete</ButtonDeleteColumn>
             </section>
-            <ColumnContent columnId={column.id} column={column} getTodo={getTodo} removeTodo={removeTodo}/>
+            <ColumnContent columnId={column.id} todos={todos} column={column} handleEditTodo={handleEditTodo} handleDeleteTodo={handleDeleteTodo}/>
             <footer className="w-full">
-                <ButtonAddTodo onClick={() => {createTodo(column.id)}}><Plus className="w-[1.3125rem] h-[1.3125rem]" />Add Todo</ButtonAddTodo>
+                <ButtonAddTodo onClick={() => {handleAddTodo(column.id)}}><Plus className="w-[1.3125rem] h-[1.3125rem]" />Add Todo</ButtonAddTodo>
             </footer>
         </ColumnWrapper>
     )

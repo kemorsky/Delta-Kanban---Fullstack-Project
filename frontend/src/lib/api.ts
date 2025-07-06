@@ -29,12 +29,13 @@ export const apiRequest = async (url: string, options: RequestOptions = {}) => {
 }
 
 
-export const fetchTodos = async () => {
+export const fetchTodos = async (): Promise<Todo[]> => {
   try {
     const data = await apiRequest(`${URL}/api/todos`);
     return data;
   } catch (error) {
     console.error('Error fetching todos:', error);
+    throw error;
   }
 };
 
@@ -47,7 +48,7 @@ export const fetchTodoById = async (id: string) => {
   }
 }
 
-export const addTodo = async (todo: Omit<Todo, 'id'>, columnId: string) => {
+export const addTodo = async (todo: Todo, columnId: string): Promise<Todo> => {
   try {
     const response = await apiRequest(`${URL}/api/columns/${columnId}/todos`, {
       method: 'POST',
@@ -57,10 +58,11 @@ export const addTodo = async (todo: Omit<Todo, 'id'>, columnId: string) => {
     return response;
   } catch (error) {
     console.error('Error adding todo:', error);
+    throw error;
   }
 };
 
-export const reorderTodos = async (orderId: string[], columnId: string) => {
+export const reorderTodos = async (orderId: string[], columnId: string): Promise<Todo[]> => {
   try {
     const data = await apiRequest(`${URL}/api/todos/reorder`, {
       method: 'PUT',
@@ -73,7 +75,7 @@ export const reorderTodos = async (orderId: string[], columnId: string) => {
   }
 };
 
-export const editTodo = async (columnId: string, id: string, title: string, description: string) => {
+export const editTodo = async (columnId: string, id: string, title: string, description: string): Promise<Todo> => {
   try {
     const response = await apiRequest(`${URL}/api/columns/${columnId}/todos/todo/${id}`, {
       method: 'PUT',
@@ -83,10 +85,11 @@ export const editTodo = async (columnId: string, id: string, title: string, desc
     return response;
   } catch (error) {
     console.error('Error updating todo:', error);
+    throw error;
   }
 };
 
-export const deleteTodo = async (columnId: string, id: string) => {
+export const deleteTodo = async (columnId: string, id: string): Promise<Todo> => {
   try {
     const response = await apiRequest(`${URL}/api/columns/${columnId}/todos/todo/${id}`, {
       method: 'DELETE'
@@ -95,15 +98,17 @@ export const deleteTodo = async (columnId: string, id: string) => {
     return response;
   } catch (error) {
     console.error('Error deleting todo:', error);
+    throw error;
   }
 };
 
-export const fetchColumns = async () => {
+export const fetchColumns = async (): Promise<Column[]> => {
   try {
     const data = await apiRequest(`${URL}/api/columns`);
     return data;
   } catch (error) {
     console.error('Error fetching columns:', error);
+    throw error;
   }
 };
 
@@ -120,7 +125,7 @@ export const addColumn = async (column: Column) => {
   }
 };
 
-export const reorderColumns = async (orderIds: string[]) => {
+export const reorderColumns = async (orderIds: string[]): Promise<{columns: Column[]}> => {
   try {
     const data = await apiRequest(`${URL}/api/columns/reorder`, {
       method: 'PUT',
@@ -133,7 +138,7 @@ export const reorderColumns = async (orderIds: string[]) => {
   }
 };
 
-export const editColumn = async (id: string, title: string) => {
+export const editColumn = async (id: string, title: string): Promise<Column> => {
   try {
     const response = await apiRequest(`${URL}/api/columns/column/${id}`, {
       method: 'PUT',
@@ -146,7 +151,7 @@ export const editColumn = async (id: string, title: string) => {
   }
 };
 
-export const deleteColumn = async (id: string) => {
+export const deleteColumn = async (id: string): Promise<Column> => {
   try {
     const response = await apiRequest(`${URL}/api/columns/column/${id}`, {
       method: 'DELETE'
@@ -154,6 +159,6 @@ export const deleteColumn = async (id: string) => {
     console.log(response);
     return response;
   } catch (error) {
-    console.error('Error deleting column:', error);
+    throw new Error (`Error deleting column: ${error}`);
   }
 };
