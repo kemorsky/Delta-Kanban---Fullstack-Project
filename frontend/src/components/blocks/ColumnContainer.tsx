@@ -10,7 +10,6 @@ import { Plus } from "lucide-react";
 type Props = {
     className?: string,
     todos: Todo[],
-    columns: Column[],
     column: Column,
     handleEditColumn: (id: string, title: string) => void,
     handleDeleteColumn: (id: string) => void,
@@ -21,7 +20,7 @@ type Props = {
 };
 
 export default function ColumnContainer(props: Props) {
-    const { todos, columns, column, handleDeleteColumn, handleEditColumn, handleAddTodo, handleEditTodo, handleDeleteTodo } = props;
+    const { todos, column, handleDeleteColumn, handleEditColumn, handleAddTodo, handleEditTodo, handleDeleteTodo } = props;
 
     const [ editColumnId, setEditColumnId ] = useState<string | null>(null);
     

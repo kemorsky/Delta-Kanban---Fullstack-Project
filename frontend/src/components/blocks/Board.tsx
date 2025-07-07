@@ -182,7 +182,6 @@ export default function Board(props: BoardProps) {
                     {columns.map((column) => (
                             <ColumnContainer key={column.id}
                                             todos={todos}
-                                            columns={columns}
                                             column={column}
                                             // getTodo={getTodo}
                                             handleEditTodo={handleEditTodo}
@@ -199,7 +198,6 @@ export default function Board(props: BoardProps) {
                     {activeColumn && (
                         <ColumnContainer // key={activeColumn.id}
                                         todos={todos}
-                                        columns={columns}
                                         column={activeColumn}
                                         // getTodo={getTodo}
                                         handleEditTodo={handleEditTodo}
