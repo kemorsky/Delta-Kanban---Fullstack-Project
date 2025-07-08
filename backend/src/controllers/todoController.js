@@ -49,7 +49,8 @@ const postTodo = async (req, res) => {
     const newTodo = new Todo({
       title,
       description,
-      columnId
+      columnId,
+      order: await Todo.countDocuments({columnId})
     });
 
     await newTodo.save();

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom";
-import { reorderColumns, reorderTodos } from "../../lib/api";
+import { fetchTodoById, reorderColumns, reorderTodos } from "../../lib/api";
 import type { Column, Todo } from "../../types/types"
 import { DndContext, DragOverlay, MouseSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, type DragOverEvent, closestCorners } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
@@ -11,23 +11,24 @@ import { TodoCard, TodoCardDescription, TodoCardTitle } from "./Todo/todo-card";
 import { ButtonAddColumn } from "../ui/button";
 import ColumnContainer from "./ColumnContainer";
 import TodoModal from "./todo-modal";
+import { useHandles } from "../../auth/HandleContext";
 
-type BoardProps = {
-    todos: Todo[],
-    columns: Column[],
-    handleAddTodo: (columnId: string) => void,
-    // getTodo: (id: string) => void,
-    handleEditTodo: (columnId: string, id: string, title: string, description: string) => void,
-    handleDeleteTodo: (columnId: string, id: string) => void,
-    handleAddColumn: () => void,
-    handleEditColumn: (id: string, title: string) => void,
-    handleDeleteColumn: (id: string) => void
-}
+// type BoardProps = {
+//     todos: Todo[],
+//     columns: Column[],
+//     handleAddTodo: (columnId: string) => void,
+//     handleEditTodo: (columnId: string, id: string, title: string, description: string) => void,
+//     handleDeleteTodo: (columnId: string, id: string) => void,
+//     handleAddColumn: () => void,
+//     handleEditColumn: (id: string, title: string) => void,
+//     handleDeleteColumn: (id: string) => void
+// }
 
-export default function Board(props: BoardProps) {
-    const { todos, columns, handleAddTodo, getTodo, handleEditTodo, handleDeleteTodo, handleAddColumn, handleEditColumn, handleDeleteColumn  } = props;
+export default function Board() {
+    const { todos, columns, handleAddTodo, handleEditTodo, handleDeleteTodo, handleAddColumn, handleEditColumn, handleDeleteColumn  } = useHandles();
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
     const [ activeTodo, setActiveTodo ] = useState<Todo | null>(null);
+    const [ isOpen, setIsOpen ] = useState(false);
 
     const columnsId = useMemo(() => columns.map((column) => column.id), [columns]);
 
@@ -37,15 +38,28 @@ export default function Board(props: BoardProps) {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: createColumnQueryOptions().queryKey })
         }
-    })
+    });
 
     const { mutate: mutateReorderTodos } = useMutation({ mutationFn: ({orderId, columnId} : {orderId: string[], columnId: string}) => reorderTodos(orderId, columnId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: createTodoQueryOptions().queryKey });
         }
-    })
+    });
+
+    const { mutate: mutateGetTodo } = useMutation({ mutationFn: (id: string) => fetchTodoById(id), 
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
+        }
+    });
 
     const queryClient = useQueryClient();
+    
+    const getTodo = async (id: string) => {
+        mutateGetTodo(id)
+        setIsOpen(true);
+        console.log('todo clicked');
+        console.log(id)
+    };
 
     const handleDragStart = async (event: DragStartEvent) => {
         const { active } = event;
@@ -58,17 +72,17 @@ export default function Board(props: BoardProps) {
         }
     };
 
-    const handleDragOver = (event: DragOverEvent) => { //TODO: FIX INFINITE LOOP IN HERE WITH setTodos
-        const { active, over } = event;
-        if (!over) return;
+    // const handleDragOver = (event: DragOverEvent) => { //TODO: FIX INFINITE LOOP IN HERE WITH setTodos
+        // const { active, over } = event;
+        // if (!over) return;
 
-        const activeType = active.data.current?.type;
-        const overType = over.data.current?.type;
+        // const activeType = active.data.current?.type;
+        // const overType = over.data.current?.type;
 
-        if (activeType !== 'Todo') return;
+        // if (activeType !== 'Todo') return;
 
-        const activeTodo = active.data.current?.todo as Todo;
-        const activeId = active.id;
+        // const activeTodo = active.data.current?.todo as Todo;
+        // const activeId = active.id;
 
         // if (overType === 'Todo') {
         //     const overTodo = over.data.current?.todo as Todo;
@@ -101,7 +115,7 @@ export default function Board(props: BoardProps) {
         //         return updatedTodos;
         //     });
         // }
-    };
+    // };
 
     const handleDragEnd = async (event: DragEndEvent) => { // TODO: FIX MISALIGNMENT BETWEEN DRAGOVER AND DRAGEND
         setActiveColumn(null);
@@ -122,6 +136,7 @@ export default function Board(props: BoardProps) {
 
         if (activeType === 'Todo') {
             const activeTodo = active.data.current?.todo as Todo;
+            const activeId = active.id;
             const sourceColumnId = activeTodo.columnId;
 
             let targetColumnId = sourceColumnId;
@@ -135,22 +150,37 @@ export default function Board(props: BoardProps) {
                 targetColumnId = over.id.toString();
             }
 
-            const targetTodos = todos.filter(t => t.columnId === targetColumnId && t.id !== activeTodo.id);
+            const sourceTodos = todos.filter(t => t.columnId === sourceColumnId);
+            const targetTodos = todos.filter(t => t.columnId === targetColumnId);
+
+            const updatedSourceTodos = sourceTodos.filter(t => t.id !== activeId);
+
+            let insertIndex = targetTodos.length;
 
             if (overTodoId) {
-                const overIndex = targetTodos.findIndex(t => t.id === overTodoId);
-                targetTodos.splice(overIndex, 0, { ...activeTodo, columnId: targetColumnId });
-            } else {
-                targetTodos.push({ ...activeTodo, columnId: targetColumnId });
+                insertIndex = targetTodos.findIndex(t => t.id === overTodoId);
             }
 
-            const newOrder = targetTodos.map(t => t.id ?? '');
+            // prep updated target todos
+            const filteredTargetTodos = targetTodos.filter(t => t.id !== activeId);
 
-            try {
-                mutateReorderTodos({orderId: newOrder, columnId: targetColumnId});
-            } catch (error) {
-                console.error(`Error reordering todos`, error);
+            const updatedTargetTodos = [
+                ...filteredTargetTodos.slice(0, insertIndex),
+                { ...activeTodo, columnId: targetColumnId },
+                ...filteredTargetTodos.slice(insertIndex),
+            ];
+
+            // BACKEND
+
+            // updates source column if todo was moved across columns
+            if (sourceColumnId !== targetColumnId) {
+                const sourceOrder = updatedSourceTodos.map(t => t.id ?? '');
+                mutateReorderTodos({ orderId: sourceOrder, columnId: sourceColumnId });
             }
+
+            // updates target column order
+            const targetOrder = updatedTargetTodos.map(t => t.id ?? '');
+            mutateReorderTodos({ orderId: targetOrder, columnId: targetColumnId });
         };
     };
 
@@ -176,19 +206,20 @@ export default function Board(props: BoardProps) {
                         collisionDetection={closestCorners}
                         onDragStart={handleDragStart} 
                         onDragEnd={handleDragEnd}
-                        onDragOver={handleDragOver}
+                        // onDragOver={handleDragOver}
                         >
                 <SortableContext id="board" items={columnsId}>
                     {columns.map((column) => (
                             <ColumnContainer key={column.id}
-                                            todos={todos}
+                                            // todos={todos}
                                             column={column}
                                             // getTodo={getTodo}
-                                            handleEditTodo={handleEditTodo}
-                                            handleDeleteTodo={handleDeleteTodo}
-                                            handleDeleteColumn={handleDeleteColumn} 
-                                            handleEditColumn={handleEditColumn}
-                                            handleAddTodo={() => handleAddTodo(column.id)}
+                                            // handleDeleteTodo={handleDeleteTodo}
+                                            // handleDeleteColumn={handleDeleteColumn} 
+                                            // handleEditColumn={handleEditColumn}
+                                            // handleAddTodo={() => handleAddTodo(column.id)
+                                                
+                                            // }
                             />
                     ))}
                     <ButtonAddColumn onClick={() => {handleAddColumn()}}/>
@@ -199,8 +230,7 @@ export default function Board(props: BoardProps) {
                         <ColumnContainer // key={activeColumn.id}
                                         todos={todos}
                                         column={activeColumn}
-                                        // getTodo={getTodo}
-                                        handleEditTodo={handleEditTodo}
+                                        getTodo={getTodo}
                                         handleDeleteTodo={handleDeleteTodo}
                                         handleDeleteColumn={handleDeleteColumn}
                                         handleEditColumn={handleEditColumn}
@@ -208,7 +238,7 @@ export default function Board(props: BoardProps) {
                         />)}
 
                     {activeTodo && (
-                        <TodoCard className="opacity-80 border-2 border-dashed" todo={activeTodo}>
+                        <TodoCard getTodo={getTodo} className="opacity-80 border-2 border-dashed" todo={activeTodo}>
                             <TodoCardTitle>{activeTodo.title}</TodoCardTitle>
                             <TodoCardDescription>{activeTodo.description}</TodoCardDescription>
                         </TodoCard>
@@ -217,14 +247,13 @@ export default function Board(props: BoardProps) {
                 document.body
             )}
             </DndContext>
-            {/* <TodoModal getTodo={getTodo}
-                    todoData={todoData}
-                    updateTodo={updateTodo} 
-                    removeTodo={removeTodo} 
-                    editTitle={editTitle} 
-                    setEditTitle={setEditTitle} 
-                    editDescription={editDescription} 
-                    setEditDescription={setEditDescription} /> */}
+            <TodoModal getTodo={getTodo}
+                todo={activeTodo}
+                open={isOpen}
+                setIsOpen={setIsOpen}
+                handleEditTodo={handleEditTodo} 
+                handleDeleteTodo={handleDeleteTodo}  />
+            
         </article>
     )
 };

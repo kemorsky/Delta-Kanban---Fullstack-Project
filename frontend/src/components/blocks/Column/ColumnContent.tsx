@@ -10,14 +10,13 @@ type Props = {
     columnId: string,
     todos: Todo[],
     column: Column,
-    // getTodo: (id: string) => void,
-    handleEditTodo: (columnId: string, id: string, title: string, description: string) => void,
+    getTodo: (id: string) => void,
     handleDeleteTodo: (columnId: string, id: string) => void,
     children?: React.ReactNode
 };
 
 export default function ColumnContent(props: Props) {
-    const { todos, columnId, column, getTodo, handleEditTodo, handleDeleteTodo } = props
+    const { todos, columnId, column, getTodo, handleDeleteTodo } = props
 
     const columnTodos = todos.filter((todo) => todo.columnId === column.id) // TODO: make this run once, not multiple times
     const todosId = useMemo(() => columnTodos.map((todo) => todo.id ?? ''), [columnTodos]);
@@ -32,9 +31,9 @@ export default function ColumnContent(props: Props) {
 
     return (
         <SortableContext id={`column-${columnId}`} items={todosId} strategy={verticalListSortingStrategy}>
-            <ul ref={setNodeRef} className="w-full flex flex-col gap-2 pb-4 overflow-x-hidden overflow-y-auto">
+            <ul ref={setNodeRef} className="w-full flex flex-col gap-3 pb-4 overflow-x-hidden overflow-y-auto">
                 {columnTodos.map((todo) => (
-                        <DraggableTodoCard key={todo.id} todo={todo} onClick={() => getTodo(todo.id ?? '')} >
+                        <DraggableTodoCard key={todo.id} todo={todo} getTodo={getTodo} onClick={() => {getTodo(todo.id ?? '')}} >
                                 <TodoCardTitle>{todo.title}</TodoCardTitle>
                                 <TodoCardDescription>{todo.description}</TodoCardDescription>
                             <button className="absolute bottom-2 right-2 self-end p-2 bg-red-600" 

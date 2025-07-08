@@ -6,21 +6,22 @@ import { ColumnWrapper } from "./Column/ColumnWrapper";
 import ColumnContent from "./Column/ColumnContent";
 import { InputEdit } from "../ui/input";
 import { Plus } from "lucide-react";
+import { useHandles } from "../../auth/HandleContext";
 
 type Props = {
     className?: string,
-    todos: Todo[],
+    // todos: Todo[],
     column: Column,
-    handleEditColumn: (id: string, title: string) => void,
-    handleDeleteColumn: (id: string) => void,
-    handleAddTodo: (columnId: string) => void,
-    handleEditTodo: (columnId: string, id: string, title: string, description: string) => void,
+    // handleEditColumn: (id: string, title: string) => void,
+    // handleDeleteColumn: (id: string) => void,
+    // handleAddTodo: (columnId: string) => void,
     // getTodo: (id: string) => void,
-    handleDeleteTodo: (columnId: string, id: string) => void
+    // handleDeleteTodo: (columnId: string, id: string) => void
 };
 
 export default function ColumnContainer(props: Props) {
-    const { todos, column, handleDeleteColumn, handleEditColumn, handleAddTodo, handleEditTodo, handleDeleteTodo } = props;
+    const { todos, getTodo, handleDeleteColumn, handleEditColumn, handleAddTodo, handleDeleteTodo } = useHandles();
+    const {column } = props;
 
     const [ editColumnId, setEditColumnId ] = useState<string | null>(null);
     
@@ -49,7 +50,7 @@ export default function ColumnContainer(props: Props) {
                 )}
                 <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}}>Delete</ButtonDeleteColumn>
             </section>
-            <ColumnContent columnId={column.id} todos={todos} column={column} handleEditTodo={handleEditTodo} handleDeleteTodo={handleDeleteTodo}/>
+            <ColumnContent columnId={column.id} todos={todos} column={column} getTodo={getTodo} handleDeleteTodo={handleDeleteTodo}/>
             <footer className="w-full">
                 <ButtonAddTodo onClick={() => {handleAddTodo(column.id)}}><Plus className="w-[1.3125rem] h-[1.3125rem]" />Add Todo</ButtonAddTodo>
             </footer>

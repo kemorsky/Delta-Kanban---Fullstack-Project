@@ -1,44 +1,40 @@
-import { useTodos } from "../../auth/Todo/TodoContext";
+import { useState } from "react";
 import type { Todo } from "../../types/types";
 import { InputEdit } from "../ui/input";
 
 type TodoModalProps = {
+    open: boolean,
+    setIsOpen: (open: boolean) => void,
     getTodo: (id: string) => void,
-    todoData: Todo | null,
-    updateTodo: (columnId: string, id: string, title: string, description: string) => void,
-    removeTodo: (columnId: string, id: string) => void,
-    editTitle: string | null,
-    setEditTitle: React.Dispatch<React.SetStateAction<string | null >>,
-    editDescription: string | null,
-    setEditDescription: React.Dispatch<React.SetStateAction<string | null >>,
+    todo: Todo | null,
+    handleEditTodo: (columnId: string, id: string, title: string, description: string) => void,
+    handleDeleteTodo: (columnId: string, id: string) => void,
 };
 
 export default function TodoModal(props: TodoModalProps) {
 
-    const { setTodos } = useTodos();
-    const { todoData, updateTodo, removeTodo, editTitle, setEditTitle, editDescription, setEditDescription } = props
-
-    if (!todoData) return;
+    const { open, setIsOpen, todo, handleEditTodo, handleDeleteTodo } = props
+    const [ editTodoId, setEditTodoId ] = useState<string | null>(null);
+    
+    if (!todo) return;
 
     return (
-        <article className="bg-green-700 mx-auto w-[60rem] h-[30rem] space-y-4 p-6 rounded-2xl border border-gray-300 absolute inset-x-0 top-1/2 -translate-y-1/2">
+        <dialog open={open} setIsOpen={setIsOpen} className="bg-green-700 mx-auto w-[60rem] h-[30rem] space-y-4 p-6 rounded-2xl border border-gray-300 absolute inset-x-0 top-1/2 -translate-y-1/2">
             <header className="flex justify-between items-center border-b">
                 <article className="pb-4 flex flex-col gap-2">
                     <p>Date</p>
-                    <button className="absolute bottom-2 right-2 self-end p-2 bg-red-600" onClick={() => {removeTodo(todoData.columnId, todoData.id)}}>Delete</button>
+                    <button className="absolute bottom-2 right-2 self-end p-2 bg-red-600" onClick={() => {handleDeleteTodo(todo.columnId, todo.id ?? '')}}>Delete</button>
 
                     <section className="flex gap-2">
                         <span className="text-3xl">#1</span>
-                        {editTitle === todoData.id && (
+                        
+
+                        {editTodoId === todo.id && (
                             <InputEdit type="text" 
-                                    value={todoData.title}
-                                    onChange={(e) => {
-                                        setTodos((prev) => prev.map((t) => t.id === todoData.id ? {...t, title: e.target.value} : t))
-                                    }}
+                                    defaultValue={todo.title}
                                     onBlur={(e) => {
-                                        updateTodo(todoData.columnId, todoData.id!, e.target.value, todoData.description!)                                         
-                                        console.log(todoData.columnId, todoData.id)
-                                        setEditTitle(null);
+                                        handleEditTodo(todo.columnId, todo.id!, e.target.value, todo.description!)                                         
+                                        setEditTodoId(null);
                                     }}
                                     onKeyDown={(e) => {
                                         if (e.key === "Enter") {
@@ -48,8 +44,8 @@ export default function TodoModal(props: TodoModalProps) {
                                     autoFocus />
                         )}
 
-                        {editTitle !== todoData.id && (
-                            <h1 className="text-3xl" onClick={() => setEditTitle(todoData.id ?? '')}>{todoData.title}</h1>
+                        {editTodoId !== todo.id && (
+                            <h1 className="text-3xl" onClick={() => setEditTodoId(todo.id ?? '')}>{todo.title}</h1>
                         )}
                     </section>
                     <section className="flex gap-1.5">
@@ -75,16 +71,13 @@ export default function TodoModal(props: TodoModalProps) {
                         <h2 className="text-xl">Description</h2>
                     </section>
                     <p className="text-base">Description</p>
-                    {editDescription === todoData.id && (
+                    {editTodoId === todo.id && (
                             <InputEdit type="text" 
-                                    value={todoData.description}
-                                    onChange={(e) => {
-                                        setTodos((prev) => prev.map((t) => t.id === todoData.id ? {...t, description: e.target.value} : t))
-                                    }}
+                                    defaultValue={todo.description}
                                     onBlur={(e) => {
-                                        updateTodo(todoData.columnId, todoData.id!, todoData.title!, e.target.value)                                         
-                                        console.log(todoData.columnId, todoData.id)
-                                        setEditDescription(null);
+                                        handleEditTodo(todo.columnId, todo.id!, todo.title!, e.target.value)                                         
+                                        console.log(todo.columnId, todo.id)
+                                        setEditTodoId(null);
                                     }}
                                     onKeyDown={(e) => {
                                         if (e.key === "Enter") {
@@ -94,8 +87,8 @@ export default function TodoModal(props: TodoModalProps) {
                                     autoFocus />
                         )}
 
-                    {editDescription !== todoData.id && (
-                        <p onClick={() => setEditDescription(todoData.id ?? '')}>{todoData.description}</p>
+                    {editTodoId !== todo.id && (
+                        <p onClick={() => setEditTodoId(todo.id ?? '')}>{todo.description}</p>
                     )}
         
                 </article>
@@ -107,6 +100,6 @@ export default function TodoModal(props: TodoModalProps) {
                     </section>
                 </article>
             </div>
-        </article>
+        </dialog>
     )
 };

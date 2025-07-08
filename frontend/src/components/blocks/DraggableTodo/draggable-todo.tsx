@@ -6,13 +6,14 @@ import { CSS } from "@dnd-kit/utilities";
 type DraggableTodoProps = {
     todo: Todo,
     children: React.ReactNode,
-    onClick: () => void
+    onClick: () => void,
+    getTodo: (id: string) => void
 }
 
-export default function DraggableTodoCard({todo, children, onClick}: DraggableTodoProps) {
+export default function DraggableTodoCard({todo, children, onClick, getTodo}: DraggableTodoProps) {
 
     const { setNodeRef, attributes, listeners, transform, isDragging, transition } = useSortable({
-        id: todo.id,
+        id: todo.id ?? '',
         data: {
             type: 'Todo',
             todo
@@ -27,7 +28,9 @@ export default function DraggableTodoCard({todo, children, onClick}: DraggableTo
     };
 
     return (
-        <TodoCard ref={setNodeRef}
+        <TodoCard 
+                getTodo={getTodo}
+                ref={setNodeRef}
                   todo={todo}
                   onClick={onClick}
                   {...attributes}

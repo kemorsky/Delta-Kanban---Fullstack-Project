@@ -6,13 +6,15 @@ type TodoCardProps = React.HTMLAttributes<HTMLElement> & {
     children: React.ReactNode,
     ref?: React.Ref<HTMLElement>,
     todo: Todo,
+    getTodo: (id: string) => void
 };
 
 const TodoCard = React.forwardRef<HTMLElement, TodoCardProps
     >(({ className, ...props }, ref) => (
         <article 
+            onClick={() => {props.getTodo(props.todo.id ?? '')}}
             ref={ref}
-            className={cn("w-[284px] h-[74px] bg-blue-500 rounded-md flex flex-col p-2 gap-2 cursor-grab relative", className)}
+            className={cn("w-[284px] h-[74px] bg-blue-500 rounded-md flex flex-col p-2 gap-2 cursor-grab relative border border-transparent hover:border hover:border-white transition-all transform", className)}
         {...props}
         />
     ))

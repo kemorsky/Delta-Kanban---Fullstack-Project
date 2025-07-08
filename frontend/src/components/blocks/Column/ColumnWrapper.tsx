@@ -21,11 +21,11 @@ export const ColumnWrapper: React.FC<ColumnWrapperProps> = (({...props}) => {
     );
   
     const style = {
+        transition,
         transform: CSS.Transform.toString(transform),
         opacity: isDragging ? 0.5 : 1,
         border: isDragging ? "2px dashed #ffffff" : "",
         height: isDragging ? "min-h-[139px] max-h-[515px]" : "",
-        transition,
     };
 
     return (
