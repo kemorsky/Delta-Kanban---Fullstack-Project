@@ -6,22 +6,17 @@ import { ColumnWrapper } from "./Column/ColumnWrapper";
 import ColumnContent from "./Column/ColumnContent";
 import { InputEdit } from "../ui/input";
 import { Plus } from "lucide-react";
-import { useHandles } from "../../auth/HandleContext";
+import useHandles from "../../hooks/useHandles";
 
 type Props = {
     className?: string,
-    // todos: Todo[],
+    todos: Todo[],
     column: Column,
-    // handleEditColumn: (id: string, title: string) => void,
-    // handleDeleteColumn: (id: string) => void,
-    // handleAddTodo: (columnId: string) => void,
-    // getTodo: (id: string) => void,
-    // handleDeleteTodo: (columnId: string, id: string) => void
 };
 
 export default function ColumnContainer(props: Props) {
-    const { todos, getTodo, handleDeleteColumn, handleEditColumn, handleAddTodo, handleDeleteTodo } = useHandles();
-    const {column } = props;
+    const { getTodo, handleDeleteColumn, handleEditColumn, handleAddTodo } = useHandles();
+    const { todos, column } = props;
 
     const [ editColumnId, setEditColumnId ] = useState<string | null>(null);
     
@@ -50,7 +45,7 @@ export default function ColumnContainer(props: Props) {
                 )}
                 <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}}>Delete</ButtonDeleteColumn>
             </section>
-            <ColumnContent columnId={column.id} todos={todos} column={column} getTodo={getTodo} handleDeleteTodo={handleDeleteTodo}/>
+            <ColumnContent todos={todos} columnId={column.id} column={column} getTodo={getTodo}/>
             <footer className="w-full">
                 <ButtonAddTodo onClick={() => {handleAddTodo(column.id)}}><Plus className="w-[1.3125rem] h-[1.3125rem]" />Add Todo</ButtonAddTodo>
             </footer>

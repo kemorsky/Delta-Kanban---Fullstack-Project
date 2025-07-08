@@ -5,18 +5,19 @@ import { SortableContext } from "@dnd-kit/sortable";
 import type { Column, Todo } from "../../../types/types";
 import { TodoCardDescription, TodoCardTitle } from "../Todo/todo-card";
 import { verticalListSortingStrategy } from "@dnd-kit/sortable";
+import useHandles from "../../../hooks/useHandles";
 
 type Props = {
-    columnId: string,
     todos: Todo[],
+    columnId: string,
     column: Column,
     getTodo: (id: string) => void,
-    handleDeleteTodo: (columnId: string, id: string) => void,
     children?: React.ReactNode
 };
 
 export default function ColumnContent(props: Props) {
-    const { todos, columnId, column, getTodo, handleDeleteTodo } = props
+    const { todos, columnId, column } = props;
+    const { getTodo, handleDeleteTodo } = useHandles();
 
     const columnTodos = todos.filter((todo) => todo.columnId === column.id) // TODO: make this run once, not multiple times
     const todosId = useMemo(() => columnTodos.map((todo) => todo.id ?? ''), [columnTodos]);

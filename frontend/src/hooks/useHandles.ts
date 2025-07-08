@@ -1,17 +1,10 @@
-import { type PropsWithChildren } from "react";
-import HandleContext from "./HandleContext";
 import { addTodo, addColumn, editColumn, deleteColumn, deleteTodo, editTodo } from '../lib/api';
 import type { Column, Todo } from '../types/types';
-import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import createTodoQueryOptions from "../queries/createTodoQueryOptions";
 import createColumnQueryOptions from "../queries/createColumnQueryOptions";
 
-type HandleProviderProps = PropsWithChildren;
-
-export default function HandleProvider({children}: HandleProviderProps) {
-    const [{ data: todos, error }, { data: columns } ] = useQueries( // main fetch of data of todos and columns
-            {queries: [createTodoQueryOptions(), createColumnQueryOptions()]} 
-        );
+export default function useHandles() {
 
     const { mutate: mutateAddTodo } = useMutation({ mutationFn: ({todoData, columnId}: {todoData: Todo, columnId: string}) => addTodo(todoData, columnId),
                 onSuccess: () => {
@@ -51,11 +44,7 @@ export default function HandleProvider({children}: HandleProviderProps) {
 
     const queryClient = useQueryClient();
 
-    if (!todos || !columns) return <p>Loading...</p>;
-    
-    if (error) {
-        console.error(error);
-    };
+    // PLACE getTodo HERE WHEN WRITTEN AND FIGURED OUT
 
     const handleAddTodo = async (columnId: string) => {
         const todoData = {
@@ -92,18 +81,12 @@ export default function HandleProvider({children}: HandleProviderProps) {
         mutateDeleteColumn(id)
     };
 
-    return <HandleContext.Provider 
-            value={{todos: todos || [], 
-                    columns: columns || [], 
-                    handleAddTodo: handleAddTodo,
-                    handleEditTodo: handleEditTodo,
-                    handleDeleteTodo: handleDeleteTodo,
-                    handleAddColumn: handleAddColumn,
-                    handleEditColumn: handleEditColumn,
-                    handleDeleteColumn: handleDeleteColumn
-                }
-                    }
-                    >{children}
-    </HandleContext.Provider>
-}
-
+    return {
+            handleAddTodo: handleAddTodo,
+            handleEditTodo: handleEditTodo,
+            handleDeleteTodo: handleDeleteTodo,
+            handleAddColumn: handleAddColumn,
+            handleEditColumn: handleEditColumn,
+            handleDeleteColumn: handleDeleteColumn
+        };               
+};

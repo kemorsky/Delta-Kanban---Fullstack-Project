@@ -4,35 +4,28 @@ import { fetchTodoById, reorderColumns, reorderTodos } from "../../lib/api";
 import type { Column, Todo } from "../../types/types"
 import { DndContext, DragOverlay, MouseSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, type DragOverEvent, closestCorners } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import createColumnQueryOptions from "../../queries/createColumnQueryOptions";
 import createTodoQueryOptions from "../../queries/createTodoQueryOptions";
 import { TodoCard, TodoCardDescription, TodoCardTitle } from "./Todo/todo-card";
 import { ButtonAddColumn } from "../ui/button";
 import ColumnContainer from "./ColumnContainer";
 import TodoModal from "./todo-modal";
-import { useHandles } from "../../auth/HandleContext";
-
-// type BoardProps = {
-//     todos: Todo[],
-//     columns: Column[],
-//     handleAddTodo: (columnId: string) => void,
-//     handleEditTodo: (columnId: string, id: string, title: string, description: string) => void,
-//     handleDeleteTodo: (columnId: string, id: string) => void,
-//     handleAddColumn: () => void,
-//     handleEditColumn: (id: string, title: string) => void,
-//     handleDeleteColumn: (id: string) => void
-// }
+import useHandles from "../../hooks/useHandles";
 
 export default function Board() {
-    const { todos, columns, handleAddTodo, handleEditTodo, handleDeleteTodo, handleAddColumn, handleEditColumn, handleDeleteColumn  } = useHandles();
+    const [{ data: todos, error }, { data: columns } ] = useQueries( // main fetch of data of todos and columns
+            {queries: [createTodoQueryOptions(), createColumnQueryOptions()]} 
+        );
+
+    const columnsId = useMemo(() => columns?.map((column) => column.id), [columns]);
+
+    const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),);
+
+    const { handleAddColumn } = useHandles();
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
     const [ activeTodo, setActiveTodo ] = useState<Todo | null>(null);
     const [ isOpen, setIsOpen ] = useState(false);
-
-    const columnsId = useMemo(() => columns.map((column) => column.id), [columns]);
-
-    const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),);
 
     const { mutate: mutateReorderColumns } = useMutation({ mutationFn: (orderIds: string[]) => reorderColumns(orderIds),
         onSuccess: () => {
@@ -53,6 +46,13 @@ export default function Board() {
     });
 
     const queryClient = useQueryClient();
+
+    if (!todos || !columns || !columnsId) return <p>Loading...</p>;
+    
+    if (error) {
+        console.error(error);
+    };
+    
     
     const getTodo = async (id: string) => {
         mutateGetTodo(id)
@@ -211,15 +211,8 @@ export default function Board() {
                 <SortableContext id="board" items={columnsId}>
                     {columns.map((column) => (
                             <ColumnContainer key={column.id}
-                                            // todos={todos}
+                                            todos={todos}
                                             column={column}
-                                            // getTodo={getTodo}
-                                            // handleDeleteTodo={handleDeleteTodo}
-                                            // handleDeleteColumn={handleDeleteColumn} 
-                                            // handleEditColumn={handleEditColumn}
-                                            // handleAddTodo={() => handleAddTodo(column.id)
-                                                
-                                            // }
                             />
                     ))}
                     <ButtonAddColumn onClick={() => {handleAddColumn()}}/>
@@ -230,11 +223,6 @@ export default function Board() {
                         <ColumnContainer // key={activeColumn.id}
                                         todos={todos}
                                         column={activeColumn}
-                                        getTodo={getTodo}
-                                        handleDeleteTodo={handleDeleteTodo}
-                                        handleDeleteColumn={handleDeleteColumn}
-                                        handleEditColumn={handleEditColumn}
-                                        handleAddTodo={() => handleAddTodo(activeColumn.id)}
                         />)}
 
                     {activeTodo && (
@@ -250,10 +238,7 @@ export default function Board() {
             <TodoModal getTodo={getTodo}
                 todo={activeTodo}
                 open={isOpen}
-                setIsOpen={setIsOpen}
-                handleEditTodo={handleEditTodo} 
-                handleDeleteTodo={handleDeleteTodo}  />
-            
+                setIsOpen={setIsOpen} />
         </article>
     )
 };
