@@ -1,25 +1,24 @@
 import { useState } from "react";
 import type { Todo } from "../../types/types";
 import { InputEdit } from "../ui/input";
+import useHandles from "../../hooks/useHandles";
 
 type TodoModalProps = {
-    open: boolean,
-    setIsOpen: (open: boolean) => void,
-    getTodo: (id: string) => void,
-    todo: Todo | null,
-    handleEditTodo: (columnId: string, id: string, title: string, description: string) => void,
-    handleDeleteTodo: (columnId: string, id: string) => void,
+    todo: Todo | null | undefined,
+    isOpen: boolean,
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 };
 
 export default function TodoModal(props: TodoModalProps) {
 
-    const { open, setIsOpen, todo, handleEditTodo, handleDeleteTodo } = props
+    const { todo, isOpen, setIsOpen } = props
+    const { handleEditTodo, handleDeleteTodo } = useHandles();
     const [ editTodoId, setEditTodoId ] = useState<string | null>(null);
     
     if (!todo) return;
 
     return (
-        <dialog open={open} setIsOpen={setIsOpen} className="bg-green-700 mx-auto w-[60rem] h-[30rem] space-y-4 p-6 rounded-2xl border border-gray-300 absolute inset-x-0 top-1/2 -translate-y-1/2">
+        <div className="bg-green-700 mx-auto w-[60rem] h-[30rem] space-y-4 p-6 rounded-2xl border border-gray-300 absolute inset-x-0 top-1/2 -translate-y-1/2">
             <header className="flex justify-between items-center border-b">
                 <article className="pb-4 flex flex-col gap-2">
                     <p>Date</p>
@@ -61,7 +60,7 @@ export default function TodoModal(props: TodoModalProps) {
                     </section>
                 </article>
                 <section className="self-start">
-                    <button>X</button>
+                    <button onClick={() => {setIsOpen(false)}} >X</button>
                 </section>
             </header>
             <div className="flex justify-between gap-3">
@@ -100,6 +99,6 @@ export default function TodoModal(props: TodoModalProps) {
                     </section>
                 </article>
             </div>
-        </dialog>
+        </div>
     )
 };

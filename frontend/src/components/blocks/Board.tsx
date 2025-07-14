@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom";
 import { fetchTodoById, reorderColumns, reorderTodos } from "../../lib/api";
-import type { Column, Todo } from "../../types/types"
+import type { Todo, Column } from "../../types/types"
 import { DndContext, DragOverlay, MouseSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, type DragOverEvent, closestCorners } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +14,12 @@ import TodoModal from "./todo-modal";
 import useHandles from "../../hooks/useHandles";
 
 export default function Board() {
+    const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
+    const [ activeTodo, setActiveTodo ] = useState<Todo | null>(null);
+    const [ isOpen, setIsOpen ] = useState(false);
+
+    const { handleAddColumn } = useHandles();
+
     const [{ data: todos, error }, { data: columns } ] = useQueries( // main fetch of data of todos and columns
             {queries: [createTodoQueryOptions(), createColumnQueryOptions()]} 
         );
@@ -21,11 +27,6 @@ export default function Board() {
     const columnsId = useMemo(() => columns?.map((column) => column.id), [columns]);
 
     const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),);
-
-    const { handleAddColumn } = useHandles();
-    const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
-    const [ activeTodo, setActiveTodo ] = useState<Todo | null>(null);
-    const [ isOpen, setIsOpen ] = useState(false);
 
     const { mutate: mutateReorderColumns } = useMutation({ mutationFn: (orderIds: string[]) => reorderColumns(orderIds),
         onSuccess: () => {
@@ -41,7 +42,7 @@ export default function Board() {
 
     const { mutate: mutateGetTodo } = useMutation({ mutationFn: (id: string) => fetchTodoById(id), 
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
+            queryClient.invalidateQueries({ queryKey: createTodoQueryOptions().queryKey })
         }
     });
 
@@ -54,11 +55,13 @@ export default function Board() {
     };
     
     
-    const getTodo = async (id: string) => {
-        mutateGetTodo(id)
+    const getTodo = async (todo: Todo) => {
+        setActiveTodo(todo);
+        mutateGetTodo(todo.id ?? '');
         setIsOpen(true);
+        console.log(isOpen);
         console.log('todo clicked');
-        console.log(id)
+        console.log(todo.id)
     };
 
     const handleDragStart = async (event: DragStartEvent) => {
@@ -213,6 +216,7 @@ export default function Board() {
                             <ColumnContainer key={column.id}
                                             todos={todos}
                                             column={column}
+                                            getTodo={getTodo}
                             />
                     ))}
                     <ButtonAddColumn onClick={() => {handleAddColumn()}}/>
@@ -220,13 +224,14 @@ export default function Board() {
             {createPortal(
                 <DragOverlay>
                     {activeColumn && (
-                        <ColumnContainer // key={activeColumn.id}
+                        <ColumnContainer key={activeColumn.id}
                                         todos={todos}
                                         column={activeColumn}
+                                        getTodo={getTodo}
                         />)}
 
                     {activeTodo && (
-                        <TodoCard getTodo={getTodo} className="opacity-80 border-2 border-dashed" todo={activeTodo}>
+                        <TodoCard className="opacity-80 border-2 border-dashed" todo={activeTodo}>
                             <TodoCardTitle>{activeTodo.title}</TodoCardTitle>
                             <TodoCardDescription>{activeTodo.description}</TodoCardDescription>
                         </TodoCard>
@@ -235,10 +240,13 @@ export default function Board() {
                 document.body
             )}
             </DndContext>
-            <TodoModal getTodo={getTodo}
-                todo={activeTodo}
-                open={isOpen}
-                setIsOpen={setIsOpen} />
+            {isOpen && (
+                <TodoModal todo={todos.find(t => t.id === activeTodo?.id)}
+                            isOpen={isOpen}
+                            setIsOpen={setIsOpen}
+                />
+                )
+            }
         </article>
     )
 };

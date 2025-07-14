@@ -5,7 +5,6 @@ import createTodoQueryOptions from "../queries/createTodoQueryOptions";
 import createColumnQueryOptions from "../queries/createColumnQueryOptions";
 
 export default function useHandles() {
-
     const { mutate: mutateAddTodo } = useMutation({ mutationFn: ({todoData, columnId}: {todoData: Todo, columnId: string}) => addTodo(todoData, columnId),
                 onSuccess: () => {
                     queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})

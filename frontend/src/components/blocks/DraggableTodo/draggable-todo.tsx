@@ -7,10 +7,9 @@ type DraggableTodoProps = {
     todo: Todo,
     children: React.ReactNode,
     onClick: () => void,
-    getTodo: (id: string) => void
 }
 
-export default function DraggableTodoCard({todo, children, onClick, getTodo}: DraggableTodoProps) {
+export default function DraggableTodoCard({todo, children, onClick }: DraggableTodoProps) {
 
     const { setNodeRef, attributes, listeners, transform, isDragging, transition } = useSortable({
         id: todo.id ?? '',
@@ -29,7 +28,6 @@ export default function DraggableTodoCard({todo, children, onClick, getTodo}: Dr
 
     return (
         <TodoCard 
-                getTodo={getTodo}
                 ref={setNodeRef}
                   todo={todo}
                   onClick={onClick}

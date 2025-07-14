@@ -1,23 +1,23 @@
 import { useMemo } from "react";
-import DraggableTodoCard from "../DraggableTodo/draggable-todo";
+import type { Column, Todo } from "../../../types/types";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
-import type { Column, Todo } from "../../../types/types";
-import { TodoCardDescription, TodoCardTitle } from "../Todo/todo-card";
 import { verticalListSortingStrategy } from "@dnd-kit/sortable";
+import DraggableTodoCard from "../DraggableTodo/draggable-todo";
+import { TodoCardDescription, TodoCardTitle } from "../Todo/todo-card";
 import useHandles from "../../../hooks/useHandles";
 
 type Props = {
     todos: Todo[],
     columnId: string,
     column: Column,
-    getTodo: (id: string) => void,
+    getTodo: (todo: Todo) => void,
     children?: React.ReactNode
 };
 
 export default function ColumnContent(props: Props) {
-    const { todos, columnId, column } = props;
-    const { getTodo, handleDeleteTodo } = useHandles();
+    const { getTodo, todos, columnId, column } = props;
+    const { handleDeleteTodo } = useHandles();
 
     const columnTodos = todos.filter((todo) => todo.columnId === column.id) // TODO: make this run once, not multiple times
     const todosId = useMemo(() => columnTodos.map((todo) => todo.id ?? ''), [columnTodos]);
@@ -34,7 +34,7 @@ export default function ColumnContent(props: Props) {
         <SortableContext id={`column-${columnId}`} items={todosId} strategy={verticalListSortingStrategy}>
             <ul ref={setNodeRef} className="w-full flex flex-col gap-3 pb-4 overflow-x-hidden overflow-y-auto">
                 {columnTodos.map((todo) => (
-                        <DraggableTodoCard key={todo.id} todo={todo} getTodo={getTodo} onClick={() => {getTodo(todo.id ?? '')}} >
+                        <DraggableTodoCard key={todo.id} todo={todo} onClick={() => {getTodo(todo)}} >
                                 <TodoCardTitle>{todo.title}</TodoCardTitle>
                                 <TodoCardDescription>{todo.description}</TodoCardDescription>
                             <button className="absolute bottom-2 right-2 self-end p-2 bg-red-600" 

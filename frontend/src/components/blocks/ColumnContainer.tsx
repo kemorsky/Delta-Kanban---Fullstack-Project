@@ -7,18 +7,21 @@ import ColumnContent from "./Column/ColumnContent";
 import { InputEdit } from "../ui/input";
 import { Plus } from "lucide-react";
 import useHandles from "../../hooks/useHandles";
+import { EllipsisVertical } from 'lucide-react';
 
 type Props = {
     className?: string,
     todos: Todo[],
     column: Column,
+    getTodo: (todo: Todo) => void
 };
 
 export default function ColumnContainer(props: Props) {
-    const { getTodo, handleDeleteColumn, handleEditColumn, handleAddTodo } = useHandles();
-    const { todos, column } = props;
+    const { handleDeleteColumn, handleEditColumn, handleAddTodo } = useHandles();
+    const { todos, column, getTodo } = props;
 
     const [ editColumnId, setEditColumnId ] = useState<string | null>(null);
+    const [ isDropped, setIsDropped ] = useState(true)
     
     return (
         <ColumnWrapper column={column}>
@@ -43,7 +46,13 @@ export default function ColumnContainer(props: Props) {
                 {editColumnId !== column.id && (
                     <p onClick={() => {setEditColumnId(column.id)}}>{column.title}</p>
                 )}
-                <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}}>Delete</ButtonDeleteColumn>
+                <button onClick={() => setIsDropped(!isDropped)}><EllipsisVertical className="w-[2rem] h-[2rem]"/></button>
+                {isDropped && (
+                    <section className="flex flex-col gap-2">
+                        <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}}>Delete</ButtonDeleteColumn>
+                        <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}}>Delete</ButtonDeleteColumn>
+                    </section>
+                )}
             </section>
             <ColumnContent todos={todos} columnId={column.id} column={column} getTodo={getTodo}/>
             <footer className="w-full">

@@ -34,7 +34,7 @@ export const ColumnWrapper: React.FC<ColumnWrapperProps> = (({...props}) => {
                 style={style}
                 {...attributes}
                 {...listeners}
-                className="w-[18.75rem] h-[611px] bg-[#1F2937] flex flex-shrink-0 flex-col rounded-xl gap-4 p-2 overflow-y-scroll overflow-x-hidden"
+                className="w-[18.75rem] h-[611px] bg-[#1F2937] flex flex-shrink-0 flex-col border border-transparent rounded-xl gap-4 p-2 overflow-y-scroll overflow-x-hidden"
                 >
                     {children}
         </article>
