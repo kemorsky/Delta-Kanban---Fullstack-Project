@@ -4,6 +4,8 @@ export type Todo = {
     title?: string;
     description?: string;
     order?: number;
+    createdAt?: string;
+    updatedAt?: string;
 };
 
 export type Column = {

@@ -66,12 +66,12 @@ const postTodo = async (req, res) => {
 
 const editTodo = async (req, res) => {
     const todoId = req.params.id;
-    const {title} = req.body;
+    const {title, description} = req.body;
 
     try {
         const updatedTodo = await Todo.findByIdAndUpdate(
             todoId,
-            {title}, 
+            {title, description},
             {new: true, runValidators: true}
         );
 

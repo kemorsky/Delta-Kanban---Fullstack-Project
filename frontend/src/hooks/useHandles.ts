@@ -11,7 +11,7 @@ export default function useHandles() {
                 },
             });
 
-    const { mutate: mutateEditTodo } = useMutation({ mutationFn: ({columndId, id, title, description}: {columndId: string, id: string, title: string, description: string}) => editTodo(columndId, id, title, description),
+    const { mutate: mutateEditTodo } = useMutation({ mutationFn: ({columnId, id, title, description}: {columnId: string, id: string, title: string, description: string}) => editTodo(columnId, id, title, description),
             onSuccess: () => {
                 queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
             }
@@ -54,8 +54,9 @@ export default function useHandles() {
         mutateAddTodo({todoData, columnId})        
     };
 
-    const handleEditTodo = async (columndId: string, id: string, title: string, description: string) => {
-        mutateEditTodo({columndId, id, title, description})
+    const handleEditTodo = async (columnId: string, id: string, title: string, description: string) => {
+        console.log('handleEditTodo called with:', columnId, id, title, description);
+        mutateEditTodo({columnId, id, title, description})
     };
 
     const handleDeleteTodo = async (columnId: string, id: string) => {

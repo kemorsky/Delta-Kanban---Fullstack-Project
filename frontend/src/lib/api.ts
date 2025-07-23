@@ -85,7 +85,7 @@ export const editTodo = async (columnId: string, id: string, title: string, desc
     return response;
   } catch (error) {
     console.error('Error updating todo:', error);
-    throw error;
+    throw new Error (`Error updating todo: ${error}`);
   }
 };
 

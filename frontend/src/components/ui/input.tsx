@@ -1,4 +1,5 @@
 import * as React from 'react';
+import type { TextareaHTMLAttributes } from 'react';
 
 import { cn } from "../../lib/utils";
 
@@ -9,4 +10,13 @@ export const InputEdit: React.FC<InputProps> = ({className, ...props}) => {
         <input type="text"
                 className={cn("w-full max-w-[75%]", className)}{...props}></input>
     )
+}
+
+export const TextAreaEdit: React.FC<TextareaHTMLAttributes<HTMLTextAreaElement>> = ({className, ...props}) => {
+  return (
+    <textarea
+      className={cn("w-full max-w-[75%]", className)}
+      {...props}
+    />
+  )
 }
