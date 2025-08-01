@@ -30,6 +30,11 @@ export const todoSchema = new mongoose.Schema(
             required: true,
             default: 0
         },
+        labels: [
+            {
+                type: String,
+            }
+        ]
     }, {
         timestamps: true
         }

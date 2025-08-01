@@ -1,8 +1,10 @@
 import { useState } from "react";
 import type { Todo } from "../../types/types";
+import { AlignLeft } from 'lucide-react';
 import { InputEdit, TextAreaEdit } from "../ui/input";
 import useHandles from "../../hooks/useHandles";
 import { formatDate } from "../../lib/formatDate";
+import { ButtonDeleteTodo, ButtonDeleteLabel } from "../ui/button";
 
 type TodoModalProps = {
     todo: Todo | null | undefined,
@@ -20,11 +22,9 @@ export default function TodoModal(props: TodoModalProps) {
     if (!todo) return;
 
     return (
-        <div className="bg-green-700 mx-auto w-[60rem] h-[30rem] space-y-4 p-6 rounded-2xl border border-gray-300 absolute inset-x-0 top-1/2 -translate-y-1/2">
+        <div className="bg-[#1F2937] mx-auto w-[60rem] h-[30rem] space-y-4 p-6 rounded-2xl border border-gray-300 absolute inset-x-0 top-1/2 -translate-y-1/2">
             <header className="flex justify-between items-center border-b">
                 <article className="w-full pb-4 flex flex-col gap-2">
-                    <button className="absolute bottom-2 right-2 self-end p-2 bg-red-600" onClick={() => {handleDeleteTodo(todo.columnId, todo.id ?? '')}}>Delete</button>
-
                     <section className="flex gap-2">
                         <span className="text-3xl">#{todo.id}</span>
                         
@@ -46,18 +46,16 @@ export default function TodoModal(props: TodoModalProps) {
                         )}
 
                         {editTodoTitle !== todo.id && (
-                            <h1 className="text-3xl" onClick={() => setEditTodoTitle(todo.id ?? '')}>{todo.title}</h1>
+                            <h1 className="text-3xl font-secondary" onClick={() => setEditTodoTitle(todo.id ?? '')}>{todo.title}</h1>
                         )}
                     </section>
                     <section className="flex gap-1.5">
-                        <span className="flex items-center gap-1 bg-blue-300 rounded px-2 py-1 text-sm border border-black">
-                            <p>label 1</p>
-                            <button className="flex items-center justify-center w-6 h-6">x</button>
-                        </span>
-                        <span className="flex items-center gap-1 bg-blue-300 rounded px-2 py-1 text-sm border border-black">
-                            <p>label 2</p>
-                            <button className="flex items-center justify-center w-6 h-6">x</button>
-                        </span>
+                        {todo.labels?.map((label) => (
+                            <span key={label} className="min-w-[5rem] flex items-center gap-1 bg-blue-300 rounded px-2 py-1 text-sm border border-black">
+                                <p>{label}</p>
+                                <ButtonDeleteLabel />
+                            </span>
+                        ))}
                         <button>+ Add Label</button>
                     </section>
                 </article>
@@ -66,10 +64,10 @@ export default function TodoModal(props: TodoModalProps) {
                 </section>
             </header>
             <div className="flex justify-between gap-3">
-                <article className="w-2/3 flex flex-col gap-4 bg-green-600 px-2 py-4 rounded-md">
-                    <section className="flex items-center gap-2">
-                        <p>X</p> {/* TODO: add an icon here */}
-                        <h2 className="text-xl">Description</h2>
+                <article className="w-2/3 flex flex-col gap-2 bg-[#314157] px-2 py-4 rounded-md">
+                    <section className="flex items-end gap-2">
+                        <AlignLeft />
+                        <h2 className="text-xl font-secondary">Description</h2>
                     </section>
                     {editTodoDescription === todo.id && (
                             <TextAreaEdit
@@ -88,19 +86,18 @@ export default function TodoModal(props: TodoModalProps) {
                         )}
 
                     {editTodoDescription !== todo.id && (
-                        <p onClick={() => setEditTodoDescription(todo.id ?? '')}>{todo.description}</p>
+                        <p className="font-secondary text-white/80" onClick={() => setEditTodoDescription(todo.id ?? '')}>{todo.description}</p>
                     )}
         
                 </article>
-                <article className="w-1/3 flex flex-col gap-4 bg-green-800 px-2 py-4 rounded-md">
-                    <section className="flex flex-col justify-start items-start gap-1">
+                <article className="w-1/3 flex flex-col gap-4 bg-[#314157] px-2 py-4 rounded-md">
+                    <section className="flex flex-col justify-start items-start gap-1 text-[0.875rem]">
                         <p>Created at: {formatDate(todo.createdAt)}</p>
                         <p>Last Edited at: {formatDate(todo.updatedAt)}</p>
                     </section>
                     <section className="w-full flex flex-col items-start gap-2">
                         <h2 className="text-xl">Reserved for buttons</h2>
-                        <button className="w-full flex items-start px-3 py-1.5">Delete Todo</button>
-                        <button className="w-full flex items-start px-3 py-1.5">Delete Todo</button>
+                        <ButtonDeleteTodo onClick={() => {handleDeleteTodo(todo.columnId, todo.id ?? '')}}>Delete Todo</ButtonDeleteTodo>
                     </section>
                 </article>
             </div>

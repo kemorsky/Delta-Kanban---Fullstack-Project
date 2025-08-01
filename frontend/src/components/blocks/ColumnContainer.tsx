@@ -46,13 +46,14 @@ export default function ColumnContainer(props: Props) {
                 {editColumnId !== column.id && (
                     <p onClick={() => {setEditColumnId(column.id)}}>{column.title}</p>
                 )}
-                <button onClick={() => setIsDropped(!isDropped)}><EllipsisVertical className="w-[2rem] h-[2rem]"/></button>
+                <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}}>Delete</ButtonDeleteColumn>
+                {/* <button onClick={() => setIsDropped(!isDropped)}><EllipsisVertical className="w-[2rem] h-[2rem]"/></button>
                 {isDropped && (
                     <section className="flex flex-col gap-2">
                         <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}}>Delete</ButtonDeleteColumn>
                         <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}}>Delete</ButtonDeleteColumn>
                     </section>
-                )}
+                )} */}
             </section>
             <ColumnContent todos={todos} columnId={column.id} column={column} getTodo={getTodo}/>
             <footer className="w-full">

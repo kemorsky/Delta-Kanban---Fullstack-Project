@@ -3,6 +3,7 @@ export type Todo = {
     columnId: string;
     title?: string;
     description?: string;
+    labels?: string[];
     order?: number;
     createdAt?: string;
     updatedAt?: string;

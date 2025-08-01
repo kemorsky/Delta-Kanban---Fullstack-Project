@@ -7,7 +7,7 @@ import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import createColumnQueryOptions from "../../queries/createColumnQueryOptions";
 import createTodoQueryOptions from "../../queries/createTodoQueryOptions";
-import { TodoCard, TodoCardDescription, TodoCardTitle } from "./Todo/todo-card";
+import { TodoCard, TodoCardTitle } from "./Todo/todo-card";
 import { ButtonAddColumn } from "../ui/button";
 import ColumnContainer from "./ColumnContainer";
 import TodoModal from "./todo-modal";
@@ -62,6 +62,7 @@ export default function Board() {
         console.log(isOpen);
         console.log('todo clicked');
         console.log(todo.id)
+        console.log(todo.labels)
     };
 
     const handleDragStart = async (event: DragStartEvent) => {
@@ -233,7 +234,6 @@ export default function Board() {
                     {activeTodo && (
                         <TodoCard className="opacity-80 border-2 border-dashed" todo={activeTodo}>
                             <TodoCardTitle>{activeTodo.title}</TodoCardTitle>
-                            <TodoCardDescription>{activeTodo.description}</TodoCardDescription>
                         </TodoCard>
                     )}
                 </DragOverlay>, 
