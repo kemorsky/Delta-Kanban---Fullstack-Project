@@ -23,8 +23,16 @@ export const ButtonDeleteTodo: React.FC<ButtonProps> = ({className, ...props}) =
     return <button className={cn("w-full max-w-[7rem] p-2 flex items-center justify-center text-base bg-red-600 hover:bg-red-500 border-none transform transition-colors", className)}{...props}></button>;
 };
 
+export const ButtonAddLabel: React.FC<ButtonProps> = ({className, ...props}) => {
+    return <button className={cn("px-2 py-1 text-sm font-secondary bg-black/20 hover:bg-black/35 rounded transform transition-colors", className)}{...props}></button>;
+};
+
 export const ButtonDeleteLabel: React.FC<ButtonProps> = ({className, ...props}) => {
     return <button className={cn("w-[1.250rem] h-[1.250rem] flex items-center justify-center text-base bg-black/20 hover:bg-black/35 border-none rounded-full transform transition-colors", className)}{...props}>< X className="w-[0.75rem] h-[0.75rem]" /></button>;
+};
+
+export const ButtonCloseModal: React.FC<ButtonProps> = ({className, ...props}) => {
+    return <button className={cn("w-[2.5rem] h-[2.5rem] flex items-center justify-center hover:bg-black/35 border-none rounded-xl transform transition-colors", className)}{...props}>< X className="w-[2rem] h-[2rem]" /></button>;
 };
 
 

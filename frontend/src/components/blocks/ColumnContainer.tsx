@@ -44,7 +44,7 @@ export default function ColumnContainer(props: Props) {
                 )}
 
                 {editColumnId !== column.id && (
-                    <p onClick={() => {setEditColumnId(column.id)}}>{column.title}</p>
+                    <p className="font-secondary" onClick={() => {setEditColumnId(column.id)}}>{column.title}</p>
                 )}
                 <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}}>Delete</ButtonDeleteColumn>
                 {/* <button onClick={() => setIsDropped(!isDropped)}><EllipsisVertical className="w-[2rem] h-[2rem]"/></button>

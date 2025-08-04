@@ -8,6 +8,7 @@ const Column = mongoose.model('Column', columnSchema);
 const getTodos = async (req, res) => {
     try {
         const todos = await Todo.find().sort({ order: 1 }).populate('user');
+
         console.log(todos);
         res
             .status(200)

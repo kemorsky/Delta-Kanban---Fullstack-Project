@@ -12,7 +12,7 @@ const TodoCard = React.forwardRef<HTMLElement, TodoCardProps
     >(({ className, ...props }, ref) => (
         <article 
             ref={ref}
-            className={cn("w-[282px] min-h-[60px] bg-blue-500 rounded-md flex flex-col p-2 gap-2 cursor-grab relative border border-transparent hover:border hover:border-white transition-all transform", className)}
+            className={cn("w-[282px] min-h-[60px] bg-blue-500 rounded-md flex flex-col p-2 gap-2 cursor-grab relative border border-transparent hover:border hover:border-white transition-colors transform", className)}
         {...props}
         />
     ))
@@ -36,7 +36,7 @@ const TodoCardTitle = React.forwardRef<
     >(({ className, ...props }, ref) => (
         <h3 
             ref={ref}
-            className={cn("bg-blue-500 rounded-md", className)}
+            className={cn("bg-blue-500 rounded-md font-secondary", className)}
         {...props}
         />
     ))

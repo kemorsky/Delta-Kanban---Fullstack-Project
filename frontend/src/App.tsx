@@ -1,6 +1,5 @@
 import './App.css'
 import Board from './components/blocks/Board';
-// import TodoModal from './components/blocks/todo-modal';
 
 export default function App() {
 

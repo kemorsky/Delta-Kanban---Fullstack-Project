@@ -48,8 +48,8 @@ export default function useHandles() {
     const handleAddTodo = async (columnId: string) => {
         const todoData = {
             columnId,
-            title: 'testing drag',
-            description: 'draggy drag'
+            title: 'New Todo',
+            description: 'Description'
         };
         mutateAddTodo({todoData, columnId})        
     };

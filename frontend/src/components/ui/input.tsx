@@ -15,7 +15,7 @@ export const InputEdit: React.FC<InputProps> = ({className, ...props}) => {
 export const TextAreaEdit: React.FC<TextareaHTMLAttributes<HTMLTextAreaElement>> = ({className, ...props}) => {
   return (
     <textarea
-      className={cn("w-full max-w-[75%] font-secondary", className)}
+      className={cn("w-full min-h-[7rem] font-secondary", className)}
       {...props}
     />
   )

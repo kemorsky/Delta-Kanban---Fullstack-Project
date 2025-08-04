@@ -59,10 +59,6 @@ export default function Board() {
         setActiveTodo(todo);
         mutateGetTodo(todo.id ?? '');
         setIsOpen(true);
-        console.log(isOpen);
-        console.log('todo clicked');
-        console.log(todo.id)
-        console.log(todo.labels)
     };
 
     const handleDragStart = async (event: DragStartEvent) => {
@@ -206,6 +202,13 @@ export default function Board() {
 
     return (
         <article className="w-full h-full max-h-[40rem] bg-blue-500 rounded-xl border-w flex gap-2 items-start justify-start overflow-x-auto overflow-y-hidden">
+            {isOpen && (
+                <div
+                    className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10 transition transform"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
+            
             <DndContext sensors={sensors} 
                         collisionDetection={closestCorners}
                         onDragStart={handleDragStart} 
