@@ -7,7 +7,7 @@ const Column = mongoose.model('Column', columnSchema);
 
 const getTodos = async (req, res) => {
     try {
-        const todos = await Todo.find().sort({ order: 1 }).populate('user');
+        const todos = await Todo.find({ user: req.user.id }).sort({ order: 1 });
 
         console.log(todos);
         res
@@ -23,7 +23,7 @@ const getTodos = async (req, res) => {
 const getTodoById = async (req, res) => {
     try {
         const todoId = req.params.id;
-        const todo = await Todo.findById(todoId);
+        const todo = await Todo.findOne({ _id: todoId, user: req.user.id });
         res
             .status(200)
             .json(todo)
@@ -48,8 +48,9 @@ const postTodo = async (req, res) => {
       title,
       description,
       columnId,
-      order: await Todo.countDocuments({columnId}),
+      order: await Todo.countDocuments({ columnId }),
       labels: [],
+      user: req.user.id
     });
 
     await newTodo.save();
@@ -69,10 +70,10 @@ const editTodo = async (req, res) => {
     const {title, description, labels} = req.body;
 
     try {
-        const updatedTodo = await Todo.findByIdAndUpdate(
-            todoId,
+        const updatedTodo = await Todo.findOneAndUpdate(
+            { _id: todoId, user: req.user.id },
             { title, description, labels },
-            {new: true, runValidators: true}
+            { new: true, runValidators: true }
         );
 
         if (labels) {
@@ -105,9 +106,15 @@ const reorderTodos = async (req, res) => {
     console.log("reorderTodos route hit");
     
     try {
+        // Step 1: Verify ownership of all todos in the reorder list
+        const todos = await Todo.find({ _id: { $in: order }, user: req.user.id });
+        if (todos.length !== order.length) {
+            return res.status(403).json({ message: "Unauthorized: Invalid todos" });
+        }
+
         const bulkOps = order.map((id, index) => ({
             updateOne: {
-                filter: {_id: id},
+                filter: {_id: id, user: req.user.id},
                 update: { columnId, order: index}
             }
         }));
@@ -115,9 +122,13 @@ const reorderTodos = async (req, res) => {
          console.log("🚀 Bulk operations prepared1:", bulkOps);
 
         if (movedTodoId && !order.includes(movedTodoId)) {
+            const movedTodo = await Todo.findOne({ _id: movedTodoId, user: req.user.id });
+            if (!movedTodo) {
+                return res.status(403).json({ message: "Unauthorized moved todo" });
+            }
             bulkOps.push({
                 updateOne: {
-                    filter: {_id: movedTodoId},
+                    filter: {_id: movedTodoId, user: req.user.id},
                     update: { columnId }
                 }
             })
@@ -127,7 +138,7 @@ const reorderTodos = async (req, res) => {
 
         await Todo.bulkWrite(bulkOps);
 
-        const updatedTodos = await Todo.find({ columnId }).sort({ order: 1 });
+        const updatedTodos = await Todo.find({ columnId, user: req.user.id }).sort({ order: 1 });
 
         res.status(200).json({ message: "Todos reordered successfully", todos: updatedTodos });
 
@@ -142,7 +153,7 @@ const deleteTodo = async (req, res) => {
     const todoId = req.params.id;
     
     try {
-        const deletedTodo = await Todo.findByIdAndDelete(todoId)
+        const deletedTodo = await Todo.findOneAndDelete({ _id: todoId, user: req.user.id });
 
         if (!deletedTodo) {
             res

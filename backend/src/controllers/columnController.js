@@ -5,7 +5,7 @@ const Column = mongoose.model('Column', columnSchema);
 
 const getColumns = async (req, res) => {
     try {
-        const columns = await Column.find().sort({ order: 1 });
+        const columns = await Column.find({ user: req.user.id }).sort({ order: 1 });
         res
             .status(200)
             .send(columns);
@@ -23,7 +23,8 @@ const postColumn = async (req, res) => {
         const { title } = req.body;
         const newColumn = new Column({
             title,
-            order: newOrder
+            order: newOrder,
+            user: req.user.id
         });
         await newColumn.save();
         res
@@ -45,8 +46,8 @@ const editColumn = async (req, res) => {
 
     try {
         const updatedColumn = await Column.findByIdAndUpdate(
-            columnId,
-            {title}, 
+            {_id: columnId, user: req.user.id},
+            { title }, 
             {new: true, runValidators: true}
         );
 
@@ -74,10 +75,14 @@ const reorderColumns = async (req, res) => {
     const { order } = req.body;
     
     try {
+        const columns = await Column.find({ _id: { $in: order }, user: req.user.id });
+            if (columns.length !== order.length) {
+                return res.status(403).json({ message: "Unauthorized: Invalid columns" });
+        }
         const bulkOps = order.map((id, index) => ({
             updateOne: {
-                filter: {_id: id},
-                update: {order: index}
+                filter: { _id: id, user: req.user.id },
+                update: { order: index }
             }
         }));
 
@@ -100,7 +105,7 @@ const deleteColumn = async (req, res) => {
     const columnId = req.params.id;
     
     try {
-        const deletedColumn = await Column.findByIdAndDelete(columnId)
+        const deletedColumn = await Column.findByIdAndDelete({ _id: columnId, user: req.user.id });
 
         if (!deletedColumn) {
             res

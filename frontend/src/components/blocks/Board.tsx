@@ -61,7 +61,7 @@ export default function Board() {
         setActiveTodo(todo);
         mutateGetTodo(todo.id ?? '');
         setIsOpen(true);
-        navigate(`/todo/${todo.id}`);
+        // navigate(`/todo/${todo.id}`);
     };
 
     const handleDragStart = async (event: DragStartEvent) => {

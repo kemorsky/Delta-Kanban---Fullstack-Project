@@ -4,7 +4,8 @@ export const todoSchema = new mongoose.Schema(
     {
         user: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
+            ref: 'User',
+            required: true
         },
         columnId: {
             type: mongoose.Schema.Types.ObjectId,
