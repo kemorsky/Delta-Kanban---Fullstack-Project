@@ -1,4 +1,4 @@
-import type { Column, Todo } from "../types/types";
+import type { Column, Todo, User } from "../types/types";
 
 type RequestOptions = {
     method?: string,
@@ -14,7 +14,8 @@ export const apiRequest = async (url: string, options: RequestOptions = {}) => {
         const response = await fetch(url, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
             },
             ...options
         })
@@ -28,6 +29,20 @@ export const apiRequest = async (url: string, options: RequestOptions = {}) => {
     }
 }
 
+export const login = async (username: string, password: string): Promise<User> => {
+  console.log('Making login request to:', `${URL}/api/auth/login`);
+  try {
+    const response = await apiRequest(`${URL}/api/auth/login`, {
+      method: 'POST',
+      body: JSON.stringify({ username, password })
+    });
+    const token = response.token;
+    localStorage.setItem('token', token);
+    return response;
+  } catch (error) {
+    throw new Error (`Error logging in: ${error}`);
+  }
+}
 
 export const fetchTodos = async (): Promise<Todo[]> => {
   try {

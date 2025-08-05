@@ -5,6 +5,13 @@ import { cn } from "../../lib/utils";
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
+export const InputLogin: React.FC<InputProps> = ({className, ...props}) => {
+    return (
+        <input type="text"
+                className={cn("w-full font-secondary rounded px-2 py-1", className)}{...props}></input>
+    )
+}
+
 export const InputEdit: React.FC<InputProps> = ({className, ...props}) => {
     return (
         <input type="text"

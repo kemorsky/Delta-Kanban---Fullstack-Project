@@ -5,21 +5,22 @@ import { InputEdit, TextAreaEdit } from "../ui/input";
 import useHandles from "../../hooks/useHandles";
 import { formatDate } from "../../lib/formatDate";
 import { ButtonDeleteTodo, ButtonDeleteLabel, ButtonAddLabel, ButtonCloseModal } from "../ui/button";
+import { useNavigate } from "react-router-dom";
 
 type TodoModalProps = {
-    todo: Todo | null | undefined,
-    isOpen: boolean,
-    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+    todo?: Todo | null | undefined,
+    setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>
 };
 
 export default function TodoModal(props: TodoModalProps) {
-
     const [ editTodoTitle, setEditTodoTitle ] = useState<string | null>(null);
     const [ editTodoDescription, setEditTodoDescription ] = useState<string | null>(null);
     const { todo, setIsOpen } = props
     const { handleEditTodo, handleDeleteTodo } = useHandles();
     
-    if (!todo) return;
+    const navigate = useNavigate();
+
+    if (!todo || !setIsOpen ) return;
 
     return (
         <div className="bg-[#1F2937] mx-auto w-full max-w-[64rem] min-h-[30rem] space-y-4 p-6 md:rounded-md absolute inset-x-0 top-[22.9rem] md:top-[18rem] -translate-y-1/2 z-50">
@@ -62,7 +63,7 @@ export default function TodoModal(props: TodoModalProps) {
                     </section>
                 </article>
                 <section className="self-start">
-                    <ButtonCloseModal onClick={() => {setIsOpen(false)}} />
+                    <ButtonCloseModal onClick={() => {navigate('/kanban'); setIsOpen(false)}} />
                 </section>
             </header>
             <div className="flex md:flex-row flex-col justify-between gap-3">

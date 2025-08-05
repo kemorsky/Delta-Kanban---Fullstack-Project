@@ -5,6 +5,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const verifyToken = (req, res, next) => {
+    if (req.path === 'login' || req.path === 'signup') {
+        return next();
+    }
+
     let token;
 
     let authHeader = req.headers.Authorization || req.headers.authorization;

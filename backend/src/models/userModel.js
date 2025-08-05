@@ -16,6 +16,11 @@ export const userSchema = new mongoose.Schema(
             trim: true,
             minLength: [5, "Password must be at least 5 characters"],
         },
+        role: {
+            type: String,
+            enum: ["user", "admin"],
+            default: "user"
+        },
         forgotPasswordCode: {
             type: String,
             select: false,

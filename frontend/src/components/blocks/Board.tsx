@@ -12,11 +12,13 @@ import { ButtonAddColumn } from "../ui/button";
 import ColumnContainer from "./ColumnContainer";
 import TodoModal from "./todo-modal";
 import useHandles from "../../hooks/useHandles";
+import { useNavigate } from "react-router-dom";
 
 export default function Board() {
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
     const [ activeTodo, setActiveTodo ] = useState<Todo | null>(null);
     const [ isOpen, setIsOpen ] = useState(false);
+    const navigate = useNavigate();
 
     const { handleAddColumn } = useHandles();
 
@@ -59,6 +61,7 @@ export default function Board() {
         setActiveTodo(todo);
         mutateGetTodo(todo.id ?? '');
         setIsOpen(true);
+        navigate(`/todo/${todo.id}`);
     };
 
     const handleDragStart = async (event: DragStartEvent) => {
@@ -201,55 +204,56 @@ export default function Board() {
     };
 
     return (
-        <article className="w-full h-full max-h-[40rem] bg-blue-500 rounded-xl border-w flex gap-2 items-start justify-start overflow-x-auto overflow-y-hidden">
-            {isOpen && (
-                <div
-                    className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10 transition transform"
-                    onClick={() => setIsOpen(false)}
-                />
-            )}
-            
-            <DndContext sensors={sensors} 
-                        collisionDetection={closestCorners}
-                        onDragStart={handleDragStart} 
-                        onDragEnd={handleDragEnd}
-                        // onDragOver={handleDragOver}
-                        >
-                <SortableContext id="board" items={columnsId}>
-                    {columns.map((column) => (
-                            <ColumnContainer key={column.id}
+        <main className='w-full max-w-[90rem] mx-auto h-full bg-orange-300'>
+            <article className="w-full h-full max-h-[40rem] bg-blue-500 rounded-xl border-w flex gap-2 items-start justify-start overflow-x-auto overflow-y-hidden">
+                {isOpen && (
+                    <div
+                        className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10 transition transform"
+                        onClick={() => setIsOpen(false)}
+                    />
+                )}
+                
+                <DndContext sensors={sensors} 
+                            collisionDetection={closestCorners}
+                            onDragStart={handleDragStart} 
+                            onDragEnd={handleDragEnd}
+                            // onDragOver={handleDragOver}
+                            >
+                    <SortableContext id="board" items={columnsId}>
+                        {columns.map((column) => (
+                                <ColumnContainer key={column.id}
+                                                todos={todos}
+                                                column={column}
+                                                getTodo={getTodo}
+                                />
+                        ))}
+                        <ButtonAddColumn onClick={() => {handleAddColumn()}}/>
+                    </SortableContext>
+                {createPortal(
+                    <DragOverlay>
+                        {activeColumn && (
+                            <ColumnContainer key={activeColumn.id}
                                             todos={todos}
-                                            column={column}
+                                            column={activeColumn}
                                             getTodo={getTodo}
-                            />
-                    ))}
-                    <ButtonAddColumn onClick={() => {handleAddColumn()}}/>
-                </SortableContext>
-            {createPortal(
-                <DragOverlay>
-                    {activeColumn && (
-                        <ColumnContainer key={activeColumn.id}
-                                        todos={todos}
-                                        column={activeColumn}
-                                        getTodo={getTodo}
-                        />)}
+                            />)}
 
-                    {activeTodo && (
-                        <TodoCard className="opacity-80 border-2 border-dashed" todo={activeTodo}>
-                            <TodoCardTitle>{activeTodo.title}</TodoCardTitle>
-                        </TodoCard>
-                    )}
-                </DragOverlay>, 
-                document.body
-            )}
-            </DndContext>
-            {isOpen && (
-                <TodoModal todo={todos.find(t => t.id === activeTodo?.id)}
-                            isOpen={isOpen}
-                            setIsOpen={setIsOpen}
-                />
-                )
-            }
-        </article>
+                        {activeTodo && (
+                            <TodoCard className="opacity-80 border-2 border-dashed" todo={activeTodo}>
+                                <TodoCardTitle>{activeTodo.title}</TodoCardTitle>
+                            </TodoCard>
+                        )}
+                    </DragOverlay>, 
+                    document.body
+                )}
+                </DndContext>
+                {isOpen && (
+                    <TodoModal todo={todos.find(t => t.id === activeTodo?.id)}
+                                setIsOpen={setIsOpen}
+                    />
+                    )
+                }
+            </article>
+        </main>
     )
 };

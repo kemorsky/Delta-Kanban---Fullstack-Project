@@ -4,6 +4,6 @@ import { fetchColumns } from "../lib/api";
 export default function createColumnQueryOptions() {
     return queryOptions({
         queryKey: ['columns'],
-        queryFn:() =>  fetchColumns()
+        queryFn:() => fetchColumns()
     })
 };

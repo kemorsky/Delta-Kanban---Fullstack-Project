@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import todoRoutes from './routes/todoRoutes.js'
 import columnRoutes from './routes/columnRoutes.js'
+import verifyToken from './middleware/authMiddleware.js';
 
 dbConnect();
 dotenv.config();
@@ -16,7 +17,7 @@ app.use(express.json());
 
 app.use((req, res, next) => { // TODO: make Authorization header work with CORS
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 
   if (req.method === "OPTIONS") {
@@ -28,9 +29,9 @@ app.use((req, res, next) => { // TODO: make Authorization header work with CORS
 });
 
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api', todoRoutes);
-app.use('/api/columns', columnRoutes);
+app.use('/api/users', verifyToken, userRoutes);
+app.use('/api', verifyToken, todoRoutes);
+app.use('/api/columns', verifyToken, columnRoutes);
 
 //Start Server
 const PORT = process.env.PORT || 3001;
