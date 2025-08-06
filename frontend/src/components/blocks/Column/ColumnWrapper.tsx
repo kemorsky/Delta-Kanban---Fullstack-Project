@@ -16,9 +16,8 @@ export const ColumnWrapper: React.FC<ColumnWrapperProps> = (({...props}) => {
         data: {
             type: "Column",
             columnId: column.id
-        }},
-        // disabled: editMode, // FIX LATER
-    );
+            },
+        });
   
     const style = {
         transition,

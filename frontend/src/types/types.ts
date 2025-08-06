@@ -1,13 +1,17 @@
+export type UserCredentials = {
+    username: string;
+    password: string;
+};
+
 export type User = {
     id?: string,
-    username: string,
-    password: string,
+    username?: string,
     role?: string,
-    token?: string;
 };
 
 export type Todo = {
     id?: string | undefined;
+    user?: User,
     columnId: string;
     title?: string;
     description?: string;

@@ -7,8 +7,7 @@ export const userSchema = new mongoose.Schema(
             required: [true, "Username must be provided"],
             trim: true,
             unique: [true, "Username must be unique"],
-            minLength: [3, "Username must be at least 3 characters"],
-            lowercase: true
+            minLength: [3, "Username must be at least 3 characters"]
         },
         password: {
             type: String,

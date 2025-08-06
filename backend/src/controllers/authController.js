@@ -1,4 +1,3 @@
-import express from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -50,7 +49,14 @@ export const login = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    res.status(200).json({ token, username, userId: user._id });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true, // send only over HTTPS in prod
+      sameSite: 'Lax',
+      maxAge: 3600000, // 1 hour
+    });
+
+    res.status(200).json({ username, userId: user._id });
 
   } catch (error) {
     console.error(error);
@@ -60,7 +66,10 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
   try {
-    res.clearCookie('token', '', { httpOnly: true });
+    res.clearCookie('token', '', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Lax' });
     res.status(200).json({ message: 'Logout successful' });
   } catch (error) {
     console.error(error);
@@ -90,4 +99,4 @@ export const deleteUser = async (req, res) => {
             .status(error.status || 500)
             .json({message: error.message})
     }
-}
+};

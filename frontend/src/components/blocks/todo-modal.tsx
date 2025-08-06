@@ -100,6 +100,7 @@ export default function TodoModal(props: TodoModalProps) {
                         <ButtonDeleteTodo onClick={() => {
                             handleDeleteTodo(todo.columnId, todo.id ?? ''); 
                             setIsOpen(false);
+                            navigate('/kanban');
                         }}>Delete Todo</ButtonDeleteTodo>
                     </section>
                 </article>

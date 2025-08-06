@@ -1,10 +1,15 @@
-import { addTodo, addColumn, editColumn, deleteColumn, deleteTodo, editTodo } from '../lib/api';
+import { addTodo, addColumn, editColumn, deleteColumn, deleteTodo, editTodo, logOut } from '../lib/api';
 import type { Column, Todo } from '../types/types';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import createTodoQueryOptions from "../queries/createTodoQueryOptions";
 import createColumnQueryOptions from "../queries/createColumnQueryOptions";
+import { useNavigate } from 'react-router-dom';
 
 export default function useHandles() {
+    
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+
     const { mutate: mutateAddTodo } = useMutation({ mutationFn: ({todoData, columnId}: {todoData: Todo, columnId: string}) => addTodo(todoData, columnId),
                 onSuccess: () => {
                     queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
@@ -41,9 +46,22 @@ export default function useHandles() {
             }
         });
 
-    const queryClient = useQueryClient();
-
-    // PLACE getTodo HERE WHEN WRITTEN AND FIGURED OUT
+    const { mutate: mutateLogOut } = useMutation({ mutationFn: () => logOut(),
+                    onSuccess: () => {
+                        queryClient.invalidateQueries();
+                    },
+                });
+    
+    const handleLogOut = async () => {
+        try {
+            mutateLogOut()
+            navigate('/login');
+            // setUser({username: '', password: ''})
+        } catch (error) {
+            console.error('Error logging in:', error)
+            throw new Error (`Error logging in: ${error}`);
+        };
+    }
 
     const handleAddTodo = async (columnId: string) => {
         const todoData = {
@@ -82,6 +100,7 @@ export default function useHandles() {
     };
 
     return {
+            handleLogOut: handleLogOut,
             handleAddTodo: handleAddTodo,
             handleEditTodo: handleEditTodo,
             handleDeleteTodo: handleDeleteTodo,

@@ -1,38 +1,67 @@
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom";
-import { fetchTodoById, reorderColumns, reorderTodos } from "../../lib/api";
+import { useNavigate, Outlet } from "react-router-dom";
 import type { Todo, Column } from "../../types/types"
-import { DndContext, DragOverlay, MouseSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, type DragOverEvent, closestCorners } from '@dnd-kit/core';
+import useHandles from "../../hooks/useHandles";
+import { DndContext, DragOverlay, MouseSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, closestCorners } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
+import { fetchTodoById, reorderColumns, reorderTodos } from "../../lib/api";
 import createColumnQueryOptions from "../../queries/createColumnQueryOptions";
 import createTodoQueryOptions from "../../queries/createTodoQueryOptions";
 import { TodoCard, TodoCardTitle } from "./Todo/todo-card";
 import { ButtonAddColumn } from "../ui/button";
 import ColumnContainer from "./ColumnContainer";
 import TodoModal from "./todo-modal";
-import useHandles from "../../hooks/useHandles";
-import { useNavigate } from "react-router-dom";
 
 export default function Board() {
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
     const [ activeTodo, setActiveTodo ] = useState<Todo | null>(null);
     const [ isOpen, setIsOpen ] = useState(false);
+
+    const { handleLogOut, handleAddColumn } = useHandles();
+    const queryClient = useQueryClient();
     const navigate = useNavigate();
-
-    const { handleAddColumn } = useHandles();
-
+    
     const [{ data: todos, error }, { data: columns } ] = useQueries( // main fetch of data of todos and columns
             {queries: [createTodoQueryOptions(), createColumnQueryOptions()]} 
         );
 
-    const columnsId = useMemo(() => columns?.map((column) => column.id), [columns]);
+    const username = todos && todos.length > 0 ? todos[0].user?.username : undefined;
+
+    const joinedColumnIds = useMemo(() => columns?.map(col => col.id).join(','), [columns]);
+
+    const columnsId = useMemo(() => {
+        return joinedColumnIds?.split(',');
+    }, [joinedColumnIds]);
 
     const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),);
 
-    const { mutate: mutateReorderColumns } = useMutation({ mutationFn: (orderIds: string[]) => reorderColumns(orderIds),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: createColumnQueryOptions().queryKey })
+    const { mutate: mutateReorderColumns } = useMutation({
+        mutationFn: reorderColumns,
+        onMutate: async (newOrderIds: string[]) => {
+            await queryClient.cancelQueries({ queryKey: createColumnQueryOptions().queryKey });
+
+            const previousColumns = queryClient.getQueryData<Column[]>(createColumnQueryOptions().queryKey);
+
+            const updated = previousColumns?.slice().sort((a, b) => {
+                return newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id);
+            });
+
+            queryClient.setQueryData(
+                createColumnQueryOptions().queryKey,
+                updated
+            );
+
+            return { previousColumns };
+        },
+        onError: (_, __, context) => {
+            if (context?.previousColumns) {
+            queryClient.setQueryData(createColumnQueryOptions().queryKey, context.previousColumns);
+            }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: createColumnQueryOptions().queryKey });
         }
     });
 
@@ -48,20 +77,15 @@ export default function Board() {
         }
     });
 
-    const queryClient = useQueryClient();
-
     if (!todos || !columns || !columnsId) return <p>Loading...</p>;
     
-    if (error) {
-        console.error(error);
-    };
-    
+    if (error) { console.error(error); };
     
     const getTodo = async (todo: Todo) => {
         setActiveTodo(todo);
         mutateGetTodo(todo.id ?? '');
         setIsOpen(true);
-        // navigate(`/todo/${todo.id}`);
+        navigate(`/kanban/todo/${todo.id}`);
     };
 
     const handleDragStart = async (event: DragStartEvent) => {
@@ -75,52 +99,7 @@ export default function Board() {
         }
     };
 
-    // const handleDragOver = (event: DragOverEvent) => { //TODO: FIX INFINITE LOOP IN HERE WITH setTodos
-        // const { active, over } = event;
-        // if (!over) return;
-
-        // const activeType = active.data.current?.type;
-        // const overType = over.data.current?.type;
-
-        // if (activeType !== 'Todo') return;
-
-        // const activeTodo = active.data.current?.todo as Todo;
-        // const activeId = active.id;
-
-        // if (overType === 'Todo') {
-        //     const overTodo = over.data.current?.todo as Todo;
-        //     if (activeId === overTodo.id) return;
-
-        //     setTodos((todos) => {
-        //         const updatedTodos = [...todos];
-        //         const activeIndex = updatedTodos.findIndex(t => t.id === activeId);
-        //         const overIndex = updatedTodos.findIndex(t => t.id === overTodo.id);
-
-        //         if (activeIndex === -1 || overIndex === -1) return todos;
-
-        //         const activeItem = updatedTodos[activeIndex];
-        //         updatedTodos.splice(activeIndex, 1);
-        //         updatedTodos.splice(overIndex, 0, { ...activeItem, columnId: overTodo.columnId });
-
-        //         return updatedTodos;
-        //     });
-        // } else if (overType === 'Column') {
-        //     const overColumnId = over.id.toString();
-
-        //     if (activeTodo.columnId === overColumnId) return;
-
-        //     setTodos((todos) => {
-        //         const updatedTodos = [...todos];
-        //         const activeIndex = updatedTodos.findIndex(t => t.id === activeId);
-        //         if (activeIndex === -1) return todos;
-
-        //         updatedTodos[activeIndex] = { ...updatedTodos[activeIndex], columnId: overColumnId };
-        //         return updatedTodos;
-        //     });
-        // }
-    // };
-
-    const handleDragEnd = async (event: DragEndEvent) => { // TODO: FIX MISALIGNMENT BETWEEN DRAGOVER AND DRAGEND
+    const handleDragEnd = async (event: DragEndEvent) => {
         setActiveColumn(null);
         setActiveTodo(null);
         const { active, over } = event;
@@ -164,25 +143,20 @@ export default function Board() {
                 insertIndex = targetTodos.findIndex(t => t.id === overTodoId);
             }
 
-            // prep updated target todos
-            const filteredTargetTodos = targetTodos.filter(t => t.id !== activeId);
+            const filteredTargetTodos = targetTodos.filter(t => t.id !== activeId); // prep updated target todos
 
             const updatedTargetTodos = [
                 ...filteredTargetTodos.slice(0, insertIndex),
                 { ...activeTodo, columnId: targetColumnId },
                 ...filteredTargetTodos.slice(insertIndex),
             ];
-
-            // BACKEND
-
-            // updates source column if todo was moved across columns
-            if (sourceColumnId !== targetColumnId) {
+            
+            if (sourceColumnId !== targetColumnId) { // updates source column if todo was moved across columns
                 const sourceOrder = updatedSourceTodos.map(t => t.id ?? '');
                 mutateReorderTodos({ orderId: sourceOrder, columnId: sourceColumnId });
             }
 
-            // updates target column order
-            const targetOrder = updatedTargetTodos.map(t => t.id ?? '');
+            const targetOrder = updatedTargetTodos.map(t => t.id ?? ''); // updates target column order
             mutateReorderTodos({ orderId: targetOrder, columnId: targetColumnId });
         };
     };
@@ -205,21 +179,23 @@ export default function Board() {
 
     return (
         <main className='w-full max-w-[90rem] mx-auto h-full bg-orange-300'>
+            <section className="flex flex-col gap-2 bg-sky-600">
+                <h1>Welcome, {username}</h1>
+                <button onClick={() => handleLogOut()}>Log Out</button>
+            </section>
             <article className="w-full h-full max-h-[40rem] bg-blue-500 rounded-xl border-w flex gap-2 items-start justify-start overflow-x-auto overflow-y-hidden">
                 {isOpen && (
                     <div
                         className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10 transition transform"
-                        onClick={() => setIsOpen(false)}
+                        onClick={() => {setIsOpen(false); navigate('/kanban')}
+                        }
                     />
                 )}
-                
                 <DndContext sensors={sensors} 
                             collisionDetection={closestCorners}
                             onDragStart={handleDragStart} 
-                            onDragEnd={handleDragEnd}
-                            // onDragOver={handleDragOver}
-                            >
-                    <SortableContext id="board" items={columnsId}>
+                            onDragEnd={handleDragEnd}>
+                    <SortableContext key={columnsId.join(',')} id="board" items={columnsId}>
                         {columns.map((column) => (
                                 <ColumnContainer key={column.id}
                                                 todos={todos}
@@ -248,9 +224,12 @@ export default function Board() {
                 )}
                 </DndContext>
                 {isOpen && (
-                    <TodoModal todo={todos.find(t => t.id === activeTodo?.id)}
-                                setIsOpen={setIsOpen}
-                    />
+                    <>
+                        <Outlet />
+                        <TodoModal todo={todos.find(t => t.id === activeTodo?.id)}
+                                    setIsOpen={setIsOpen}
+                        />
+                    </>
                     )
                 }
             </article>

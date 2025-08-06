@@ -24,6 +24,6 @@ export const TextAreaEdit: React.FC<TextareaHTMLAttributes<HTMLTextAreaElement>>
     <textarea
       className={cn("w-full min-h-[7rem] font-secondary", className)}
       {...props}
-    />
+    ></textarea>
   )
 }

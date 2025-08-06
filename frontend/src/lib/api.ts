@@ -1,22 +1,23 @@
-import type { Column, Todo, User } from "../types/types";
+import type { Column, Todo, UserCredentials } from "../types/types";
 
 type RequestOptions = {
     method?: string,
     headers?: { [key: string]: string },
     body?: string,
+    credentials?: RequestCredentials;
   }
 
 const URL = 'http://localhost:3000'
 
 export const apiRequest = async (url: string, options: RequestOptions = {}) => {
-    const token = localStorage.getItem('token');
     try {
         const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
+                ...options.headers,
             },
+            credentials: 'include',
             ...options
         })
         if (!response.ok) {
@@ -29,15 +30,25 @@ export const apiRequest = async (url: string, options: RequestOptions = {}) => {
     }
 }
 
-export const login = async (username: string, password: string): Promise<User> => {
-  console.log('Making login request to:', `${URL}/api/auth/login`);
+export const login = async (username: string, password: string): Promise<UserCredentials> => {
   try {
     const response = await apiRequest(`${URL}/api/auth/login`, {
       method: 'POST',
+      credentials: 'include',
       body: JSON.stringify({ username, password })
     });
-    const token = response.token;
-    localStorage.setItem('token', token);
+    return response;
+  } catch (error) {
+    throw new Error (`Error logging in: ${error}`);
+  }
+}
+
+export const logOut = async (): Promise<void> => {
+  try {
+    const response = await apiRequest(`${URL}/api/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
     return response;
   } catch (error) {
     throw new Error (`Error logging in: ${error}`);
@@ -67,6 +78,7 @@ export const addTodo = async (todo: Todo, columnId: string): Promise<Todo> => {
   try {
     const response = await apiRequest(`${URL}/api/columns/${columnId}/todos`, {
       method: 'POST',
+      credentials: 'include',
       body: JSON.stringify({...todo, columnId})
     });
     console.log(response);  
@@ -81,6 +93,7 @@ export const reorderTodos = async (orderId: string[], columnId: string): Promise
   try {
     const data = await apiRequest(`${URL}/api/todos/reorder`, {
       method: 'PUT',
+      credentials: 'include',
       body: JSON.stringify({order: orderId, columnId: columnId})
     })
     console.log(data);
@@ -94,6 +107,7 @@ export const editTodo = async (columnId: string, id: string, title: string, desc
   try {
     const response = await apiRequest(`${URL}/api/columns/${columnId}/todos/todo/${id}`, {
       method: 'PUT',
+      credentials: 'include',
       body: JSON.stringify({columnId, id, title, description})
     });
     console.log(response);
@@ -107,7 +121,8 @@ export const editTodo = async (columnId: string, id: string, title: string, desc
 export const deleteTodo = async (columnId: string, id: string): Promise<Todo> => {
   try {
     const response = await apiRequest(`${URL}/api/columns/${columnId}/todos/todo/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      credentials: 'include',
     });
     console.log(response);
     return response;
@@ -131,6 +146,7 @@ export const addColumn = async (column: Column) => {
   try {
     const response = await apiRequest(`${URL}/api/columns`, {
       method: 'POST',
+      credentials: 'include',
       body: JSON.stringify(column)
     });
     console.log(response);
@@ -144,6 +160,7 @@ export const reorderColumns = async (orderIds: string[]): Promise<{columns: Colu
   try {
     const data = await apiRequest(`${URL}/api/columns/reorder`, {
       method: 'PUT',
+      credentials: 'include',
       body: JSON.stringify({order: orderIds})
     })
     console.log(data);
@@ -157,6 +174,7 @@ export const editColumn = async (id: string, title: string): Promise<Column> => 
   try {
     const response = await apiRequest(`${URL}/api/columns/column/${id}`, {
       method: 'PUT',
+      credentials: 'include',
       body: JSON.stringify({id, title})
     });
     console.log(response);
@@ -169,7 +187,8 @@ export const editColumn = async (id: string, title: string): Promise<Column> => 
 export const deleteColumn = async (id: string): Promise<Column> => {
   try {
     const response = await apiRequest(`${URL}/api/columns/column/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      credentials: 'include',
     });
     console.log(response);
     return response;

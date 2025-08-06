@@ -7,7 +7,7 @@ const Column = mongoose.model('Column', columnSchema);
 
 const getTodos = async (req, res) => {
     try {
-        const todos = await Todo.find({ user: req.user.id }).sort({ order: 1 });
+        const todos = await Todo.find({ user: req.user.id }).sort({ order: 1 }).populate('user', 'username');
 
         console.log(todos);
         res
@@ -23,7 +23,7 @@ const getTodos = async (req, res) => {
 const getTodoById = async (req, res) => {
     try {
         const todoId = req.params.id;
-        const todo = await Todo.findOne({ _id: todoId, user: req.user.id });
+        const todo = await Todo.findOne({ _id: todoId, user: req.user.id }).populate('user', 'username');
         res
             .status(200)
             .json(todo)

@@ -3,10 +3,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { login } from "../lib/api"
 import { useNavigate } from "react-router";
 import { InputLogin } from "../components/ui/input";
+import type { UserCredentials } from "../types/types";
 
 export default function LoginPage() {
-    const [ user, setUser ] = useState({username: '', password: ''});
+    const [ user, setUser ] = useState<UserCredentials>({username: '', password: ''});
     const navigate = useNavigate();
+
+    const queryClient = useQueryClient();
 
     const { mutate: mutateLogin } = useMutation({ mutationFn: ({username, password}: {username: string, password: string}) => login(username, password),
                 onSuccess: () => {
@@ -16,11 +19,9 @@ export default function LoginPage() {
             });
 
     const handleLogin = async (username: string, password: string) => {
-         console.log('Calling login function...');
         try {
             mutateLogin({username, password})
             setUser({username: username, password: password})
-            console.log('test')
         } catch (error) {
             console.error('Error logging in:', error)
             throw new Error (`Error logging in: ${error}`);
@@ -31,8 +32,6 @@ export default function LoginPage() {
         e.preventDefault();
         await handleLogin(user.username, user.password);
     }
-
-    const queryClient = useQueryClient();
 
     return (
         <main className="h-full w-full flex items-center justify-center">

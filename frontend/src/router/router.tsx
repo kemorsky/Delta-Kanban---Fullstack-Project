@@ -19,27 +19,18 @@ const router = createBrowserRouter([
             <ProtectedRoute>
                 <Board />
             </ProtectedRoute>
-        ) 
-    },
-    
-    // {
-    //     path: "/kanban",
-    //     element: (
-    //         <ProtectedRoute
-    //             path="/kanban"
-    //             element={<Board />}
-    //             roles={[0, "Admin", 2, "Planerare"]}
-    //         />
-    //     )
-    // },
-    {
-        path: "/todo/:id",
-        element: (
-            <ProtectedRoute>
-                <TodoModal/>
-            </ProtectedRoute>
-        ) 
-    },
+        ),
+        children: [
+        {
+            path: "todo/:id",
+            element: (
+                <ProtectedRoute>
+                    <TodoModal />
+                </ProtectedRoute>
+            ),
+        },
+        ],
+  },
 ])
 
 export default router
