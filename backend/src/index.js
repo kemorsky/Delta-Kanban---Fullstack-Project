@@ -1,5 +1,14 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ✅ Load the .env file from the root directory
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
 import express from 'express';
-import dotenv from 'dotenv'
 import { dbConnect } from './config/dbConnect.js'
 import authRoutes from './routes/authRoutes.js'
 import userRoutes from './routes/userRoutes.js'
@@ -8,7 +17,6 @@ import columnRoutes from './routes/columnRoutes.js'
 import verifyToken from './middleware/authMiddleware.js';
 
 dbConnect();
-dotenv.config();
 
 const app = express();
 
