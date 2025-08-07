@@ -8,7 +8,7 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 export const InputLogin: React.FC<InputProps> = ({className, ...props}) => {
     return (
         <input type="text"
-                className={cn("w-full font-secondary rounded px-2 py-1", className)}{...props}></input>
+                className={cn("w-full text-base font-normal font-secondary rounded p-2 border-none focus:ring-1 focus:ring-gray-200 focus:outline-none shadow-sm transition-colors", className)}{...props}></input>
     )
 }
 

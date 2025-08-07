@@ -1,7 +1,9 @@
 import mongoose from 'mongoose';
 import { columnSchema } from '../models/columnModel.js';
+import { todoSchema } from '../models/todoModel.js';
 
 const Column = mongoose.model('Column', columnSchema);
+const Todo = mongoose.model('Todo', todoSchema);
 
 const getColumns = async (req, res) => {
     try {
@@ -95,6 +97,7 @@ const reorderColumns = async (req, res) => {
             .json({ message: "Columns reordered successfully", columns: updatedColumns });
 
     } catch (error) {
+        console.error(error);
         res
             .status(error.status || 500)
             .json({message: "Error reordering columns", error: error.message})
@@ -105,6 +108,7 @@ const deleteColumn = async (req, res) => {
     const columnId = req.params.id;
     
     try {
+        await Todo.deleteMany({ columnId });
         const deletedColumn = await Column.findByIdAndDelete({ _id: columnId, user: req.user.id });
 
         if (!deletedColumn) {

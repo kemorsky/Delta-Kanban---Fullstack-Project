@@ -13,21 +13,20 @@ import { TodoCard, TodoCardTitle } from "./Todo/todo-card";
 import { ButtonAddColumn } from "../ui/button";
 import ColumnContainer from "./ColumnContainer";
 import TodoModal from "./todo-modal";
+import Header from "./Header";
 
 export default function Board() {
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
     const [ activeTodo, setActiveTodo ] = useState<Todo | null>(null);
     const [ isOpen, setIsOpen ] = useState(false);
 
-    const { handleLogOut, handleAddColumn } = useHandles();
+    const { handleAddColumn } = useHandles();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     
     const [{ data: todos, error }, { data: columns } ] = useQueries( // main fetch of data of todos and columns
             {queries: [createTodoQueryOptions(), createColumnQueryOptions()]} 
         );
-
-    const username = todos && todos.length > 0 ? todos[0].user?.username : undefined;
 
     const joinedColumnIds = useMemo(() => columns?.map(col => col.id).join(','), [columns]);
 
@@ -178,12 +177,9 @@ export default function Board() {
     };
 
     return (
-        <main className='w-full max-w-[90rem] mx-auto h-full bg-orange-300'>
-            <section className="flex flex-col gap-2 bg-sky-600">
-                <h1>Welcome, {username}</h1>
-                <button onClick={() => handleLogOut()}>Log Out</button>
-            </section>
-            <article className="w-full h-full max-h-[40rem] bg-blue-500 rounded-xl border-w flex gap-2 items-start justify-start overflow-x-auto overflow-y-hidden">
+        <main className='w-full h-full bg-orange-300'>
+            <Header todos={todos} />
+            <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto  bg-blue-500 rounded-xl border-w flex gap-2 items-start justify-start overflow-x-auto overflow-y-hidden">
                 {isOpen && (
                     <div
                         className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10 transition transform"

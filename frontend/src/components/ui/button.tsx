@@ -16,7 +16,9 @@ export const ButtonDeleteColumn: React.FC<ButtonProps> = ({className, ...props})
 };
 
 export const ButtonAddTodo: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-full p-2 flex items-center justify-center text-base hover:bg-blue-500 border-none transform transition-colors", className)}{...props}></button>;
+    return <button className={cn("w-full p-2 flex items-center justify-center text-base hover:bg-blue-500 border-none transform transition-colors", className)}{...props}>
+        <Plus className="w-[1.3125rem] h-[1.3125rem]" />Add Todo
+    </button>;
 };
 
 export const ButtonDeleteTodo: React.FC<ButtonProps> = ({className, ...props}) => {

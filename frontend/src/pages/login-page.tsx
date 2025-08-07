@@ -35,16 +35,16 @@ export default function LoginPage() {
 
     return (
         <main className="h-full w-full flex items-center justify-center">
-            <form className="h-full max-h-[20rem] w-[20rem] rounded-md bg-blue-700 p-4 flex flex-col items-center justify-center gap-4" onSubmit={handleSubmit}>
+            <form className="h-full max-h-[40rem] w-[40rem] rounded-md bg-blue-700 p-4 flex flex-col items-center justify-center gap-4" onSubmit={handleSubmit}>
                 <h1 className="self-start">Login</h1>
-                <article className="w-full space-y-3">
-                    <label htmlFor="username" className="flex flex-col">Username
+                <article className="w-full max-w-[25rem] space-y-3">
+                    <label htmlFor="username" className="flex flex-col gap-1 text-[0.875rem] font-secondary font-semibold">Username
                         <InputLogin type="text"
                             value={user.username}
                             onChange={(e) => {setUser({username: e.target.value, password: user.password})}}
                                 />
                     </label>
-                    <label htmlFor="password" className="flex flex-col">Password
+                    <label htmlFor="password" className="flex flex-col gap-1 text-[0.875rem] font-secondary font-semibold">Password
                         <InputLogin type="password"
                             value={user.password}
                             onChange={(e) => {setUser({username: user.username, password: e.target.value})}}/>

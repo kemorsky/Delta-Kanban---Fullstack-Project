@@ -4,7 +4,6 @@ import { ButtonAddTodo, ButtonDeleteColumn } from "../ui/button";
 import { ColumnWrapper } from "./Column/ColumnWrapper";
 import ColumnContent from "./Column/ColumnContent";
 import { InputEdit } from "../ui/input";
-import { Plus } from "lucide-react";
 import useHandles from "../../hooks/useHandles";
 
 type Props = {
@@ -50,7 +49,7 @@ export default function ColumnContainer(props: Props) {
             </section>
             <ColumnContent todos={todos} columnId={column.id} column={column} getTodo={getTodo}/>
             <footer className="w-full">
-                <ButtonAddTodo onClick={() => {handleAddTodo(column.id)}}><Plus className="w-[1.3125rem] h-[1.3125rem]" />Add Todo</ButtonAddTodo>
+                <ButtonAddTodo onClick={() => {handleAddTodo(column.id)}} />
             </footer>
         </ColumnWrapper>
     )

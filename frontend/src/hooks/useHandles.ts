@@ -56,7 +56,6 @@ export default function useHandles() {
         try {
             mutateLogOut()
             navigate('/login');
-            // setUser({username: '', password: ''})
         } catch (error) {
             console.error('Error logging in:', error)
             throw new Error (`Error logging in: ${error}`);

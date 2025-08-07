@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use((req, res, next) => {
-  const allowedOrigin = 'http://localhost:5173'; // your React app URL
+  const allowedOrigin = 'http://localhost:5173';
   res.header("Access-Control-Allow-Origin", allowedOrigin);
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
