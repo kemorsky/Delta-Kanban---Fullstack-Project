@@ -37,5 +37,9 @@ export const ButtonCloseModal: React.FC<ButtonProps> = ({className, ...props}) =
     return <button className={cn("w-[2.5rem] h-[2.5rem] flex items-center justify-center hover:bg-black/35 border-none rounded-xl transform transition-colors", className)}{...props}>< X className="w-[2rem] h-[2rem]" /></button>;
 };
 
+export const ButtonTextFormat: React.FC<ButtonProps> = ({className, ...props}) => {
+    return <button className={cn("w-[2rem] h-[2rem] bg-none rounded border border-transparent hover:border-secondary hover:bg-gray-600 transform transition-colors", className)}{...props}></button>;
+}
+
 
 

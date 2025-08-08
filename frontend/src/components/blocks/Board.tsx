@@ -177,9 +177,9 @@ export default function Board() {
     };
 
     return (
-        <main className='w-full h-full bg-orange-300'>
+        <main className='w-full h-full bg-primary'>
             <Header todos={todos} />
-            <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto  bg-blue-500 rounded-xl border-w flex gap-2 items-start justify-start overflow-x-auto overflow-y-hidden">
+            <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto rounded-xl border-w flex gap-2 items-start justify-start overflow-x-auto overflow-y-hidden">
                 {isOpen && (
                     <div
                         className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10 transition transform"

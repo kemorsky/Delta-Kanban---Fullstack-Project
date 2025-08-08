@@ -12,7 +12,7 @@ export default function Header(props: HeaderProps) {
     const username = todos && todos.length > 0 ? todos[0].user?.username : undefined;
 
     return (
-        <header className="flex justify-between gap-3 p-4 bg-sky-600">
+        <header className="bg-[#111827] flex justify-between gap-3 p-4">
             <h1 className="text-2xl">Welcome, 
                 <a>
                     <span> {username}</span>
