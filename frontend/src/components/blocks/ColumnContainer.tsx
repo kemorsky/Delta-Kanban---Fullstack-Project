@@ -40,12 +40,12 @@ export default function ColumnContainer(props: Props) {
                 )}
 
                 {editColumnId !== column.id && (
-                    <p className="font-secondary"
+                    <p className="font-secondary px-2 leading-[1.625rem]"
                        onClick={() => {setEditColumnId(column.id)}}>
                         {column.title}
                     </p>
                 )}
-                <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}}>Delete</ButtonDeleteColumn>
+                <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}} />
             </section>
             <ColumnContent todos={todos} columnId={column.id} column={column} getTodo={getTodo}/>
             <footer className="w-full">

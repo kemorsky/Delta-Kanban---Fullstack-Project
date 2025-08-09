@@ -1,11 +1,17 @@
 import { useState, useRef } from "react";
 import type { Todo } from "../../types/types";
 import { AlignLeft } from 'lucide-react';
-import { InputEdit, TextAreaEdit } from "../ui/input";
+import { InputEdit, TextAreaEdit, TextAreaEditor } from "../ui/input";
 import useHandles from "../../hooks/useHandles";
 import { formatDate } from "../../lib/formatDate";
 import { ButtonDeleteTodo, ButtonDeleteLabel, ButtonAddLabel, ButtonCloseModal } from "../ui/button";
 import { useNavigate } from "react-router-dom";
+import MenuBar from "../ui/text";
+import { useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { TextStyleKit } from "@tiptap/extension-text-style";
+import { ListItem, BulletList, OrderedList } from "@tiptap/extension-list";
+import Underline from '@tiptap/extension-underline'
 
 type TodoModalProps = {
     todo?: Todo | null | undefined,
@@ -20,7 +26,12 @@ export default function TodoModal(props: TodoModalProps) {
     
     const navigate = useNavigate();
 
-    const textAreaRef = useRef<HTMLTextAreaElement>(null);
+    // const textAreaRef = useRef<HTMLTextAreaElement>(null);
+    
+    const tiptapEditor = useEditor({
+       extensions: [TextStyleKit, StarterKit],
+        content: `<p>${todo?.description}</p>`
+    });
 
     if (!todo || !setIsOpen ) return;
 
@@ -75,10 +86,25 @@ export default function TodoModal(props: TodoModalProps) {
                         <h2 className="text-xl font-secondary">Description</h2>
                     </section>
                     <div>
-                        
+
+                        {editTodoDescription === todo.id && (
+                        <>
+                            <MenuBar editor={tiptapEditor} />
+                            <TextAreaEditor editor={tiptapEditor} />
+                            <button
+                                onClick={() => {
+                                    const updatedDescription = tiptapEditor?.getText() ?? todo.description;
+                                    handleEditTodo(todo.columnId, todo.id ?? '', todo.title ?? '', updatedDescription);
+                                    setEditTodoDescription(null);
+                                }}
+                            >
+                            Save
+                            </button>
+                        </>
+                        )}
+{/*                         
                         {editTodoDescription === todo.id && (
                             <>
-                                {/* <TextFormat /> */}
                                 <TextAreaEdit
                                         defaultValue={todo.description}
                                         ref={textAreaRef}
@@ -92,7 +118,7 @@ export default function TodoModal(props: TodoModalProps) {
                                     Save
                                 </button>
                             </>
-                        )}
+                        )} */}
 
                         {editTodoDescription !== todo.id && (
                             <article className="min-h-[7rem] font-secondary text-white/80 whitespace-pre-wrap p-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] shadow-sm transform transition-colors" onClick={() => setEditTodoDescription(todo.id ?? '')}>{todo.description}</article>

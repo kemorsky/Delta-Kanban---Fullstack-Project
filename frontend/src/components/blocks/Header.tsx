@@ -19,7 +19,7 @@ export default function Header(props: HeaderProps) {
                 </a>
             </h1>
             <section className="flex items-center justify-start gap-2">
-                <img src="" alt="user profile picture" className="w-12 h-12 bg-blue-200 rounded-full overflow-hidden object-fill"/>
+                <img src="public/profile-picture.jpg" alt="user profile picture" className="w-12 h-12 bg-blue-200 rounded-full overflow-hidden object-fill"/>
                 <p className="text-base font-secondary">{username}</p>
                 <button onClick={() => handleLogOut()}>Log Out</button>
             </section>

@@ -81,7 +81,6 @@ export const addTodo = async (todo: Todo, columnId: string): Promise<Todo> => {
       credentials: 'include',
       body: JSON.stringify({...todo, columnId})
     });
-    console.log(response);  
     return response;
   } catch (error) {
     console.error('Error adding todo:', error);
@@ -96,7 +95,6 @@ export const reorderTodos = async (orderId: string[], columnId: string): Promise
       credentials: 'include',
       body: JSON.stringify({order: orderId, columnId: columnId})
     })
-    console.log(data);
     return data;
   } catch (error) {
     throw new Error (`Error reordering columns: ${error}`);
@@ -110,7 +108,6 @@ export const editTodo = async (columnId: string, id: string, title: string, desc
       credentials: 'include',
       body: JSON.stringify({columnId, id, title, description})
     });
-    console.log(response);
     return response;
   } catch (error) {
     console.error('Error updating todo:', error);
@@ -124,7 +121,6 @@ export const deleteTodo = async (columnId: string, id: string): Promise<Todo> =>
       method: 'DELETE',
       credentials: 'include',
     });
-    console.log(response);
     return response;
   } catch (error) {
     console.error('Error deleting todo:', error);
@@ -149,7 +145,6 @@ export const addColumn = async (column: Column) => {
       credentials: 'include',
       body: JSON.stringify(column)
     });
-    console.log(response);
     return response;
   } catch (error) {
     console.error('Error adding column:', error);
@@ -163,7 +158,6 @@ export const reorderColumns = async (orderIds: string[]): Promise<{columns: Colu
       credentials: 'include',
       body: JSON.stringify({order: orderIds})
     })
-    console.log(data);
     return data;
   } catch (error) {
     throw new Error (`Error reordering columns: ${error}`);
@@ -177,7 +171,6 @@ export const editColumn = async (id: string, title: string): Promise<Column> => 
       credentials: 'include',
       body: JSON.stringify({id, title})
     });
-    console.log(response);
     return response;
   } catch (error) {
     throw new Error (`Error updating column: ${error}`);
@@ -190,7 +183,6 @@ export const deleteColumn = async (id: string): Promise<Column> => {
       method: 'DELETE',
       credentials: 'include',
     });
-    console.log(response);
     return response;
   } catch (error) {
     throw new Error (`Error deleting column: ${error}`);

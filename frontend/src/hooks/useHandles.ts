@@ -66,28 +66,25 @@ export default function useHandles() {
         const todoData = {
             columnId,
             title: 'New Todo',
-            description: 'Description'
+            description: ' '
         };
         mutateAddTodo({todoData, columnId})        
     };
 
     const handleEditTodo = async (columnId: string, id: string, title: string, description: string) => {
-        console.log('handleEditTodo called with:', columnId, id, title, description);
         mutateEditTodo({columnId, id, title, description})
     };
 
     const handleDeleteTodo = async (columnId: string, id: string) => {
         mutateDeleteTodo({columnId, id})
-        console.log('todo deleted');
     }
     
     const handleAddColumn = async () => {
         const columnData = {
             id: '',
-            title: 'New Column Query Test',
+            title: 'New Column',
         };
         mutateAddColumn(columnData)
-        console.log('column added');
     };
 
     const handleEditColumn = async (id: string, title: string ) => {
