@@ -10,7 +10,7 @@ export default {
             tertiary: '#374151',
           },
           fontFamily: {
-            secondary: ['Nata Sans', 'sans-serif'],
+            secondary: ['Montserrat', 'sans-serif'],
           }
         },
       },

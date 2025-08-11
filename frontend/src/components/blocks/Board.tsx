@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 import { useNavigate, Outlet } from "react-router-dom";
 import type { Todo, Column } from "../../types/types"
 import useHandles from "../../hooks/useHandles";
-import { DndContext, DragOverlay, MouseSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent, closestCorners } from '@dnd-kit/core';
+import { DndContext, DragOverlay, useSensor, useSensors, type DragEndEvent, type DragStartEvent, closestCorners } from '@dnd-kit/core';
+import { CustomMouseSensor } from "../../lib/custom-mouse-sensor";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { fetchTodoById, reorderColumns, reorderTodos } from "../../lib/api";
@@ -34,7 +35,7 @@ export default function Board() {
         return joinedColumnIds?.split(',');
     }, [joinedColumnIds]);
 
-    const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),);
+    const sensors = useSensors(useSensor(CustomMouseSensor, { activationConstraint: { distance: 10 } }),);
 
     const { mutate: mutateReorderColumns } = useMutation({
         mutationFn: reorderColumns,
@@ -179,10 +180,10 @@ export default function Board() {
     return (
         <main className='w-full h-full bg-primary'>
             <Header todos={todos} />
-            <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto rounded-xl border-w flex gap-4 items-start justify-start overflow-x-auto overflow-y-hidden">
+            <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto rounded-xl flex gap-4 items-start justify-start overflow-x-auto overflow-y-hidden">
                 {isOpen && (
                     <div
-                        className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10 transition transform"
+                        className="w-full h-full fixed top-0 left-0 bg-black bg-opacity-50 z-10 transition transform"
                         onClick={() => {setIsOpen(false); navigate('/kanban')}
                         }
                     />
@@ -222,7 +223,8 @@ export default function Board() {
                 {isOpen && (
                     <>
                         <Outlet />
-                        <TodoModal todo={todos.find(t => t.id === activeTodo?.id)}
+                        <TodoModal todos={todos}
+                                    todo={todos.find(t => t.id === activeTodo?.id)}
                                     setIsOpen={setIsOpen}
                         />
                     </>

@@ -21,7 +21,7 @@ export default function ColumnContainer(props: Props) {
     
     return (
         <ColumnWrapper column={column}>
-            <section className="flex items-center justify-between pb-2 border-b border-[#324067]">
+            <section className="flex items-center justify-between pb-2 border-b border-[#4073ffb0]">
                 {editColumnId === column.id && (
                     <InputEdit 
                             className="m-0"

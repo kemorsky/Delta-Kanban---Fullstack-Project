@@ -11,7 +11,7 @@ export const ButtonLogin: React.FC<ButtonProps> = ({className, ...props}) => {
 };
 
 export const ButtonAddColumn: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-[18.75rem] p-2 flex flex-shrink-0 items-center justify-center text-base bg-[#1F2937] hover:bg-[#1F2937]/80 border-none transform transition-colors", className)}{...props}>
+    return <button className={cn("w-[18.75rem] p-2 flex flex-shrink-0 items-center justify-center font-secondary text-base bg-[#1F2937] hover:bg-[#1F2937]/80 border-none transform transition-colors", className)}{...props}>
                 <Plus className="w-[1.3125rem] h-[1.3125rem]"/>
                     Add column
             </button>;
@@ -28,6 +28,12 @@ export const ButtonAddTodo: React.FC<ButtonProps> = ({className, ...props}) => {
     return <button className={cn("w-full p-2 flex items-center justify-center text-base hover:bg-blue-500 border-none transform transition-colors", className)}{...props}>
         <Plus className="w-[1.3125rem] h-[1.3125rem]" />Add Todo
     </button>
+};
+
+export const ButtonEditTodoDescription: React.FC<ButtonProps> = ({className, ...props}) => {
+    return <button className={cn("w-[5rem] text-center p-2 bg-none border-green-700 hover:border-green-700 hover:bg-green-600 hover:text-white font-secondary font-semibold text-[0.875rem] text-green-200 transform transition-colors mt-2", className)}{...props}>
+                Save
+            </button>
 };
 
 export const ButtonDeleteTodo: React.FC<ButtonProps> = ({className, ...props}) => {

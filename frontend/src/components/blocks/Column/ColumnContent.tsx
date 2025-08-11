@@ -4,7 +4,8 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import { verticalListSortingStrategy } from "@dnd-kit/sortable";
 import DraggableTodoCard from "../DraggableTodo/draggable-todo";
-import { TodoCardTitle } from "../Todo/todo-card";
+import { TodoCardId, TodoCardTitle } from "../Todo/todo-card";
+import { formatTodoId } from "../../../lib/format-todo-id";
 
 type Props = {
     todos: Todo[],
@@ -33,6 +34,7 @@ export default function ColumnContent(props: Props) {
             <ul ref={setNodeRef} className="w-full flex flex-col gap-3 pb-4 overflow-x-hidden overflow-y-auto">
                 {columnTodos.map((todo) => (
                         <DraggableTodoCard key={todo.id} todo={todo} onClick={() => {getTodo(todo)}} >
+                                <TodoCardId>#{formatTodoId(todos, todo.id, todo.user?.username)}</TodoCardId>
                                 <TodoCardTitle>{todo.title}</TodoCardTitle>
                         </DraggableTodoCard>
                     ))}

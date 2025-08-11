@@ -101,12 +101,12 @@ export const reorderTodos = async (orderId: string[], columnId: string): Promise
   }
 };
 
-export const editTodo = async (columnId: string, id: string, title: string, description: string): Promise<Todo> => {
+export const editTodo = async (columnId: string, id: string, title: string, description: string, labels: string[]): Promise<Todo> => {
   try {
     const response = await apiRequest(`${URL}/api/columns/${columnId}/todos/todo/${id}`, {
       method: 'PUT',
       credentials: 'include',
-      body: JSON.stringify({columnId, id, title, description})
+      body: JSON.stringify({columnId, id, title, description, labels})
     });
     return response;
   } catch (error) {
