@@ -1,13 +1,8 @@
 import type { Editor } from '@tiptap/react'
-import { EditorContent, useEditor, useEditorState } from '@tiptap/react'
-import React from 'react'
+import { useEditorState } from '@tiptap/react'
 import { ButtonTextFormat } from './button'
 import { Bold, Heading1, Heading2, Heading3, ItalicIcon, ListCheck, ListOrdered, Strikethrough, UnderlineIcon, Undo, Redo, Code, RulerDimensionLine } from 'lucide-react'
-// import { TextStyleKit } from '@tiptap/extension-text-style'
-// import StarterKit from '@tiptap/starter-kit'
 import { ButtonTextFormatIcon, ButtonTextFormatTipTop } from './button-text-format-icon'
-
-// const extensions = [TextStyleKit, StarterKit]
 
 export default function TextEditor({ editor }: { editor: Editor }) {
   // Read the current editor's state, and re-render the component when it changes
@@ -38,7 +33,7 @@ export default function TextEditor({ editor }: { editor: Editor }) {
   })
 
   return (
-    <div className="control-group bg-tertiary/80 border border-[#1F2937] rounded p-2 flex items-center justify-start">
+    <div className="control-group bg-primary border border-[#1F2937] border-b-gray-300 rounded-t p-2 flex flex-wrap items-center justify-start">
         <section className="pr-2 flex gap-1 border-r border-gray-300">
           <ButtonTextFormat
               onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -99,6 +94,12 @@ export default function TextEditor({ editor }: { editor: Editor }) {
                 <Strikethrough />
               </ButtonTextFormatIcon>
           </ButtonTextFormat>
+          <ButtonTextFormat onClick={() => editor.chain().focus().setHorizontalRule().run()}>
+          <ButtonTextFormatIcon>
+            <ButtonTextFormatTipTop>Line</ButtonTextFormatTipTop >
+            <RulerDimensionLine />
+          </ButtonTextFormatIcon>
+        </ButtonTextFormat>
       </section>
       <section className="px-2 flex gap-1 border-r border-gray-300">
         <ButtonTextFormat
@@ -125,14 +126,8 @@ export default function TextEditor({ editor }: { editor: Editor }) {
             <Code />
           </ButtonTextFormatIcon>           
         </ButtonTextFormat>
-        <ButtonTextFormat onClick={() => editor.chain().focus().setHorizontalRule().run()}>
-          <ButtonTextFormatIcon>
-            <ButtonTextFormatTipTop>Line</ButtonTextFormatTipTop >
-            <RulerDimensionLine />
-          </ButtonTextFormatIcon>
-        </ButtonTextFormat>
       </section>
-      <section className="px-2 flex gap-1">
+      <section className="pl-2 flex gap-1">
         <ButtonTextFormat onClick={() => editor.chain().focus().undo().run()} disabled={!editorState.canUndo}>
           <ButtonTextFormatIcon>
             <ButtonTextFormatTipTop>Undo</ButtonTextFormatTipTop >
@@ -149,45 +144,3 @@ export default function TextEditor({ editor }: { editor: Editor }) {
     </div>
   )
 }
-
-// export const TipTapEditor: React.FC = () => {
-//   const editor = useEditor({
-//     extensions,
-//     content: `
-// <h2>
-//   Hi there,
-// </h2>
-// <p>
-//   this is a <em>basic</em> example of <strong>Tiptap</strong>. Sure, there are all kind of basic text styles you’d probably expect from a text editor. But wait until you see the lists:
-// </p>
-// <ul>
-//   <li>
-//     That’s a bullet list with one …
-//   </li>
-//   <li>
-//     … or two list items.
-//   </li>
-// </ul>
-// <p>
-//   Isn’t that great? And all of that is editable. But wait, there’s more. Let’s try a code block:
-// </p>
-// <pre><code class="language-css">body {
-//   display: none;
-// }</code></pre>
-// <p>
-//   I know, I know, this is impressive. It’s only the tip of the iceberg though. Give it a try and click a little bit around. Don’t forget to check the other examples too.
-// </p>
-// <blockquote>
-//   Wow, that’s amazing. Good work, boy! 👏
-//   <br />
-//   — Mom
-// </blockquote>
-// `,
-//   })
-//   return (
-//     <div>
-//       <TextEditor editor={editor} />
-//       <EditorContent editor={editor} />
-//     </div>
-//   )
-// }

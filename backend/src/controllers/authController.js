@@ -30,7 +30,7 @@ export const login = async (req, res) => {
   try {
     const { username, password } = req.body; // required body elements to post
 
-    const user = await User.findOne({ username }); // find the user
+    const user = await User.findOne({ username });
 
     if (!user) {
       return res.status(404).json({ message: `User with username ${username} not found` });
@@ -56,6 +56,9 @@ export const login = async (req, res) => {
       maxAge: 3600000, // 1 hour
     });
 
+    if (password.length > 40 && typeof password == 'string') {
+      res.send("Password too long, try again");
+    }
     res.status(200).json({ username, userId: user._id });
 
   } catch (error) {
@@ -64,7 +67,7 @@ export const login = async (req, res) => {
   }
 };
 
-export const logout = (req, res) => {
+export const logout = (res) => {
   try {
     res.clearCookie('token', '', {
       httpOnly: true,
@@ -100,3 +103,20 @@ export const deleteUser = async (req, res) => {
             .json({message: error.message})
     }
 };
+
+export const fetchUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(user)
+  } catch (error) {
+      return res
+        .status(404)
+        .json({message: "User not found"})
+  }
+}

@@ -1,5 +1,4 @@
 import * as React from 'react';
-// import type { TextareaHTMLAttributes } from 'react';
 import { EditorContent, type Editor } from '@tiptap/react';
 
 import { cn } from "../../lib/utils";
@@ -34,7 +33,7 @@ export const TextAreaEditor: React.FC<TextAreaEditorProps> = ({
   return (
     <div
       className={cn(
-        "w-full min-h-[7rem] bg-primary text-base font-normal font-secondary rounded p-2 border border-[#374151] hover:border-[#485fc7] focus:ring-1 focus:ring-[#374151] focus:outline-none shadow-sm transition-all cursor-text",
+        "w-full min-h-[7rem] bg-primary text-base font-normal font-secondary rounded-b p-2 border-r border-l border-b border-[#374151] hover:border-[#485fc7] focus:ring-1 focus:ring-[#374151] focus:outline-none shadow-sm transition-all cursor-text",
         className
       )}
     >
@@ -45,17 +44,3 @@ export const TextAreaEditor: React.FC<TextAreaEditorProps> = ({
     </div>
   );
 };
-
-// export const TextAreaEdit: React.FC<React.RefAttributes<HTMLTextAreaElement> & TextareaHTMLAttributes<HTMLTextAreaElement>> = ({className, ...props}) => {
-//   const handleFocus = (event: React.FocusEvent<HTMLTextAreaElement>) => {
-//     event.target.selectionStart = event.target.value.length;
-//     event.target.selectionEnd = event.target.value.length;
-//   };
-//   return (
-//     <textarea
-//       onFocus={handleFocus}
-//       className={cn("w-full min-h-[7rem] bg-primary text-base font-normal font-secondary rounded p-2 border border-[#374151] hover:border-gray-200 focus:ring-1 focus:border-[#374151] active:ring-[#485fc7] focus:outline-none shadow-sm transform transition-all", className)}
-//       {...props}
-//     ></textarea>
-//   )
-// }

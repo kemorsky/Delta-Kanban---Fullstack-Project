@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { Todo } from "../../types/types";
-import { AlignLeft } from 'lucide-react';
+import { AlignLeft, Plus } from 'lucide-react';
 import { InputEdit, TextAreaEditor } from "../ui/input";
 import useHandles from "../../hooks/useHandles";
 import { formatDate } from "../../lib/formatDate";
@@ -9,8 +9,6 @@ import { useNavigate } from "react-router-dom";
 import TextEditor from "../ui/text-editor";
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { TextStyleKit } from "@tiptap/extension-text-style";
-import Underline from '@tiptap/extension-underline'
 import { formatTodoId } from "../../lib/format-todo-id";
 
 type TodoModalProps = {
@@ -22,14 +20,15 @@ type TodoModalProps = {
 export default function TodoModal(props: TodoModalProps) {
     const [ editTodoTitle, setEditTodoTitle ] = useState<string | null>('');
     const [ editTodoDescription, setEditTodoDescription ] = useState<string | null>('');
-    const [ label, setLabel ] = useState<string | null>('');
+    const [ editTodoLabel, setEditTodoLabel ] = useState<string | null>('');
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const { todo, todos, setIsOpen } = props
-    const { handleEditTodo, handleDeleteTodo } = useHandles();
+    const { handleEditTodo, handleDeleteTodo, handleAddLabel, handleDeleteLabel } = useHandles();
     
     const navigate = useNavigate();
 
-    const extensions = [ StarterKit, TextStyleKit, Underline ]
+    const extensions = [ StarterKit ]
     
     const tiptapEditor = useEditor({
        extensions,
@@ -49,7 +48,7 @@ export default function TodoModal(props: TodoModalProps) {
                                     className="text-3xl"
                                     defaultValue={todo.title}
                                     onBlur={(e) => {
-                                        handleEditTodo(todo.columnId, todo.id ?? '', e.target.value, todo.description ?? '', todo.labels ?? []);    
+                                        handleEditTodo(todo.columnId, todo.id ?? '', e.target.value, todo.description ?? '');    
                                         console.log(todo.columnId, todo.id, todo.title)                                     
                                         setEditTodoTitle(null);
                                     }}
@@ -62,35 +61,43 @@ export default function TodoModal(props: TodoModalProps) {
                         )}
 
                         {editTodoTitle !== todo.id && (
-                            <h1 className="text-3xl font-secondary leading-[2.5rem] w-full pl-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] shadow-sm transform transition-colors" onClick={() => setEditTodoTitle(todo.id ?? '')}>{todo.title}</h1>
+                            <h1 className="text-3xl font-secondary leading-[2.5rem] w-full md:pl-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] shadow-sm transform transition-colors" 
+                                onClick={() => setEditTodoTitle(todo.id ?? '')}>
+                                    {todo.title}
+                            </h1>
                         )}
                     </section>
-                    <section className="flex flex-col items-start gap-1.5 font-secondary text-[1.125rem] text-white/75">
-                        <label htmlFor="label">Labels:</label>
+                    <section className="flex flex-col items-start gap-1.5 font-secondary  text-white/75">
+                        <label htmlFor="label" className="text-[1.125rem] text-white/65">Labels:</label>
                         <article className="flex gap-1.5">
                             {todo.labels?.map((label) => (
-                                <span key={label} className="min-w-[5rem] flex items-center gap-1 bg-blue-600 rounded px-2 py-1 text-sm border border-black">
-                                    <p>{label}</p>
-                                    <ButtonDeleteLabel />
-                                </span>
-                            ))}
-                            <ButtonAddLabel>+ Add Label</ButtonAddLabel>
-                            {/* {label !== null && (
-                                <InputEdit type="text" 
-                                    value={label}
-                                    onChange={(e) => setLabel(e.target.value)}
-                                    onBlur={(e) => {
-                                        handleEditTodo(todo.columnId, todo.id ?? '', todo.title ?? '', todo.description ?? '', [...todo.labels ?? [], e.target.value]);    
-                                        console.log(todo.columnId, todo.id, todo.title)                                     
-                                        setLabel(null);
-                                    }}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                            e.currentTarget.blur();
-                                        }
-                                    }}
-                                    autoFocus />
-                            )} */}
+                                    <span key={label.labelId} className="min-w-[5rem] flex items-center justify-between gap-1 bg-blue-600 rounded px-2 py-1 text-sm border border-black">
+                                        <p>{label.title}</p>
+                                        <ButtonDeleteLabel onClick={() => {handleDeleteLabel(todo.columnId, todo.id ?? '', label.labelId ?? '')}} />
+                                    </span>
+                                ))
+                            }
+
+                            {editTodoLabel === todo.id && (
+                                <>
+                                    <input type="text"
+                                            className="min-w-[5rem] max-w-[7.25rem] flex items-center gap-1 bg-blue-600 rounded px-2 py-1 text-sm border border-black focus:outline-none"
+                                            ref={inputRef}
+                                            placeholder=''
+                                            autoFocus/>
+                                    <ButtonAddLabel onClick={() => {
+                                                        const value = inputRef.current?.value.trim()
+                                                        if (value) {
+                                                            handleAddLabel(todo.columnId, todo.id ?? '', value)
+                                                        }
+                                                        setEditTodoLabel(null)
+                                                    }}>Save Label</ButtonAddLabel>
+                                </>
+                            )}
+
+                            {editTodoLabel !== todo.id && ( 
+                                <ButtonAddLabel onClick={() => {setEditTodoLabel(todo.id ?? '')}}><Plus className="w-4 h-4" /> Add Label</ButtonAddLabel> 
+                            )}                          
                         </article>
                     </section>
                 </article>
@@ -104,8 +111,7 @@ export default function TodoModal(props: TodoModalProps) {
                         <AlignLeft />
                         <h2 className="text-xl font-secondary">Description</h2>
                     </section>
-                    <div>
-
+                    <section>
                         {editTodoDescription === todo.id && (
                         <>
                             <TextEditor editor={tiptapEditor} />
@@ -113,7 +119,7 @@ export default function TodoModal(props: TodoModalProps) {
                             <ButtonEditTodoDescription className="w-[5rem] text-center p-2 bg-none border-green-600 hover:border-green-600 hover:bg-green-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-green-200 transform transition-colors mt-2"
                                 onClick={() => {
                                     const updatedDescription = tiptapEditor?.getHTML() ?? todo.description;
-                                    handleEditTodo(todo.columnId, todo.id ?? '', todo.title ?? '', updatedDescription, todo.labels ?? []);
+                                    handleEditTodo(todo.columnId, todo.id ?? '', todo.title ?? '', updatedDescription);
                                     setEditTodoDescription(null);
                                 }}/>
                         </>
@@ -126,14 +132,14 @@ export default function TodoModal(props: TodoModalProps) {
                                         
                             </article>
                         )}
-                    </div>
+                    </section>
                 </article>
                 <article className="w-full md:w-1/3 flex flex-col gap-4 bg-tertiary border border-primary p-3 rounded-md">
                     <section className="flex flex-col justify-start items-start gap-1 text-[0.875rem] font-secondary text-white/60">
                         <p>Created at: {formatDate(todo.createdAt)}</p>
                         <p>Last Edited at: {formatDate(todo.updatedAt)}</p>
                     </section>
-                    <hr className="h-px border-gray-200" />
+                    <hr className="border-gray-200" />
                     <section className="w-full flex flex-col items-start gap-2">
                         <ButtonDeleteTodo onClick={() => {
                             handleDeleteTodo(todo.columnId, todo.id ?? ''); 

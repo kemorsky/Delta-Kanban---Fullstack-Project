@@ -1,4 +1,3 @@
-// protected-route.tsx
 import { Navigate } from "react-router-dom";
 import useSWR from "swr";
 
@@ -11,7 +10,7 @@ const fetcher = (url: string) =>
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { error, isLoading } = useSWR("http://localhost:3000/api/auth/me", fetcher);
 
-  if (isLoading) return null; // or a loader/spinner
+  if (isLoading) return null;
 
   if (error) {
     return <Navigate to="/" replace />;

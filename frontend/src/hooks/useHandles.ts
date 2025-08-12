@@ -1,4 +1,4 @@
-import { addTodo, addColumn, editColumn, deleteColumn, deleteTodo, editTodo, logOut } from '../lib/api';
+import { addTodo, addColumn, editColumn, deleteColumn, deleteTodo, editTodo, logOut, postLabel, deleteLabel } from '../lib/api';
 import type { Column, Todo } from '../types/types';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import createTodoQueryOptions from "../queries/createTodoQueryOptions";
@@ -16,7 +16,7 @@ export default function useHandles() {
                 },
             });
 
-    const { mutate: mutateEditTodo } = useMutation({ mutationFn: ({columnId, id, title, description, labels}: {columnId: string, id: string, title: string, description: string, labels: string[]}) => editTodo(columnId, id, title, description, labels),
+    const { mutate: mutateEditTodo } = useMutation({ mutationFn: ({columnId, id, title, description}: {columnId: string, id: string, title: string, description: string}) => editTodo(columnId, id, title, description),
             onSuccess: () => {
                 queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
             }
@@ -46,6 +46,18 @@ export default function useHandles() {
             }
         });
 
+    const { mutate: mutateAddLabel } = useMutation({ mutationFn: ({columnId, id, title}: {columnId: string, id: string, title: string}) => postLabel(columnId, id, title),
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
+            }
+        })
+
+    const { mutate: mutateDeleteLabel } = useMutation({ mutationFn: ({columnId, id, labelId}: {columnId: string, id: string, labelId: string}) => deleteLabel(columnId, id, labelId),
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
+            }
+        })
+
     const { mutate: mutateLogOut } = useMutation({ mutationFn: () => logOut(),
                     onSuccess: () => {
                         queryClient.invalidateQueries();
@@ -55,10 +67,10 @@ export default function useHandles() {
     const handleLogOut = async () => {
         try {
             mutateLogOut()
-            navigate('/login');
+            navigate('/');
         } catch (error) {
-            console.error('Error logging in:', error)
-            throw new Error (`Error logging in: ${error}`);
+            console.error('Error logging out:', error)
+            throw new Error (`Error logging out: ${error}`);
         };
     }
 
@@ -68,15 +80,15 @@ export default function useHandles() {
             title: 'New Todo',
             description: ' '
         };
-        mutateAddTodo({todoData, columnId})        
+        mutateAddTodo({ todoData, columnId })        
     };
 
-    const handleEditTodo = async (columnId: string, id: string, title: string, description: string, labels: string[]) => {
-        mutateEditTodo({columnId, id, title, description, labels})
+    const handleEditTodo = async (columnId: string, id: string, title: string, description: string) => {
+        mutateEditTodo({ columnId, id, title, description })
     };
 
     const handleDeleteTodo = async (columnId: string, id: string) => {
-        mutateDeleteTodo({columnId, id})
+        mutateDeleteTodo({ columnId, id })
     }
     
     const handleAddColumn = async () => {
@@ -95,6 +107,16 @@ export default function useHandles() {
         mutateDeleteColumn(id)
     };
 
+    const handleAddLabel = async (columnId: string, id: string, title: string) => {
+        mutateAddLabel({columnId, id, title})        
+    };
+
+    const handleDeleteLabel = async (columnId: string, id: string, labelId: string) => {
+        mutateDeleteLabel({ columnId, id, labelId })
+        console.log(labelId)
+        console.log('🔥 deleteLabel hit');
+    }
+
     return {
             handleLogOut: handleLogOut,
             handleAddTodo: handleAddTodo,
@@ -102,6 +124,8 @@ export default function useHandles() {
             handleDeleteTodo: handleDeleteTodo,
             handleAddColumn: handleAddColumn,
             handleEditColumn: handleEditColumn,
-            handleDeleteColumn: handleDeleteColumn
+            handleDeleteColumn: handleDeleteColumn,
+            handleAddLabel: handleAddLabel,
+            handleDeleteLabel: handleDeleteLabel
         };               
 };

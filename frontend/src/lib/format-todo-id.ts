@@ -1,4 +1,3 @@
-// lib/getTodoDisplayNumber.ts
 import type { Todo } from "../types/types";
 
 export const formatTodoId = (todos: Todo[], todoId?: string, username?: string): number => {

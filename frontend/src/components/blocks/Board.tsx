@@ -72,7 +72,10 @@ export default function Board() {
     });
 
     const { mutate: mutateGetTodo } = useMutation({ mutationFn: (id: string) => fetchTodoById(id), 
-        onSuccess: () => {
+        onSuccess: (todo) => {
+            setActiveTodo(todo);
+            setIsOpen(true);
+            navigate(`/kanban/todo/${todo.id}`);
             queryClient.invalidateQueries({ queryKey: createTodoQueryOptions().queryKey })
         }
     });
@@ -82,10 +85,7 @@ export default function Board() {
     if (error) { console.error(error); };
     
     const getTodo = async (todo: Todo) => {
-        setActiveTodo(todo);
         mutateGetTodo(todo.id ?? '');
-        setIsOpen(true);
-        navigate(`/kanban/todo/${todo.id}`);
     };
 
     const handleDragStart = async (event: DragStartEvent) => {
@@ -179,8 +179,8 @@ export default function Board() {
 
     return (
         <main className='w-full h-full bg-primary'>
-            <Header todos={todos} />
-            <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto rounded-xl flex gap-4 items-start justify-start overflow-x-auto overflow-y-hidden">
+            <Header />
+            <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto rounded-xl flex px-3 gap-4 items-start justify-start overflow-x-auto overflow-y-hidden">
                 {isOpen && (
                     <div
                         className="w-full h-full fixed top-0 left-0 bg-black bg-opacity-50 z-10 transition transform"
@@ -222,7 +222,7 @@ export default function Board() {
                 </DndContext>
                 {isOpen && (
                     <>
-                        <Outlet />
+                        {/* <Outlet /> */}
                         <TodoModal todos={todos}
                                     todo={todos.find(t => t.id === activeTodo?.id)}
                                     setIsOpen={setIsOpen}

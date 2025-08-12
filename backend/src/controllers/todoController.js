@@ -1,13 +1,18 @@
 import mongoose from 'mongoose';
 import { todoSchema } from '../models/todoModel.js';
 import { columnSchema } from '../models/columnModel.js';
+import { labelSchema } from '../models/labelModel.js';
 
 const Todo = mongoose.model('Todo', todoSchema);
 const Column = mongoose.model('Column', columnSchema);
+const Label = mongoose.model('Label', labelSchema);
 
 const getTodos = async (req, res) => {
     try {
-        const todos = await Todo.find({ user: req.user.id }).sort({ order: 1 }).populate('user', 'username');
+        const todos = await Todo.find({ user: req.user.id })
+                            .sort({ order: 1 })
+                            .populate('user', 'username')
+                            .populate('labels');
 
         console.log(todos);
         res
@@ -40,6 +45,7 @@ const postTodo = async (req, res) => {
     const { title, description } = req.body;
 
     const column = await Column.findById(columnId);
+
     if (!column) {
       return res.status(404).json({ message: "Column not found" });
     }
@@ -64,10 +70,66 @@ const postTodo = async (req, res) => {
   }
 };
 
+const postLabel = async (req, res) => {
+    try {
+        const todoId = req.params.id;
+        const { title } = req.body;
+
+        const todo = await Todo.findById({ _id: todoId });
+
+        if (!todo) {
+            return res.status(404).json({ message: "Todo not found" });
+        }
+
+        const newLabel = new Label({ title, todo });
+        await newLabel.save();
+
+        todo.labels.push(newLabel._id);
+        await todo.save();
+
+         console.log(todo);
+
+         res.status(201).json({
+            message: "Label created successfully",
+            label: newLabel
+        });
+    } catch (error) {
+        res.status(error.status || 500).json({ message: error.message });
+    }
+}
+
+const deleteLabel = async (req, res) => {
+    try {
+        const todoId = req.params.id;
+        const labelId = req.params.labelId;
+        console.log('deleteLabel hit');
+        console.log('Params:', req.params);
+
+        const todo = await Todo.findOneAndUpdate(
+            { _id: todoId },
+            { $pull: { labels: labelId } },
+            { new: true }
+        );
+
+        if (!todo) {
+            return res.status(404).json({ message: "Todo not found" });
+        }
+
+        if (todo.user.toString() !== req.user.id) {
+            return res.status(403).json({ message: "You don't have permission to delete this label" });
+        }
+
+         res.status(200).json({
+            message: "Label deleted successfully"
+        });
+    } catch (error) {
+        res.status(error.status || 500).json({ message: error.message });
+    }
+}
 
 const editTodo = async (req, res) => {
     const todoId = req.params.id;
-    const {title, description, labels} = req.body;
+    const { title, description, labels } = req.body;
 
     try {
         const updatedTodo = await Todo.findOneAndUpdate(
@@ -154,6 +216,7 @@ const deleteTodo = async (req, res) => {
     
     try {
         const deletedTodo = await Todo.findOneAndDelete({ _id: todoId, user: req.user.id });
+        console.log('🔥 deleteTodo hit');
 
         if (!deletedTodo) {
             res
@@ -172,4 +235,4 @@ const deleteTodo = async (req, res) => {
     }
 };
 
-export { getTodos, getTodoById, postTodo, editTodo, reorderTodos, deleteTodo };
+export { getTodos, getTodoById, postTodo, editTodo, reorderTodos, deleteTodo, postLabel, deleteLabel };

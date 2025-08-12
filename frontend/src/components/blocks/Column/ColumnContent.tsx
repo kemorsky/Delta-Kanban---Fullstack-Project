@@ -18,7 +18,7 @@ type Props = {
 export default function ColumnContent(props: Props) {
     const { getTodo, todos, columnId, column } = props;
 
-    const columnTodos = todos.filter((todo) => todo.columnId === column.id) // TODO: make this run once, not multiple times
+    const columnTodos = useMemo(() => todos.filter((todo) => todo.columnId === column.id), [todos, column.id]); // TODO: make this run once, not multiple times
     const todosId = useMemo(() => columnTodos.map((todo) => todo.id ?? ''), [columnTodos]);
 
     const { setNodeRef } = useDroppable({
@@ -33,7 +33,7 @@ export default function ColumnContent(props: Props) {
         <SortableContext id={`column-${columnId}`} items={todosId} strategy={verticalListSortingStrategy}>
             <ul ref={setNodeRef} className="w-full flex flex-col gap-3 pb-4 overflow-x-hidden overflow-y-auto">
                 {columnTodos.map((todo) => (
-                        <DraggableTodoCard key={todo.id} todo={todo} onClick={() => {getTodo(todo)}} >
+                        <DraggableTodoCard key={todo.id} todo={todo} onClick={() => todo.id && getTodo(todo)} >
                                 <TodoCardId>#{formatTodoId(todos, todo.id, todo.user?.username)}</TodoCardId>
                                 <TodoCardTitle>{todo.title}</TodoCardTitle>
                         </DraggableTodoCard>

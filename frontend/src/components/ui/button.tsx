@@ -1,12 +1,18 @@
-import { Plus } from "lucide-react";
+import { } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { X, Trash2 } from 'lucide-react';
+import { Plus, X, Trash2 } from 'lucide-react';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const ButtonLogin: React.FC<ButtonProps> = ({className, ...props}) => {
     return <button className={cn("w-[10rem] p-2 font-secondary text-base rounded bg-green-500 hover:bg-green-600 border-none transform transition-colors", className)}{...props}>
                     Login
+            </button>;
+};
+
+export const ButtonLogout: React.FC<ButtonProps> = ({className, ...props}) => {
+    return <button className={cn("px-2 py-1 text-base font-secondary bg-black/20 hover:bg-black/35 rounded transform transition-colors", className)}{...props}>
+                    Logout
             </button>;
 };
 
@@ -44,11 +50,11 @@ export const ButtonDeleteTodo: React.FC<ButtonProps> = ({className, ...props}) =
 };
 
 export const ButtonAddLabel: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("px-2 py-1 text-sm font-secondary bg-black/20 hover:bg-black/35 rounded transform transition-colors", className)}{...props}></button>
+    return <button className={cn("flex justify-center items-center px-2 py-1 text-sm font-secondary bg-black/20 hover:bg-black/35 rounded transform transition-colors", className)}{...props}></button>
 };
 
 export const ButtonDeleteLabel: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-[1.250rem] h-[1.250rem] flex items-center justify-center text-base bg-black/20 hover:bg-black/35 border-none rounded-full transform transition-colors", className)}{...props}>< X className="w-[0.75rem] h-[0.75rem]" /></button>
+    return <button className={cn("w-[1.250rem] h-[1.250rem] flex items-center justify-center text-base bg-black/20 hover:bg-black/35 border border-transparent hover:border-[#485fc7] rounded-full transform transition-colors", className)}{...props}>< X className="w-[0.75rem] h-[0.75rem]" /></button>
 };
 
 export const ButtonCloseModal: React.FC<ButtonProps> = ({className, ...props}) => {

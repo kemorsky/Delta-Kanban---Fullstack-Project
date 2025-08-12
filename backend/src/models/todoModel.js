@@ -32,7 +32,8 @@ export const todoSchema = new mongoose.Schema(
         },
         labels: [
             {
-                type: String,
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Label',
             }
         ]
     }, {

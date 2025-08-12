@@ -4,10 +4,16 @@ export type UserCredentials = {
 };
 
 export type User = {
-    id?: string,
-    username?: string,
-    role?: string,
+    id?: string;
+    username?: string;
+    role?: string;
+    createdAt?: string;
 };
+
+export type Label = {
+    labelId?: string;
+    title: string
+}
 
 export type Todo = {
     id?: string | undefined;
@@ -15,7 +21,7 @@ export type Todo = {
     columnId: string;
     title?: string;
     description?: string;
-    labels?: string[];
+    labels?: Label[];
     order?: number;
     createdAt?: string;
     updatedAt?: string;
