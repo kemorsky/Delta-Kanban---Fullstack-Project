@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import '../src/styles/_variables.scss';
+@import '../src/styles/_keyframe-animations.scss';
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -11,6 +15,44 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.ProseMirror {
+  min-height: 7rem;
+  font-size: 1rem;
+  font-family: var(--font-secondary);
+  color: rgb(255 255 255 / 0.8);
+  border: none;
+  border-radius: 0.25rem;
+  outline: none !important;
+  box-shadow: var(--tw-ring-inset) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  
+  :focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* styles for common tags inside the editor */
+.ProseMirror em { font-style: italic; }
+.ProseMirror strong { font-weight: 700; }
+.ProseMirror u { text-decoration: underline; }
+.ProseMirror strike, .ProseMirror s { text-decoration: line-through; }
+
+.ProseMirror h1, #description h1 { font-size: 2rem; line-height: 1.1; font-weight: 700; margin-bottom: 0.5rem; }
+.ProseMirror h2, #description h2 { font-size: 1.75rem; line-height: 1.1; font-weight: 600; margin-bottom: .5714rem; }
+.ProseMirror h3, #description h3 { font-size: 1.5rem; line-height: 1.1; font-weight: 600; margin-bottom: .6666rem; }
+
+.ProseMirror ul, #description ul { list-style-type: disc !important; padding-left: 1.25rem !important;; margin: 0.5rem 0; }
+.ProseMirror ol, #description ol{ list-style-type: decimal; padding-left: 1.25rem; margin: 0.5rem 0; }
+
+.backdrop {
+  background-color: rgba(0,0,0,0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
 }
 
 a {

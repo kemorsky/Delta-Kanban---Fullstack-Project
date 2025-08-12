@@ -1,27 +1,52 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
 import express from 'express';
-import dotenv from 'dotenv'
 import { dbConnect } from './config/dbConnect.js'
 import authRoutes from './routes/authRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import todoRoutes from './routes/todoRoutes.js'
+import columnRoutes from './routes/columnRoutes.js'
+import verifyToken from './middleware/authMiddleware.js';
 
 dbConnect();
-dotenv.config();
-
-const app = express();
 
 //Middleware
-app.use(express.json());
+const app = express();
 
-app.use((req, res, next) => { // TODO: make Authorization header work with CORS
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+app.use(express.json());
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+  const allowedOrigin = 'http://localhost:5173';
+  res.header("Access-Control-Allow-Origin", allowedOrigin);
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Credentials", "true"); // crucial for cookie sending
+  
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  
   next();
 });
 
+
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/todos', todoRoutes);
+app.use('/api/users', verifyToken, userRoutes);
+app.use('/api', verifyToken, todoRoutes);
+app.use('/api/columns', verifyToken, columnRoutes);
+
+app.get('/api/auth/me', verifyToken, (req, res) => {
+  res.status(200).json({ _id: req.user.id, username: req.user.username });
+});
 
 //Start Server
 const PORT = process.env.PORT || 3001;
@@ -29,8 +54,3 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running with port http://localhost:${PORT}`)
 });
-
-
-
-
-
