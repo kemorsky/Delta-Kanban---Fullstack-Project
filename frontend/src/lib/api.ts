@@ -7,7 +7,7 @@ type RequestOptions = {
     credentials?: RequestCredentials;
   }
 
-const URL = 'http://localhost:3000'
+const URL = 'https://backend-73ny.onrender.com'
 
 export const apiRequest = async (url: string, options: RequestOptions = {}) => {
     try {
