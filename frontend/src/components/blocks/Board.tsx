@@ -180,7 +180,7 @@ export default function Board() {
     return (
         <main className='w-full h-full bg-primary'>
             <Header />
-            <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto rounded-xl flex px-3 gap-4 items-start justify-start overflow-x-auto overflow-y-hidden">
+            <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto rounded-xl flex px-3 md:px-8 gap-4 items-start justify-start overflow-x-auto overflow-y-hidden">
                 {isOpen && (
                     <div
                         className="w-full h-full fixed top-0 left-0 bg-black bg-opacity-50 z-10 transition transform"

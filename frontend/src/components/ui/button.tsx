@@ -11,13 +11,13 @@ export const ButtonLogin: React.FC<ButtonProps> = ({className, ...props}) => {
 };
 
 export const ButtonLogout: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("px-2 py-1 text-base font-secondary bg-black/20 hover:bg-black/35 rounded transform transition-colors", className)}{...props}>
+    return <button className={cn("px-4 py-2 text-base font-secondary hover:text-white/75 bg-secondary hover:bg-secondary/80 border-none rounded transform transition-colors", className)}{...props}>
                     Logout
             </button>;
 };
 
 export const ButtonAddColumn: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-[18.75rem] p-2 flex flex-shrink-0 items-center justify-center font-secondary text-base bg-[#1F2937] hover:bg-[#1F2937]/80 border-none transform transition-colors", className)}{...props}>
+    return <button className={cn("w-[18.75rem] p-2 flex flex-shrink-0 items-center justify-center font-secondary hover:text-white/75 text-base bg-secondary hover:bg-secondary/80 border-none transform transition-colors", className)}{...props}>
                 <Plus className="w-[1.3125rem] h-[1.3125rem]"/>
                     Add column
             </button>;
@@ -31,7 +31,7 @@ export const ButtonDeleteColumn: React.FC<ButtonProps> = ({className, ...props})
 };
 
 export const ButtonAddTodo: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-full p-2 flex items-center justify-center text-base hover:bg-blue-500 border-none transform transition-colors", className)}{...props}>
+    return <button className={cn("w-full p-2 flex flex-shrink-0 items-center justify-center font-secondary hover:text-white/75 text-base bg-none hover:bg-primary/80 border-none transform transition-colors", className)}{...props}>
         <Plus className="w-[1.3125rem] h-[1.3125rem]" />Add Todo
     </button>
 };

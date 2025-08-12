@@ -146,7 +146,6 @@ export const postLabel = async (columnId: string, id: string, title: string): Pr
       credentials: 'include',
       body: JSON.stringify({title})
     })
-    console.log(response)
     return response;
   } catch (error) {
     console.error('Error deleting label:', error);
@@ -160,7 +159,6 @@ export const deleteLabel = async (columnId: string, id: string, labelId: string)
       method: 'DELETE',
       credentials: 'include'
     })
-    console.log(response)
     return response;
   } catch (error) {
     console.error('Error deleting label:', error);

@@ -36,6 +36,12 @@ export default function ColumnContent(props: Props) {
                         <DraggableTodoCard key={todo.id} todo={todo} onClick={() => todo.id && getTodo(todo)} >
                                 <TodoCardId>#{formatTodoId(todos, todo.id, todo.user?.username)}</TodoCardId>
                                 <TodoCardTitle>{todo.title}</TodoCardTitle>
+                                {todo.labels?.map((label) => (
+                                    <span key={label.labelId} className="min-w-[3rem] bg-blue-600 rounded px-2 py-1 text-sm border border-black">
+                                        <p>{label.title}</p>
+                                    </span>
+                                    ))
+                                }
                         </DraggableTodoCard>
                     ))}
             </ul>

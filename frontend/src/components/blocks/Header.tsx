@@ -11,7 +11,7 @@ export default function Header() {
     if (!data || error) return <p>Loading...</p>;
 
     return (
-        <header className="bg-[#111827] flex justify-between gap-3 px-4 py-6">
+        <header className="bg-[#111827] flex justify-between gap-3 px-3 md:px-8 py-6 mb-[1rem]">
             <h1 className="text-2xl">Welcome, 
                 <a>
                     <span> {data.username}</span>
