@@ -1,4 +1,4 @@
-# Ignore environment variables
+# env files
 .env
 frontend/.env
 backend/.env
