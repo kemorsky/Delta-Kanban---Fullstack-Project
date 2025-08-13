@@ -45,11 +45,6 @@ app.use(cors({
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
 }));
 
-app.options('*', cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
-
 // app.use((req, res, next) => {
 //   const allowedOrigin = 'http://localhost:5173';
 //   res.header("Access-Control-Allow-Origin", allowedOrigin);
