@@ -31,7 +31,6 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // allow requests with no origin (like Postman)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
@@ -44,20 +43,6 @@ app.use(cors({
   credentials: true,
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
 }));
-
-// app.use((req, res, next) => {
-//   const allowedOrigin = 'http://localhost:5173';
-//   res.header("Access-Control-Allow-Origin", allowedOrigin);
-//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-//   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-//   res.header("Access-Control-Allow-Credentials", "true"); // crucial for cookie sending
-  
-//   if (req.method === "OPTIONS") {
-//     return res.sendStatus(200);
-//   }
-  
-//   next();
-// });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', verifyToken, userRoutes);

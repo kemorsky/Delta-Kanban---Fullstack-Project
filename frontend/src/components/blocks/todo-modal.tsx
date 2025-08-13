@@ -71,7 +71,7 @@ export default function TodoModal(props: TodoModalProps) {
                         <label htmlFor="label" className="text-[1.125rem] text-white/65">Labels:</label>
                         <article className="flex gap-1.5">
                             {todo.labels?.map((label) => (
-                                    <span key={label.labelId} className="min-w-[5rem] flex items-center justify-between gap-1 bg-blue-600 rounded px-2 py-1 text-sm border border-black">
+                                    <span key={label.labelId} className="flex items-center justify-between gap-1 bg-blue-600 rounded px-2 py-1 text-sm border border-black">
                                         <p>{label.title}</p>
                                         <ButtonDeleteLabel onClick={() => {handleDeleteLabel(todo.columnId, todo.id ?? '', label.labelId ?? '')}} />
                                     </span>

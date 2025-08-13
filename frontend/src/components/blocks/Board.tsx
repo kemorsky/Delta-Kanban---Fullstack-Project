@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom";
-import { useNavigate, Outlet } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import type { Todo, Column } from "../../types/types"
 import useHandles from "../../hooks/useHandles";
 import { DndContext, DragOverlay, useSensor, useSensors, type DragEndEvent, type DragStartEvent, closestCorners } from '@dnd-kit/core';
@@ -10,11 +10,12 @@ import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { fetchTodoById, reorderColumns, reorderTodos } from "../../lib/api";
 import createColumnQueryOptions from "../../queries/createColumnQueryOptions";
 import createTodoQueryOptions from "../../queries/createTodoQueryOptions";
-import { TodoCard, TodoCardTitle } from "./Todo/todo-card";
+import { TodoCard, TodoCardId, TodoCardTitle } from "./Todo/todo-card";
 import { ButtonAddColumn } from "../ui/button";
 import ColumnContainer from "./ColumnContainer";
 import TodoModal from "./todo-modal";
 import Header from "./Header";
+import { formatTodoId } from "../../lib/format-todo-id";
 
 export default function Board() {
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
@@ -213,7 +214,16 @@ export default function Board() {
 
                         {activeTodo && (
                             <TodoCard className="opacity-80 border-2 border-dashed" todo={activeTodo}>
+                                <TodoCardId>#{formatTodoId(todos, activeTodo.id, activeTodo.user?.username)}</TodoCardId>
                                 <TodoCardTitle>{activeTodo.title}</TodoCardTitle>
+                                <section className="w-full flex flex-wrap gap-1">
+                                    {activeTodo.labels?.map((label) => (
+                                        <span key={label.labelId} className="flex items-center justify-between gap-1 bg-blue-600 rounded px-2 py-1 text-sm border border-black">
+                                            <p>{label.title}</p>
+                                        </span>
+                                        ))
+                                    }
+                                </section>
                             </TodoCard>
                         )}
                     </DragOverlay>, 
@@ -222,7 +232,6 @@ export default function Board() {
                 </DndContext>
                 {isOpen && (
                     <>
-                        {/* <Outlet /> */}
                         <TodoModal todos={todos}
                                     todo={todos.find(t => t.id === activeTodo?.id)}
                                     setIsOpen={setIsOpen}
