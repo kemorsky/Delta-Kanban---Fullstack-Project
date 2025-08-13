@@ -27,7 +27,6 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   'http://localhost:5173',                    // local dev
-  'https://your-frontend.netlify.app',        // Netlify prod
 ];
 
 app.use(cors({
@@ -54,7 +53,6 @@ app.use(cors({
   
 //   next();
 // });
-
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', verifyToken, userRoutes);

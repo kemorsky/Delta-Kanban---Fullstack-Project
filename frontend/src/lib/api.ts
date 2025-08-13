@@ -57,7 +57,9 @@ export const logOut = async (): Promise<void> => {
 
 export const fetchUser = async (): Promise<User> => { 
   try {
-    const data = await apiRequest(`${URL}/api/auth/me`)
+    const data = await apiRequest(`${URL}/api/auth/me`, {
+      credentials: 'include',
+    })
     return data;
   } catch (error) {
     throw new Error (`Error fetching user: ${error}`);

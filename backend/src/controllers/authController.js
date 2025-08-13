@@ -52,13 +52,10 @@ export const login = async (req, res) => {
     res.cookie('token', token, {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production', // send only over HTTPS in prod
-      sameSite: 'None',
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       maxAge: 3600000, // 1 hour
     });
 
-    if (password.length > 40 && typeof password == 'string') {
-      res.send("Password too long, try again");
-    }
     res.status(200).json({ username, userId: user._id });
 
   } catch (error) {
