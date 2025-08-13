@@ -25,34 +25,38 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-// const allowedOrigins = [
-//   'http://localhost:5173',                    // local dev
-// ];
+const allowedOrigins = [
+  'http://localhost:5173',
+];
 
-// app.use(cors({
-//   origin: (origin, callback) => {
-//     if (!origin || allowedOrigins.includes(origin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-//   credentials: true
-// }));
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like Postman)
+    if (!origin) return callback(null, true);
 
-app.use((req, res, next) => {
-  const allowedOrigin = 'http://localhost:5173';
-  res.header("Access-Control-Allow-Origin", allowedOrigin);
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Credentials", "true"); // crucial for cookie sending
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      console.log('Blocked CORS for origin:', origin);
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
+
+// app.use((req, res, next) => {
+//   const allowedOrigin = 'http://localhost:5173';
+//   res.header("Access-Control-Allow-Origin", allowedOrigin);
+//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+//   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+//   res.header("Access-Control-Allow-Credentials", "true"); // crucial for cookie sending
   
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
+//   if (req.method === "OPTIONS") {
+//     return res.sendStatus(200);
+//   }
   
-  next();
-});
+//   next();
+// });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', verifyToken, userRoutes);
