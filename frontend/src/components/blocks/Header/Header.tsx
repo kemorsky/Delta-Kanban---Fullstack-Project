@@ -1,7 +1,7 @@
-import createUserQueryOptions from "../../queries/createUserQueryOptions";
+import createUserQueryOptions from "../../../queries/createUserQueryOptions";
 import { useQuery } from "@tanstack/react-query";
-import useHandles from "../../hooks/useHandles"
-import { ButtonLogout } from "../ui/button";
+import useHandles from "../../../hooks/useHandles"
+import { ButtonLogout } from "../../ui/button";
 
 export default function Header() {
     const { handleLogOut } = useHandles();

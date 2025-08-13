@@ -38,7 +38,7 @@ export default function ColumnContent(props: Props) {
                                 <TodoCardTitle>{todo.title}</TodoCardTitle>
                                 <section className="w-full flex flex-wrap gap-1">
                                     {todo.labels?.map((label) => (
-                                        <span key={label.labelId} className="bg-blue-600 rounded px-2 py-1 text-sm border border-black">
+                                        <span key={label.labelId} className="min-w-[3rem] bg-blue-600 rounded px-2 py-1 text-sm text-center border border-black">
                                             <p>{label.title}</p>
                                         </span>
                                         ))

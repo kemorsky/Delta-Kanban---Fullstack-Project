@@ -1,21 +1,21 @@
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import type { Todo, Column } from "../../types/types"
-import useHandles from "../../hooks/useHandles";
+import type { Todo, Column } from "../../../types/types"
+import useHandles from "../../../hooks/useHandles";
 import { DndContext, DragOverlay, useSensor, useSensors, type DragEndEvent, type DragStartEvent, closestCorners } from '@dnd-kit/core';
-import { CustomMouseSensor } from "../../lib/custom-mouse-sensor";
+import { CustomMouseSensor } from "../../../lib/custom-mouse-sensor";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
-import { fetchTodoById, reorderColumns, reorderTodos } from "../../lib/api";
-import createColumnQueryOptions from "../../queries/createColumnQueryOptions";
-import createTodoQueryOptions from "../../queries/createTodoQueryOptions";
-import { TodoCard, TodoCardId, TodoCardTitle } from "./Todo/todo-card";
-import { ButtonAddColumn } from "../ui/button";
-import ColumnContainer from "./ColumnContainer";
-import TodoModal from "./todo-modal";
-import Header from "./Header";
-import { formatTodoId } from "../../lib/format-todo-id";
+import { fetchTodoById, reorderColumns, reorderTodos } from "../../../lib/api";
+import createColumnQueryOptions from "../../../queries/createColumnQueryOptions";
+import createTodoQueryOptions from "../../../queries/createTodoQueryOptions";
+import { TodoCard, TodoCardId, TodoCardTitle } from "../Todo/todo-card";
+import { ButtonAddColumn } from "../../ui/button";
+import ColumnContainer from "../Column/ColumnContainer";
+import TodoModal from "../Todo-Modal/todo-modal";
+import { formatTodoId } from "../../../lib/format-todo-id";
+import { ToastContainer, Slide } from "react-toastify";
 
 export default function Board() {
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
@@ -179,8 +179,6 @@ export default function Board() {
     };
 
     return (
-        <main className='w-full h-full bg-primary'>
-            <Header />
             <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto rounded-xl flex px-3 md:px-8 gap-4 items-start justify-start overflow-x-auto overflow-y-hidden">
                 {isOpen && (
                     <div
@@ -239,7 +237,18 @@ export default function Board() {
                     </>
                     )
                 }
+                <ToastContainer position="bottom-center"
+                    autoClose={2500}
+                    hideProgressBar
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss={false}
+                    draggable={false}
+                    pauseOnHover
+                    theme="colored"
+                    transition={Slide}
+                        />
             </article>
-        </main>
     )
 };

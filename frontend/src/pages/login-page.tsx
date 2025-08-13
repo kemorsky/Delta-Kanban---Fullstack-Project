@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Slide, toast, ToastContainer } from 'react-toastify';
 import { login } from "../lib/api"
 import { useNavigate } from "react-router";
 import { InputLogin } from "../components/ui/input";
@@ -14,9 +15,13 @@ export default function LoginPage() {
 
     const { mutate: mutateLogin } = useMutation({ mutationFn: ({username, password}: {username: string, password: string}) => login(username, password),
                 onSuccess: () => {
+                    toast.success('User logged in sucessfully')
                     queryClient.invalidateQueries();
                     navigate('/kanban');
                 },
+                onError: () => {
+                    toast.error('Error logging in user')
+                }
             });
 
     const handleLogin = async (username: string, password: string) => {
@@ -36,8 +41,8 @@ export default function LoginPage() {
 
     return (
         <main className="h-full w-full flex items-center justify-center">
-            <form className="h-full max-h-[40rem] w-[40rem] rounded-md bg-secondary p-4 flex flex-col items-center justify-center gap-4" onSubmit={handleSubmit}>
-                <h1 className="self-start">Login</h1>
+            <form className="h-full max-h-[25rem] w-[25rem] rounded-md bg-secondary p-4 flex flex-col items-center justify-center gap-4" onSubmit={handleSubmit}>
+                <h1 className="self-start text-2xl">Login</h1>
                 <article className="w-full max-w-[25rem] space-y-3">
                     <label htmlFor="username" className="flex flex-col gap-1 text-[0.875rem] font-secondary font-semibold">Username
                         <InputLogin type="text"
@@ -53,6 +58,18 @@ export default function LoginPage() {
                 </article>
                 <ButtonLogin type="submit"/>
             </form>
+            <ToastContainer position="bottom-center"
+                            autoClose={2500}
+                            hideProgressBar
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss={false}
+                            draggable={false}
+                            pauseOnHover
+                            theme="colored"
+                            transition={Slide}
+                             />
         </main>
     )
 }

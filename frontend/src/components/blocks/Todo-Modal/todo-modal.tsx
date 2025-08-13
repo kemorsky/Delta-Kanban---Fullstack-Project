@@ -1,19 +1,19 @@
 import { useState, useRef } from "react";
-import type { Todo } from "../../types/types";
+import type { Todo } from "../../../types/types";
 import { AlignLeft, Plus } from 'lucide-react';
-import { InputEdit, TextAreaEditor } from "../ui/input";
-import useHandles from "../../hooks/useHandles";
-import { formatDate } from "../../lib/formatDate";
-import { ButtonDeleteTodo, ButtonDeleteLabel, ButtonAddLabel, ButtonCloseModal, ButtonEditTodoDescription } from "../ui/button";
+import { InputEdit, TextAreaEditor } from "../../ui/input";
+import useHandles from "../../../hooks/useHandles";
+import { formatDate } from "../../../lib/formatDate";
+import { ButtonDeleteTodo, ButtonDeleteLabel, ButtonAddLabel, ButtonCloseModal, ButtonEditTodoDescription } from "../../ui/button";
 import { useNavigate } from "react-router-dom";
-import TextEditor from "../ui/text-editor";
+import TextEditor from "../../ui/text-editor";
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { formatTodoId } from "../../lib/format-todo-id";
+import { formatTodoId } from "../../../lib/format-todo-id";
 
 type TodoModalProps = {
     todo?: Todo | null | undefined,
-    todos: Todo[],
+    todos?: Todo[],
     setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>,
 };
 
@@ -42,7 +42,7 @@ export default function TodoModal(props: TodoModalProps) {
             <header className="flex justify-between items-center border-b">
                 <article className="w-full pb-4 flex flex-col gap-2">
                     <section className="flex md:flex-row flex-col gap-2">
-                        <span className="font-secondary text-3xl leading-[2.5rem] text-white/50 border border-transparent">#{formatTodoId(todos, todo.id, todo.user?.username)}</span>
+                        <span className="font-secondary text-3xl leading-[2.5rem] text-white/50 border border-transparent">#{formatTodoId(todos ?? [], todo.id, todo.user?.username)}</span>
                         {editTodoTitle === todo.id && (
                             <InputEdit type="text" 
                                     className="text-3xl"

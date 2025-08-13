@@ -1,8 +1,8 @@
 import { createBrowserRouter } from "react-router";
-import Board from "../components/blocks/Board";
-import TodoModal from "../components/blocks/todo-modal";
+import TodoModal from "../components/blocks/Todo-Modal/todo-modal";
 import LoginPage from "../pages/login-page";
 import ProtectedRoute from "./protected-route";
+import App from "../App";
 
 const router = createBrowserRouter([
     // {
@@ -17,7 +17,7 @@ const router = createBrowserRouter([
         path: "/kanban",
         element: (
             <ProtectedRoute>
-                <Board />
+                <App />
             </ProtectedRoute>
         ),
         children: [

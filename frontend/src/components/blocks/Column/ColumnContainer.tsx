@@ -1,10 +1,10 @@
 import { useState } from "react";
-import type { Column, Todo } from "../../types/types"
-import { ButtonAddTodo, ButtonDeleteColumn } from "../ui/button";
-import { ColumnWrapper } from "./Column/ColumnWrapper";
-import ColumnContent from "./Column/ColumnContent";
-import { InputEdit } from "../ui/input";
-import useHandles from "../../hooks/useHandles";
+import type { Column, Todo } from "../../../types/types"
+import { ButtonAddTodo, ButtonDeleteColumn } from "../../ui/button";
+import { ColumnWrapper } from "./ColumnWrapper";
+import ColumnContent from "./ColumnContent";
+import { InputEdit } from "../../ui/input";
+import useHandles from "../../../hooks/useHandles";
 
 type Props = {
     className?: string,
@@ -40,7 +40,7 @@ export default function ColumnContainer(props: Props) {
                 )}
 
                 {editColumnId !== column.id && (
-                    <p className="font-secondary px-2 leading-[1.625rem]"
+                    <p className="font-secondary px-2 leading-[1.625rem] cursor-text"
                        onClick={() => {setEditColumnId(column.id)}}>
                         {column.title}
                     </p>

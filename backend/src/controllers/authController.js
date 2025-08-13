@@ -68,8 +68,8 @@ export const logout = (res) => {
   try {
     res.clearCookie('token', '', {
       httpOnly: true,
-      secure: true,
-      sameSite: 'Lax' });
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', });
     res.status(200).json({ message: 'Logout successful' });
   } catch (error) {
     console.error(error);
