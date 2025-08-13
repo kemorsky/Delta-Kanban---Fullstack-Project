@@ -42,6 +42,12 @@ app.use(cors({
     }
   },
   credentials: true,
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+}));
+
+app.options('*', cors({
+  origin: allowedOrigins,
+  credentials: true,
 }));
 
 // app.use((req, res, next) => {
