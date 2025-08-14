@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { userSchema } from '../models/userModel.js';
-import { ErrorRequestHandler } from 'express';
 
 const User = mongoose.model('User', userSchema);
 
