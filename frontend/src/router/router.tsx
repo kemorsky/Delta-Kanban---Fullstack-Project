@@ -21,14 +21,14 @@ const router = createBrowserRouter([
             </ProtectedRoute>
         ),
         children: [
-        {
-            path: "todo/:id",
-            element: (
-                <ProtectedRoute>
-                    <TodoModal />
-                </ProtectedRoute>
-            ),
-        },
+            {
+                path: "todo/:id",
+                element: (
+                    <ProtectedRoute>
+                        <TodoModal />
+                    </ProtectedRoute>
+                ),
+            },
         ],
   },
 ])
