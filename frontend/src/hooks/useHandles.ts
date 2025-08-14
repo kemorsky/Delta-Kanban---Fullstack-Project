@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import createTodoQueryOptions from "../queries/createTodoQueryOptions";
 import createColumnQueryOptions from "../queries/createColumnQueryOptions";
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { showToastSuccess, showToastError } from '../lib/toast-utils';
 
 export default function useHandles() {
     
@@ -14,92 +14,92 @@ export default function useHandles() {
 
     const { mutate: mutateAddTodo } = useMutation({ mutationFn: ({todoData, columnId}: {todoData: Todo, columnId: string}) => addTodo(todoData, columnId),
                 onSuccess: () => {
-                    toast.success('Todo added sucessfully')
+                    showToastSuccess('Todo added successfully')
                     queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
                 },
-                onError: () => {
-                    toast.error('Error adding todo')
+                onError: (error: Error) => {
+                    showToastError(error.message);
                 }
             });
 
     const { mutate: mutateEditTodo } = useMutation({ mutationFn: ({columnId, id, title, description}: {columnId: string, id: string, title: string, description: string}) => editTodo(columnId, id, title, description),
-            onSuccess: () => {
-                toast.success('Todo edited sucessfully')
-                queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
-            },
-            onError: () => {
-                toast.error('Error editing todo')
-            }
-        });
+                onSuccess: () => {
+                    showToastSuccess('Todo edited successfully')
+                    queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
+                },
+                onError: (error: Error) => {
+                    showToastError(error.message);
+                }
+            });
 
     const { mutate: mutateDeleteTodo } = useMutation({ mutationFn: ({columnId, id}: {columnId: string, id: string}) => deleteTodo(columnId, id),
             onSuccess: () => {
-                toast.success('Todo deleted sucessfully')
+                showToastSuccess('Todo deleted successfully')
                 queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
             },
-            onError: () => {
-                toast.error('Error deleting todo')
-            }
+            onError: (error: Error) => {
+                    showToastError(error.message);
+                }
         });
 
     const { mutate: mutateAddColumn } = useMutation({ mutationFn: (columnData: Column) => addColumn(columnData),
             onSuccess: () => {
-                toast.success('Column added sucessfully')
+                showToastSuccess('Column added successfully')
                 queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
             },
-            onError: () => {
-                toast.error('Error adding column')
-            }
+            onError: (error: Error) => {
+                    showToastError(error.message);
+                }
         }); 
 
     const { mutate: mutateEditColumn } = useMutation({ mutationFn: ({id, title}: {id: string, title: string }) => editColumn(id, title),
             onSuccess: () => {
-                toast.success('Column edited sucessfully')
+                showToastSuccess('Column edited successfully')
                 queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
             },
-            onError: () => {
-                toast.error('Error editing column')
-            }
+            onError: (error: Error) => {
+                    showToastError(error.message);
+                }
         });
 
     const { mutate: mutateDeleteColumn } = useMutation({ mutationFn: (id: string) => deleteColumn(id),
             onSuccess: () => {
-                toast.success('Column deleted sucessfully')
+                showToastSuccess('Column deleted successfully')
                 queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
             },
-            onError: () => {
-                toast.error('Error deleting column')
-            }
+            onError: (error: Error) => {
+                    showToastError(error.message);
+                }
         });
 
     const { mutate: mutateAddLabel } = useMutation({ mutationFn: ({columnId, id, title}: {columnId: string, id: string, title: string}) => postLabel(columnId, id, title),
             onSuccess: () => {
-                toast.success('Label added sucessfully')
+                showToastSuccess('Label added successfully')
                 queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
             },
-            onError: () => {
-                toast.error('Error adding label')
-            }
+            onError: (error: Error) => {
+                    showToastError(error.message);
+                }
         })
 
     const { mutate: mutateDeleteLabel } = useMutation({ mutationFn: ({columnId, id, labelId}: {columnId: string, id: string, labelId: string}) => deleteLabel(columnId, id, labelId),
             onSuccess: () => {
-                toast.success('Label deleted sucessfully')
+                showToastSuccess('Label deleted successfully')
                 queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
             },
-            onError: () => {
-                toast.error('Error deleting label')
-            }
+            onError: (error: Error) => {
+                    showToastError(error.message);
+                }
         })
 
     const { mutate: mutateLogOut } = useMutation({ mutationFn: () => logOut(),
             onSuccess: () => {
-                toast.success('User logged out sucessfully')
+                showToastSuccess('User logged out successfully')
                 queryClient.invalidateQueries();
             },
-            onError: () => {
-                toast.error('Error logging out user')
-            }
+            onError: (error: Error) => {
+                    showToastError(error.message);
+                }
         });
     
     const handleLogOut = async () => {

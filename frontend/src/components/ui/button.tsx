@@ -5,7 +5,7 @@ import { Plus, X, Trash2 } from 'lucide-react';
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const ButtonLogin: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-[10rem] p-2 font-secondary text-base rounded bg-green-500 hover:bg-green-600 border-none transform transition-colors", className)}{...props}>
+    return <button className={cn("w-[7rem] px-4 py-2 mt-2 self-end text-base font-secondary hover:text-white/75 bg-[#485fc7] hover:bg-[#485fc7]/80 border-none transform transition-colors", className)}{...props}>
                     Login
             </button>;
 };

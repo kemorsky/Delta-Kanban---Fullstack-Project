@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Slide, toast, ToastContainer } from 'react-toastify';
+import { Slide, ToastContainer } from 'react-toastify';
 import { login } from "../lib/api"
 import { useNavigate } from "react-router";
 import { InputLogin } from "../components/ui/input";
 import type { UserCredentials } from "../types/types";
 import { ButtonLogin } from "../components/ui/button";
+import { showToastSuccess, showToastError } from "../lib/toast-utils";
 
 export default function LoginPage() {
     const [ user, setUser ] = useState<UserCredentials>({username: '', password: ''});
@@ -15,23 +16,21 @@ export default function LoginPage() {
 
     const { mutate: mutateLogin } = useMutation({ mutationFn: ({username, password}: {username: string, password: string}) => login(username, password),
                 onSuccess: () => {
-                    toast.success('User logged in sucessfully')
+                    showToastSuccess('User logged in successfully')
                     queryClient.invalidateQueries();
-                    navigate('/kanban');
+
+                    setTimeout(() => {
+                        navigate('/kanban');
+                    }, 500);
                 },
-                onError: () => {
-                    toast.error('Error logging in user')
-                }
+                onError: (error: Error) => {
+                            showToastError(error.message);
+                        }
             });
 
     const handleLogin = async (username: string, password: string) => {
-        try {
             mutateLogin({username, password})
             setUser({username: username, password: password})
-        } catch (error) {
-            console.error('Error logging in:', error)
-            throw new Error (`Error logging in: ${error}`);
-        };
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -40,8 +39,8 @@ export default function LoginPage() {
     }
 
     return (
-        <main className="h-full w-full flex items-center justify-center">
-            <form className="h-full max-h-[25rem] w-[25rem] rounded-md bg-secondary p-4 flex flex-col items-center justify-center gap-4" onSubmit={handleSubmit}>
+        <main className="h-full w-full flex items-center justify-center bg-primary">
+            <form className="h-full max-h-[25rem] w-[25rem] rounded-md bg-secondary p-4 flex flex-col items-center justify-center gap-4 shadow-[0px_0px_10px_0px_#2a4365]" onSubmit={handleSubmit}>
                 <h1 className="self-start text-2xl">Login</h1>
                 <article className="w-full max-w-[25rem] space-y-3">
                     <label htmlFor="username" className="flex flex-col gap-1 text-[0.875rem] font-secondary font-semibold">Username

@@ -16,6 +16,7 @@ import ColumnContainer from "../Column/ColumnContainer";
 import TodoModal from "../Todo-Modal/todo-modal";
 import { formatTodoId } from "../../../lib/format-todo-id";
 import { ToastContainer, Slide } from "react-toastify";
+import { showToastSuccess, showToastError } from "../../../lib/toast-utils";
 
 export default function Board() {
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
@@ -57,17 +58,20 @@ export default function Board() {
             return { previousColumns };
         },
         onError: (_, __, context) => {
+            showToastError('Error reordering columns');
             if (context?.previousColumns) {
-            queryClient.setQueryData(createColumnQueryOptions().queryKey, context.previousColumns);
-            }
+                queryClient.setQueryData(createColumnQueryOptions().queryKey, context.previousColumns);
+            };
         },
         onSettled: () => {
+            showToastSuccess('Columns reordered successfully');
             queryClient.invalidateQueries({ queryKey: createColumnQueryOptions().queryKey });
         }
     });
 
     const { mutate: mutateReorderTodos } = useMutation({ mutationFn: ({orderId, columnId} : {orderId: string[], columnId: string}) => reorderTodos(orderId, columnId),
         onSuccess: () => {
+            showToastSuccess('Todos reordered successfully');
             queryClient.invalidateQueries({ queryKey: createTodoQueryOptions().queryKey });
         }
     });
@@ -248,7 +252,7 @@ export default function Board() {
                     pauseOnHover
                     theme="colored"
                     transition={Slide}
-                        />
+                />
             </article>
     )
 };
