@@ -1,4 +1,3 @@
-import { } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { Plus, X, Trash2 } from 'lucide-react';
 
@@ -17,23 +16,25 @@ export const ButtonLogout: React.FC<ButtonProps> = ({className, ...props}) => {
 };
 
 export const ButtonAddColumn: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-[18.75rem] p-2 flex flex-shrink-0 items-center justify-center font-secondary hover:text-white/75 text-base bg-secondary hover:bg-secondary/80 border-none transform transition-colors", className)}{...props}>
+    return <button className={cn("w-[18.75rem] p-2 flex flex-shrink-0 items-center justify-center font-secondary hover:text-white/75 text-[1rem] leading-[1.3125rem] bg-secondary hover:bg-secondary/80 border-none transform transition-colors", className)}{...props}>
                 <Plus className="w-[1.3125rem] h-[1.3125rem]"/>
-                    Add column
+                <span>Add column</span>
             </button>;
 };
 
 export const ButtonDeleteColumn: React.FC<ButtonProps> = ({className, ...props}) => {
     return <button className={cn("flex p-2 bg-none border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-red-200 transform transition-colors", className)}
                     {...props}>
-                <Trash2 className="w-5 h-5 mr-1"/> Delete
+                <Trash2 className="w-[1.3125rem] h-[1.3125rem] mr-1"/> 
+                <span>Delete</span>
             </button>
 };
 
 export const ButtonAddTodo: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-full p-2 flex flex-shrink-0 items-center justify-center font-secondary hover:text-white/75 text-base bg-none hover:bg-primary/80 border-none transform transition-colors", className)}{...props}>
-        <Plus className="w-[1.3125rem] h-[1.3125rem]" />Add Todo
-    </button>
+    return <button className={cn("w-full p-2 flex flex-shrink-0 items-center justify-center font-secondary hover:text-white/75 text-[1rem] leading-[1.3125rem] bg-none hover:bg-primary/80 border-none rounded-md transform transition-colors", className)}{...props}>
+                <Plus className="w-[1.3125rem] h-[1.3125rem]" />
+                <span>Add Todo</span>
+            </button>
 };
 
 export const ButtonEditTodoDescription: React.FC<ButtonProps> = ({className, ...props}) => {
@@ -43,9 +44,10 @@ export const ButtonEditTodoDescription: React.FC<ButtonProps> = ({className, ...
 };
 
 export const ButtonDeleteTodo: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("flex p-2 bg-none border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-red-200 transform transition-colors", className)}
+    return <button className={cn("flex items-center justify-center p-2 bg-none border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-red-200 transform transition-colors", className)}
                     {...props}>
-                <Trash2 className="w-5 h-5 mr-1"/> Delete Todo
+                <Trash2 className="w-[1.3125rem] h-[1.3125rem] mr-1"/> 
+                <span>Delete Todo</span>
             </button>
 };
 

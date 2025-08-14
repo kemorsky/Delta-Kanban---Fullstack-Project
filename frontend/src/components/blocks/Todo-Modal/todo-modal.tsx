@@ -1,15 +1,16 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { formatDate } from "../../../lib/formatDate";
+import { formatTodoId } from "../../../lib/format-todo-id";
+import useHandles from "../../../hooks/useHandles";
 import type { Todo } from "../../../types/types";
 import { AlignLeft, Plus } from 'lucide-react';
 import { InputEdit, TextAreaEditor } from "../../ui/input";
-import useHandles from "../../../hooks/useHandles";
-import { formatDate } from "../../../lib/formatDate";
 import { ButtonDeleteTodo, ButtonDeleteLabel, ButtonAddLabel, ButtonCloseModal, ButtonEditTodoDescription } from "../../ui/button";
-import { useNavigate } from "react-router-dom";
 import TextEditor from "../../ui/text-editor";
-import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import { formatTodoId } from "../../../lib/format-todo-id";
+import { Label } from "../../ui/label";
 
 type TodoModalProps = {
     todo?: Todo | null | undefined,
@@ -45,7 +46,7 @@ export default function TodoModal(props: TodoModalProps) {
                         <span className="font-secondary text-3xl leading-[2.5rem] text-white/50 border border-transparent">#{formatTodoId(todos ?? [], todo.id, todo.user?.username)}</span>
                         {editTodoTitle === todo.id && (
                             <InputEdit type="text" 
-                                    className="text-3xl"
+                                    className="text-3xl leading-[2.5rem]"
                                     defaultValue={todo.title}
                                     onBlur={(e) => {
                                         handleEditTodo(todo.columnId, todo.id ?? '', e.target.value, todo.description ?? '');    
@@ -61,7 +62,7 @@ export default function TodoModal(props: TodoModalProps) {
                         )}
 
                         {editTodoTitle !== todo.id && (
-                            <h1 className="text-3xl font-secondary leading-[2.5rem] w-full md:pl-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] shadow-sm transform transition-colors" 
+                            <h1 className="text-3xl font-secondary leading-[2.5rem] w-full max-w-[56.37rem] md:px-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] shadow-sm transform transition-colors" 
                                 onClick={() => setEditTodoTitle(todo.id ?? '')}>
                                     {todo.title}
                             </h1>
@@ -71,10 +72,10 @@ export default function TodoModal(props: TodoModalProps) {
                         <label htmlFor="label" className="text-[1.125rem] text-white/65">Labels:</label>
                         <article className="flex gap-1.5">
                             {todo.labels?.map((label) => (
-                                    <span key={label.labelId} className="flex items-center justify-between gap-1 bg-blue-600 rounded px-2 py-1 text-sm border border-black">
+                                    <Label key={label.labelId}>
                                         <p>{label.title}</p>
                                         <ButtonDeleteLabel onClick={() => {handleDeleteLabel(todo.columnId, todo.id ?? '', label.labelId ?? '')}} />
-                                    </span>
+                                    </Label>
                                 ))
                             }
 

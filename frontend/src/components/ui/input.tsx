@@ -1,6 +1,4 @@
-import * as React from 'react';
 import { EditorContent, type Editor } from '@tiptap/react';
-
 import { cn } from "../../lib/utils";
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement>;

@@ -6,6 +6,7 @@ import { verticalListSortingStrategy } from "@dnd-kit/sortable";
 import DraggableTodoCard from "../DraggableTodo/draggable-todo";
 import { TodoCardId, TodoCardTitle } from "../Todo/todo-card";
 import { formatTodoId } from "../../../lib/format-todo-id";
+import { Label } from "../../ui/label";
 
 type Props = {
     todos: Todo[],
@@ -18,7 +19,7 @@ type Props = {
 export default function ColumnContent(props: Props) {
     const { getTodo, todos, columnId, column } = props;
 
-    const columnTodos = useMemo(() => todos.filter((todo) => todo.columnId === column.id), [todos, column.id]); // TODO: make this run once, not multiple times
+    const columnTodos = useMemo(() => todos.filter((todo) => todo.columnId === column.id), [todos, column.id]);
     const todosId = useMemo(() => columnTodos.map((todo) => todo.id ?? ''), [columnTodos]);
 
     const { setNodeRef } = useDroppable({
@@ -31,20 +32,19 @@ export default function ColumnContent(props: Props) {
 
     return (
         <SortableContext id={`column-${columnId}`} items={todosId} strategy={verticalListSortingStrategy}>
-            <ul ref={setNodeRef} className="w-full flex flex-col gap-3 pb-4 overflow-x-hidden overflow-y-auto">
+            <ul ref={setNodeRef} className="w-full flex flex-col gap-3 px-2  pb-4 overflow-x-hidden overflow-y-auto">
                 {columnTodos.map((todo) => (
                         <DraggableTodoCard key={todo.id} todo={todo} onClick={() => todo.id && getTodo(todo)} >
                                 <TodoCardId>#{formatTodoId(todos, todo.id, todo.user?.username)}</TodoCardId>
                                 <TodoCardTitle>{todo.title}</TodoCardTitle>
                                 <section className="w-full flex flex-wrap gap-1">
                                     {todo.labels?.map((label) => (
-                                        <span key={label.labelId} className="min-w-[3rem] bg-blue-600 rounded px-2 py-1 text-sm text-center border border-black">
+                                        <Label key={label.labelId} className="min-w-[3rem]">
                                             <p>{label.title}</p>
-                                        </span>
+                                        </Label>
                                         ))
                                     }
                                 </section>
-                                
                         </DraggableTodoCard>
                     ))}
             </ul>

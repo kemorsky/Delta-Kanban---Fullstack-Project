@@ -21,10 +21,10 @@ export default function ColumnContainer(props: Props) {
     
     return (
         <ColumnWrapper column={column}>
-            <section className="flex items-center justify-between pb-2 border-b border-[#4073ffb0]">
+            <section className="flex items-center justify-between p-2 border-b border-[#4073ffb0]">
                 {editColumnId === column.id && (
                     <InputEdit 
-                            className="m-0"
+                            className="m-0 leading-[1.625rem]"
                             defaultValue={column.title}
                             onBlur={(e) => {
                                 handleEditColumn(column.id, e.target.value);
@@ -48,7 +48,7 @@ export default function ColumnContainer(props: Props) {
                 <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}} />
             </section>
             <ColumnContent todos={todos} columnId={column.id} column={column} getTodo={getTodo}/>
-            <footer className="w-full">
+            <footer className="w-full p-2">
                 <ButtonAddTodo onClick={() => {handleAddTodo(column.id)}} />
             </footer>
         </ColumnWrapper>

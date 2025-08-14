@@ -220,7 +220,7 @@ export default function Board() {
                                 <TodoCardTitle>{activeTodo.title}</TodoCardTitle>
                                 <section className="w-full flex flex-wrap gap-1">
                                     {activeTodo.labels?.map((label) => (
-                                        <span key={label.labelId} className="flex items-center justify-between gap-1 bg-blue-600 rounded px-2 py-1 text-sm border border-black">
+                                        <span key={label.labelId} className="flex items-center justify-between gap-1 bg-blue-600 rounded px-2 py-1 font-secondary text-sm border border-black">
                                             <p>{label.title}</p>
                                         </span>
                                         ))
