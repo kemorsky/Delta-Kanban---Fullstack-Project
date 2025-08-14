@@ -27,7 +27,7 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://fullstack-kanban.netlify.app/'
+  'https://fullstack-kanban.netlify.app'
 ];
 
 app.use(cors({
