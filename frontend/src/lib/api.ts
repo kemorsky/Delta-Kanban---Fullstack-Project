@@ -7,7 +7,7 @@ type RequestOptions = {
     credentials?: RequestCredentials;
   }
 
-const URL = '/api'
+const URL = 'api'
 
 export const apiRequest = async (url: string, options: RequestOptions = {}) => {
     try {
