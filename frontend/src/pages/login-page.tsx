@@ -40,7 +40,7 @@ export default function LoginPage() {
 
     return (
         <main className="h-full w-full flex items-center justify-center bg-primary">
-            <form className="h-full max-h-[25rem] w-[25rem] rounded-md bg-secondary p-4 flex flex-col items-center justify-center gap-4 shadow-[0px_0px_10px_0px_#2a4365]" onSubmit={handleSubmit}>
+            <form autoComplete="off" className="h-full max-h-[25rem] w-[25rem] rounded-md bg-secondary p-4 flex flex-col items-center justify-center gap-4 shadow-[0px_0px_10px_0px_#2a4365]" onSubmit={handleSubmit}>
                 <h1 className="self-start text-2xl">Login</h1>
                 <article className="w-full max-w-[25rem] space-y-3">
                     <label htmlFor="username" className="flex flex-col gap-1 text-[0.875rem] font-secondary font-semibold">Username
