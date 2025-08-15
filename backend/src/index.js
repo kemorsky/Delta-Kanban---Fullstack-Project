@@ -51,6 +51,7 @@ app.use('/api', verifyToken, todoRoutes);
 app.use('/api/columns', verifyToken, columnRoutes);
 
 app.get('/api/auth/me', verifyToken, (req, res) => {
+  res.set('Cache-Control', 'no-store');
   res.status(200).json({ _id: req.user.id, username: req.user.username });
 });
 

@@ -6,6 +6,7 @@ import createTodoQueryOptions from "../queries/createTodoQueryOptions";
 import createColumnQueryOptions from "../queries/createColumnQueryOptions";
 import { useNavigate } from 'react-router-dom';
 import { showToastSuccess, showToastError } from '../lib/toast-utils';
+import createUserQueryOptions from '../queries/createUserQueryOptions';
 
 export default function useHandles() {
     
@@ -14,7 +15,6 @@ export default function useHandles() {
 
     const { mutate: mutateAddTodo } = useMutation({ mutationFn: ({todoData, columnId}: {todoData: Todo, columnId: string}) => addTodo(todoData, columnId),
                 onSuccess: () => {
-                    showToastSuccess('Todo added successfully')
                     queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
                 },
                 onError: (error: Error) => {
@@ -24,7 +24,6 @@ export default function useHandles() {
 
     const { mutate: mutateEditTodo } = useMutation({ mutationFn: ({columnId, id, title, description}: {columnId: string, id: string, title: string, description: string}) => editTodo(columnId, id, title, description),
                 onSuccess: () => {
-                    showToastSuccess('Todo edited successfully')
                     queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
                 },
                 onError: (error: Error) => {
@@ -34,7 +33,6 @@ export default function useHandles() {
 
     const { mutate: mutateDeleteTodo } = useMutation({ mutationFn: ({columnId, id}: {columnId: string, id: string}) => deleteTodo(columnId, id),
             onSuccess: () => {
-                showToastSuccess('Todo deleted successfully')
                 queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
             },
             onError: (error: Error) => {
@@ -44,7 +42,6 @@ export default function useHandles() {
 
     const { mutate: mutateAddColumn } = useMutation({ mutationFn: (columnData: Column) => addColumn(columnData),
             onSuccess: () => {
-                showToastSuccess('Column added successfully')
                 queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
             },
             onError: (error: Error) => {
@@ -54,7 +51,6 @@ export default function useHandles() {
 
     const { mutate: mutateEditColumn } = useMutation({ mutationFn: ({id, title}: {id: string, title: string }) => editColumn(id, title),
             onSuccess: () => {
-                showToastSuccess('Column edited successfully')
                 queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
             },
             onError: (error: Error) => {
@@ -64,7 +60,6 @@ export default function useHandles() {
 
     const { mutate: mutateDeleteColumn } = useMutation({ mutationFn: (id: string) => deleteColumn(id),
             onSuccess: () => {
-                showToastSuccess('Column deleted successfully')
                 queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
             },
             onError: (error: Error) => {
@@ -74,7 +69,6 @@ export default function useHandles() {
 
     const { mutate: mutateAddLabel } = useMutation({ mutationFn: ({columnId, id, title}: {columnId: string, id: string, title: string}) => postLabel(columnId, id, title),
             onSuccess: () => {
-                showToastSuccess('Label added successfully')
                 queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
             },
             onError: (error: Error) => {
@@ -84,7 +78,6 @@ export default function useHandles() {
 
     const { mutate: mutateDeleteLabel } = useMutation({ mutationFn: ({columnId, id, labelId}: {columnId: string, id: string, labelId: string}) => deleteLabel(columnId, id, labelId),
             onSuccess: () => {
-                showToastSuccess('Label deleted successfully')
                 queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
             },
             onError: (error: Error) => {
@@ -95,7 +88,7 @@ export default function useHandles() {
     const { mutate: mutateLogOut } = useMutation({ mutationFn: () => logOut(),
             onSuccess: () => {
                 showToastSuccess('User logged out successfully')
-                queryClient.invalidateQueries();
+                queryClient.invalidateQueries({queryKey: createUserQueryOptions().queryKey});
             },
             onError: (error: Error) => {
                     showToastError(error.message);

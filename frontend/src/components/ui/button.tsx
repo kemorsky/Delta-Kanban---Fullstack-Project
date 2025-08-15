@@ -19,7 +19,7 @@ export const ButtonAddColumn: React.FC<ButtonProps> = ({className, ...props}) =>
     return <button className={cn("w-[18.75rem] p-2 flex flex-shrink-0 items-center justify-center font-secondary hover:text-white/75 text-[1rem] leading-[1.3125rem] bg-secondary hover:bg-secondary/80 border-none transform transition-colors", className)}{...props}>
                 <Plus className="w-[1.3125rem] h-[1.3125rem]"/>
                 <span>Add column</span>
-            </button>;
+            </button>
 };
 
 export const ButtonDeleteColumn: React.FC<ButtonProps> = ({className, ...props}) => {
