@@ -8,7 +8,7 @@ const fetcher = (url: string) =>
   });
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { error, isLoading } = useSWR("/api/auth/me", fetcher);
+  const { error, isLoading } = useSWR("https://backend-73ny.onrender.com/api/auth/me", fetcher);
 
   if (isLoading) return null;
 
