@@ -52,7 +52,7 @@ export const login = async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: true, // send only over HTTPS in prod
-      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+      sameSite: 'None',
       maxAge: 3600000, // 1 hour
     });
 
