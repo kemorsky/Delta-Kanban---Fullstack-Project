@@ -52,9 +52,9 @@ app.use(cors({
 
 app.options('*', cors());
 
-app.use('*', (req, res) => {
-  console.log('Request path:', req.path);
-  res.status(404).send('Not Found');
+app.use((req, res, next) => {
+  console.log('Incoming URL:', req.url);
+  next();
 });
 
 app.use('/api/auth', authRoutes);
