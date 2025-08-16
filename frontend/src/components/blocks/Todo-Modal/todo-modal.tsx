@@ -12,6 +12,7 @@ import { ButtonDeleteTodo, ButtonDeleteLabel, ButtonAddLabel, ButtonCloseModal, 
 import TextEditor from "../../ui/text-editor";
 import { Label } from "../../ui/label";
 import { LineSpinner } from "ldrs/react";
+import 'ldrs/react/LineSpinner.css'
 
 type TodoModalProps = {
     todo?: Todo | null | undefined,
@@ -38,14 +39,15 @@ export default function TodoModal(props: TodoModalProps) {
         content: todo?.description
     });
 
-    if (!todo || !setIsOpen ) return;
+    if (!setIsOpen ) return;
 
-    if (pending) {
+    if (pending || !todo) {
         return (
-            <div>
+        <div className="bg-secondary mx-auto w-full max-w-[64rem] h-[30rem] p-4 md:rounded-md absolute inset-x-0 top-[0rem] md:top-[2rem] z-50">
+            <section className="absolute top-0 left-0 w-full h-full flex justify-center items-center">
                 <LineSpinner size="36" stroke="3" speed="1" color="white" />
-            </div>
-        );
+            </section>
+        </div>)
     }
 
     return (
@@ -113,7 +115,7 @@ export default function TodoModal(props: TodoModalProps) {
                                                         }
                                                         setEditTodoLabel(null)}}>Save Label
                                     </ButtonAddLabel>
-                                    <button onClick={() => {setEditTodoLabel(null)}}>Cancel</button>
+                                    <button className="text-sm px-2 py-1 rounded" onClick={() => {setEditTodoLabel(null)}}>Cancel</button>
                                 </>
                             )}
 
@@ -154,7 +156,8 @@ export default function TodoModal(props: TodoModalProps) {
                                         e.currentTarget.click();
                                     }
                                 }}/>
-                            <button onClick={() => {setEditTodoDescription(null)}}>Cancel</button>
+                            <button className="w-[5rem] text-center p-2 ml-2 bg-none hover:text-white hover:border-white/75 font-secondary font-semibold text-[0.875rem] text-white/75 transform transition-colors mt-2" 
+                            onClick={() => {setEditTodoDescription(null)}}>Cancel</button >
                         </>
                         )}
 
@@ -165,7 +168,7 @@ export default function TodoModal(props: TodoModalProps) {
                                         dangerouslySetInnerHTML={{__html: todo.description ?? ''}}
                                         onKeyDown={(e) => {if (e.key === "Enter") {e.currentTarget.click()}}}>
                                 </article>
-                                <ButtonAddLabel className="w-[4rem] mt-4" onClick={() => setEditTodoDescription(todo.id ?? '')}>Edit</ButtonAddLabel>  
+                                <ButtonAddLabel className="w-[4rem] mt-4" onClick={() => setEditTodoDescription(todo.id ?? '')}>Edit</ButtonAddLabel> 
                             </section>
                             
                         )}

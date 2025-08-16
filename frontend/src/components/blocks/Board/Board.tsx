@@ -31,8 +31,8 @@ export default function Board() {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     
-    const [{ data: todos, error }, { data: columns }] = useQueries( // main fetch of data of todos and columns
-            {queries: [createTodoQueryOptions(), createColumnQueryOptions()]} 
+    const [{ data: todos, error }, { data: columns  }] = useQueries( // main fetch of data of todos and columns
+                {queries: [createTodoQueryOptions(), createColumnQueryOptions()]}
         );
 
     const joinedColumnIds = useMemo(() => columns?.map(col => col.id).join(','), [columns]);
@@ -78,16 +78,18 @@ export default function Board() {
         }
     });
 
-    const { mutate: mutateGetTodo, isPending } = useMutation({ mutationFn: (id: string) => fetchTodoById(id), 
+    const { mutate: mutateGetTodo, isPending } = useMutation({
+        mutationFn: (id: string) => fetchTodoById(id),
         onSuccess: (todo) => {
-            setActiveTodo(todo);
             setIsOpen(true);
+            setActiveTodo(todo);
             navigate(`/kanban/todo/${todo.id}`);
-            queryClient.invalidateQueries({ queryKey: createTodoQueryOptions().queryKey })
+            queryClient.invalidateQueries({ queryKey: createTodoQueryOptions().queryKey });
         }
     });
 
-    if (!todos || !columns || !columnsId) return <p>Loading...</p>;
+
+    if (!todos || !columns || !columnsId ) return null;
     
     if (error) { console.error(error); };
     
@@ -193,7 +195,6 @@ export default function Board() {
             mutateReorderTodos({ orderId: targetOrder, columnId: targetColumnId });
         }
     };
-
 
     const handleColumnOrder = async (activeId: string, overId: string) => {
         const oldIndex = columnsId.findIndex(id => id === activeId);

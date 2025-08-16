@@ -32,68 +32,68 @@ export default function useHandles() {
             });
 
     const { mutate: mutateDeleteTodo } = useMutation({ mutationFn: ({columnId, id}: {columnId: string, id: string}) => deleteTodo(columnId, id),
-            onSuccess: () => {
-                queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
-            },
-            onError: (error: Error) => {
+                onSuccess: () => {
+                    queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
+                },
+                onError: (error: Error) => {
                     showToastError(error.message);
                 }
-        });
+            });
 
     const { mutate: mutateAddColumn } = useMutation({ mutationFn: (columnData: Column) => addColumn(columnData),
-            onSuccess: () => {
-                queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
-            },
-            onError: (error: Error) => {
+                onSuccess: () => {
+                    queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
+                },
+                onError: (error: Error) => {
                     showToastError(error.message);
                 }
-        }); 
+            }); 
 
     const { mutate: mutateEditColumn } = useMutation({ mutationFn: ({id, title}: {id: string, title: string }) => editColumn(id, title),
-            onSuccess: () => {
-                queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
-            },
-            onError: (error: Error) => {
+                onSuccess: () => {
+                    queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
+                },
+                onError: (error: Error) => {
                     showToastError(error.message);
                 }
-        });
+            });
 
     const { mutate: mutateDeleteColumn } = useMutation({ mutationFn: (id: string) => deleteColumn(id),
-            onSuccess: () => {
-                queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
-            },
-            onError: (error: Error) => {
-                    showToastError(error.message);
-                }
-        });
+                onSuccess: () => {
+                    queryClient.invalidateQueries({queryKey: createColumnQueryOptions().queryKey})
+                },
+                onError: (error: Error) => {
+                        showToastError(error.message);
+                    }
+            });
 
     const { mutate: mutateAddLabel } = useMutation({ mutationFn: ({columnId, id, title}: {columnId: string, id: string, title: string}) => postLabel(columnId, id, title),
-            onSuccess: () => {
-                queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
-            },
-            onError: (error: Error) => {
-                    showToastError(error.message);
-                }
-        })
+                onSuccess: () => {
+                    queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
+                },
+                onError: (error: Error) => {
+                        showToastError(error.message);
+                    }
+            })
 
     const { mutate: mutateDeleteLabel } = useMutation({ mutationFn: ({columnId, id, labelId}: {columnId: string, id: string, labelId: string}) => deleteLabel(columnId, id, labelId),
-            onSuccess: () => {
-                queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
-            },
-            onError: (error: Error) => {
-                    showToastError(error.message);
-                }
-        })
+                onSuccess: () => {
+                    queryClient.invalidateQueries({queryKey: createTodoQueryOptions().queryKey})
+                },
+                onError: (error: Error) => {
+                        showToastError(error.message);
+                    }
+            })
 
     const { mutate: mutateLogOut } = useMutation({ mutationFn: () => logOut(),
-            onSuccess: () => {
-                showToastSuccess('User logged out successfully')
-                queryClient.invalidateQueries({queryKey: createUserQueryOptions().queryKey});
-            },
-            onError: (error: Error) => {
-                    showToastError(error.message);
-                }
-        });
+                onSuccess: () => {
+                    showToastSuccess('User logged out successfully')
+                    queryClient.invalidateQueries({queryKey: createUserQueryOptions().queryKey});
+                },
+                onError: (error: Error) => {
+                        showToastError(error.message);
+                    }
+            });
     
     const handleLogOut = async () => {
         try {
