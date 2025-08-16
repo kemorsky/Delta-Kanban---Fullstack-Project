@@ -1,15 +1,11 @@
+import express from 'express';
+import serverless from 'serverless-http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-
-import express from 'express';
 import { dbConnect } from './config/dbConnect.js'
 import authRoutes from './routes/authRoutes.js'
 import userRoutes from './routes/userRoutes.js'
@@ -17,7 +13,9 @@ import todoRoutes from './routes/todoRoutes.js'
 import columnRoutes from './routes/columnRoutes.js'
 import verifyToken from './middleware/authMiddleware.js';
 
-dbConnect();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 //Middleware
 const app = express();
@@ -57,6 +55,16 @@ app.use('/api/columns', verifyToken, columnRoutes);
 app.get('/api/auth/me', verifyToken, (req, res) => {
   res.set('Cache-Control', 'no-store');
   res.status(200).json({ _id: req.user.id, username: req.user.username });
+});
+
+export const handler = serverless(async (req, res) => {
+  try {
+    await dbConnect(); // connect to MongoDB for each invocation (cached)
+    return app(req, res);
+  } catch (err) {
+    console.error('DB Connection Failed:', err);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 // Start Server
