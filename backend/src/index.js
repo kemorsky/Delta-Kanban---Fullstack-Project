@@ -13,11 +13,15 @@ import todoRoutes from './routes/todoRoutes.js'
 import columnRoutes from './routes/columnRoutes.js'
 import verifyToken from './middleware/authMiddleware.js';
 
+await dbConnect();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-await dbConnect();
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 //Middleware
 const app = express();
