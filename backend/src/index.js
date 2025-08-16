@@ -58,9 +58,18 @@ app.get('/api/auth/me', verifyToken, (req, res) => {
   res.status(200).json({ _id: req.user.id, username: req.user.username });
 });
 
-//Start Server
-const PORT = process.env.PORT || 3001;
+// Start Server
+// const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => {
-    console.log(`Server is running with port http://localhost:${PORT}`)
-});
+// app.listen(PORT, () => {
+//     console.log(`Server is running with port http://localhost:${PORT}`)
+// });
+
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`Server running locally on http://localhost:${PORT}`);
+  });
+}
+
+export default app;
