@@ -6,6 +6,14 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
+
 import { dbConnect } from './config/dbConnect.js'
 import authRoutes from './routes/authRoutes.js'
 import userRoutes from './routes/userRoutes.js'
@@ -14,14 +22,6 @@ import columnRoutes from './routes/columnRoutes.js'
 import verifyToken from './middleware/authMiddleware.js';
 
 await dbConnect();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-
-if (process.env.NODE_ENV !== 'production') {
-  dotenv.config();
-}
 
 //Middleware
 const app = express();
@@ -50,7 +50,7 @@ app.use(cors({
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
 }));
 
-app.options('*', cors());
+// app.options('*', cors());
 
 app.use((req, res, next) => {
   console.log('Incoming URL:', req.url);
