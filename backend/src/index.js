@@ -17,6 +17,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
+await dbConnect();
+
 //Middleware
 const app = express();
 
@@ -25,6 +27,7 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   'http://localhost:5173',
+  'https://fullstack-kanban-delta.vercel.app',
   'https://fullstack-kanban-backend.vercel.app',
 ];
 
@@ -55,15 +58,7 @@ app.get('/api/auth/me', verifyToken, (req, res) => {
   res.status(200).json({ _id: req.user.id, username: req.user.username });
 });
 
-export const handler = serverless(async (req, res) => {
-  try {
-    await dbConnect(); // connect to MongoDB for each invocation (cached)
-    return app(req, res);
-  } catch (err) {
-    console.error('DB Connection Failed:', err);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-});
+export const handler = serverless(app);
 
 // Start Server
 // const PORT = process.env.PORT || 3001;
