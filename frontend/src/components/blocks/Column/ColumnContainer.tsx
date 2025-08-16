@@ -8,6 +8,8 @@ import useHandles from "../../../hooks/useHandles";
 
 type Props = {
     className?: string,
+    activeTodo?: Todo,
+    overId?: string,
     todos: Todo[],
     column: Column,
     getTodo: (todo: Todo) => void
@@ -15,7 +17,7 @@ type Props = {
 
 export default function ColumnContainer(props: Props) {
     const { handleDeleteColumn, handleEditColumn, handleAddTodo } = useHandles();
-    const { todos, column, getTodo } = props;
+    const { todos, column, getTodo, activeTodo, overId } = props;
 
     const [ editColumnId, setEditColumnId ] = useState<string | null>(null);
     
@@ -40,16 +42,21 @@ export default function ColumnContainer(props: Props) {
                 )}
 
                 {editColumnId !== column.id && (
-                    <p className="font-secondary px-2 leading-[1.625rem] cursor-text"
-                       onClick={() => {setEditColumnId(column.id)}}>
+                    <p tabIndex={0} className="font-secondary px-2 leading-[1.625rem] cursor-text"
+                       onClick={() => {setEditColumnId(column.id)}}
+                       onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    e.currentTarget.click();
+                                }
+                            }}>
                         {column.title}
                     </p>
                 )}
                 <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}} />
             </section>
-            <ColumnContent todos={todos} columnId={column.id} column={column} getTodo={getTodo}/>
-            <footer className="w-full p-2">
-                <ButtonAddTodo onClick={() => {handleAddTodo(column.id)}} />
+            <ColumnContent todos={todos} columnId={column.id} column={column} getTodo={getTodo} activeTodo={activeTodo} overId={overId}/>
+            <footer className="w-full p-2 self-end">
+                <ButtonAddTodo className="self-end" onClick={() => {handleAddTodo(column.id)}} />
             </footer>
         </ColumnWrapper>
     )

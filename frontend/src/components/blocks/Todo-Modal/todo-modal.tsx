@@ -11,11 +11,13 @@ import { InputEdit, TextAreaEditor } from "../../ui/input";
 import { ButtonDeleteTodo, ButtonDeleteLabel, ButtonAddLabel, ButtonCloseModal, ButtonEditTodoDescription } from "../../ui/button";
 import TextEditor from "../../ui/text-editor";
 import { Label } from "../../ui/label";
+import { LineSpinner } from "ldrs/react";
 
 type TodoModalProps = {
     todo?: Todo | null | undefined,
     todos?: Todo[],
     setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>,
+    pending: boolean;
 };
 
 export default function TodoModal(props: TodoModalProps) {
@@ -24,7 +26,7 @@ export default function TodoModal(props: TodoModalProps) {
     const [ editTodoLabel, setEditTodoLabel ] = useState<string | null>('');
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const { todo, todos, setIsOpen } = props
+    const { todo, todos, setIsOpen, pending } = props
     const { handleEditTodo, handleDeleteTodo, handleAddLabel, handleDeleteLabel } = useHandles();
     
     const navigate = useNavigate();
@@ -38,8 +40,21 @@ export default function TodoModal(props: TodoModalProps) {
 
     if (!todo || !setIsOpen ) return;
 
+    if (pending) {
+        return (
+            <div>
+                <LineSpinner size="36" stroke="3" speed="1" color="white" />
+            </div>
+        );
+    }
+
     return (
-        <div className="bg-secondary mx-auto w-full max-w-[64rem] min-h-[30rem] space-y-4 p-4 md:rounded-md absolute inset-x-0 top-[0rem] md:top-[2rem] z-50">
+        <div tabIndex={0} onKeyDown={(e) => {if (e.key === 'Escape') {navigate('/kanban'); {setIsOpen(false)}}}} 
+             className="bg-secondary mx-auto w-full max-w-[64rem] min-h-[30rem] p-4 md:rounded-md absolute inset-x-0 top-[0rem] md:top-[2rem] z-50">
+            <input className="absolute opacity-0 w-0 h-0 p-0 cursor-none"
+                autoFocus
+                aria-hidden="true"
+            />
             <header className="flex justify-between items-center border-b">
                 <article className="w-full pb-4 flex flex-col gap-2">
                     <section className="flex md:flex-row flex-col gap-2">
@@ -62,8 +77,13 @@ export default function TodoModal(props: TodoModalProps) {
                         )}
 
                         {editTodoTitle !== todo.id && (
-                            <h1 className="text-3xl font-secondary leading-[2.5rem] w-full max-w-[56.37rem] md:px-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] shadow-sm transform transition-colors" 
-                                onClick={() => setEditTodoTitle(todo.id ?? '')}>
+                            <h1 tabIndex={0} className="text-3xl font-secondary leading-[2.5rem] w-full max-w-[56.37rem] md:px-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] shadow-sm transform transition-colors" 
+                                onClick={() => setEditTodoTitle(todo.id ?? '')}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.currentTarget.click();
+                                    }
+                                }}>
                                     {todo.title}
                             </h1>
                         )}
@@ -91,8 +111,9 @@ export default function TodoModal(props: TodoModalProps) {
                                                         if (value) {
                                                             handleAddLabel(todo.columnId, todo.id ?? '', value)
                                                         }
-                                                        setEditTodoLabel(null)
-                                                    }}>Save Label</ButtonAddLabel>
+                                                        setEditTodoLabel(null)}}>Save Label
+                                    </ButtonAddLabel>
+                                    <button onClick={() => {setEditTodoLabel(null)}}>Cancel</button>
                                 </>
                             )}
 
@@ -103,10 +124,15 @@ export default function TodoModal(props: TodoModalProps) {
                     </section>
                 </article>
                 <section className="self-start">
-                    <ButtonCloseModal onClick={() => {navigate('/kanban'); setIsOpen(false)}} />
+                    <ButtonCloseModal onClick={() => {navigate('/kanban'); setIsOpen(false)}}
+                                      onKeyDown={(e) => {
+                                            if (e.key === "Escape") {
+                                                {navigate('/kanban'); setIsOpen(false)}
+                                            }
+                                        }}/>
                 </section>
             </header>
-            <div className="flex md:flex-row flex-col justify-between gap-3">
+            <div className="flex md:flex-row flex-col justify-between gap-3 mt-4">
                 <article className="w-full md:w-2/3 min-h-[21rem] flex flex-col gap-2 bg-tertiary border border-[#111827] p-3 rounded-md">
                     <section className="flex items-end gap-2">
                         <AlignLeft />
@@ -116,22 +142,32 @@ export default function TodoModal(props: TodoModalProps) {
                         {editTodoDescription === todo.id && (
                         <>
                             <TextEditor editor={tiptapEditor} />
-                            <TextAreaEditor editor={tiptapEditor} />
+                            <TextAreaEditor editor={tiptapEditor}/>
                             <ButtonEditTodoDescription className="w-[5rem] text-center p-2 bg-none border-green-600 hover:border-green-600 hover:bg-green-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-green-200 transform transition-colors mt-2"
                                 onClick={() => {
                                     const updatedDescription = tiptapEditor?.getHTML() ?? todo.description;
                                     handleEditTodo(todo.columnId, todo.id ?? '', todo.title ?? '', updatedDescription);
                                     setEditTodoDescription(null);
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.currentTarget.click();
+                                    }
                                 }}/>
+                            <button onClick={() => {setEditTodoDescription(null)}}>Cancel</button>
                         </>
                         )}
 
                         {editTodoDescription !== todo.id && (
-                            <article id="description" className="min-h-[7rem] font-secondary text-white/80 whitespace-pre-wrap p-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] shadow-sm transform transition-colors"
-                                     onClick={() => setEditTodoDescription(todo.id ?? '')}
-                                     dangerouslySetInnerHTML={{__html: todo.description ?? ''}}>
-                                        
-                            </article>
+                            <section>
+                                <article tabIndex={0} id="description" className="min-h-[7rem] font-secondary text-white/80 whitespace-pre-wrap p-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] shadow-sm transform transition-colors"
+                                        onClick={() => setEditTodoDescription(todo.id ?? '')}
+                                        dangerouslySetInnerHTML={{__html: todo.description ?? ''}}
+                                        onKeyDown={(e) => {if (e.key === "Enter") {e.currentTarget.click()}}}>
+                                </article>
+                                <ButtonAddLabel className="w-[4rem] mt-4" onClick={() => setEditTodoDescription(todo.id ?? '')}>Edit</ButtonAddLabel>  
+                            </section>
+                            
                         )}
                     </section>
                 </article>

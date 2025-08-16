@@ -39,6 +39,7 @@
     "@tiptap/starter-kit": "^3.0.9",
     "@vitejs/plugin-react": "^4.5.2",
     "clsx": "^2.1.1",
+    "ldrs": "^1.1.7",
     "lodash.throttle": "^4.1.1",
     "lucide-react": "^0.522.0",
     "react": "^19.1.0",

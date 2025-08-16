@@ -1,22 +1,26 @@
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, Slide } from "react-toastify";
+import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
+import { DndContext, DragOverlay, useSensor, useSensors, type DragStartEvent, type DragEndEvent, type DragOverEvent, closestCorners } from '@dnd-kit/core';
+import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import type { Todo, Column } from "../../../types/types"
 import useHandles from "../../../hooks/useHandles";
-import { DndContext, DragOverlay, useSensor, useSensors, type DragEndEvent, type DragStartEvent, closestCorners } from '@dnd-kit/core';
-import { CustomMouseSensor } from "../../../lib/custom-mouse-sensor";
-import { arrayMove, SortableContext } from "@dnd-kit/sortable";
-import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
+
 import { fetchTodoById, reorderColumns, reorderTodos } from "../../../lib/api";
+import { CustomMouseSensor } from "../../../lib/custom-mouse-sensor";
+import { formatTodoId } from "../../../lib/format-todo-id";
+import { showToastError } from "../../../lib/toast-utils";
+
 import createColumnQueryOptions from "../../../queries/createColumnQueryOptions";
 import createTodoQueryOptions from "../../../queries/createTodoQueryOptions";
+
 import { TodoCard, TodoCardId, TodoCardTitle } from "../Todo/todo-card";
+import { Label } from "../../ui/label";
 import { ButtonAddColumn } from "../../ui/button";
 import ColumnContainer from "../Column/ColumnContainer";
 import TodoModal from "../Todo-Modal/todo-modal";
-import { formatTodoId } from "../../../lib/format-todo-id";
-import { ToastContainer, Slide } from "react-toastify";
-import { showToastSuccess, showToastError } from "../../../lib/toast-utils";
 
 export default function Board() {
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
@@ -27,7 +31,7 @@ export default function Board() {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     
-    const [{ data: todos, error }, { data: columns } ] = useQueries( // main fetch of data of todos and columns
+    const [{ data: todos, error }, { data: columns }] = useQueries( // main fetch of data of todos and columns
             {queries: [createTodoQueryOptions(), createColumnQueryOptions()]} 
         );
 
@@ -64,19 +68,17 @@ export default function Board() {
             };
         },
         onSettled: () => {
-            showToastSuccess('Columns reordered successfully');
             queryClient.invalidateQueries({ queryKey: createColumnQueryOptions().queryKey });
         }
     });
 
     const { mutate: mutateReorderTodos } = useMutation({ mutationFn: ({orderId, columnId} : {orderId: string[], columnId: string}) => reorderTodos(orderId, columnId),
         onSuccess: () => {
-            showToastSuccess('Todos reordered successfully');
             queryClient.invalidateQueries({ queryKey: createTodoQueryOptions().queryKey });
         }
     });
 
-    const { mutate: mutateGetTodo } = useMutation({ mutationFn: (id: string) => fetchTodoById(id), 
+    const { mutate: mutateGetTodo, isPending } = useMutation({ mutationFn: (id: string) => fetchTodoById(id), 
         onSuccess: (todo) => {
             setActiveTodo(todo);
             setIsOpen(true);
@@ -104,26 +106,46 @@ export default function Board() {
         }
     };
 
+    const handleDragOver = (event: DragOverEvent) => {
+        const { active, over } = event;
+        if (active.data.current?.type !== 'Todo') return;
+
+        if (!over) return;
+
+        const overType = over.data.current?.type;
+        if (overType === 'Column') {
+            active.data.current.hoveredColumnId = over.id.toString();
+        } else if (overType === 'Todo') {
+            const overTodo = over.data.current?.todo as Todo;
+            active.data.current.hoveredColumnId = overTodo.columnId;
+        }
+    };
+
     const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
         setActiveColumn(null);
         setActiveTodo(null);
-        const { active, over } = event;
-        if (!over) return;
-  
-        if (over.id === active.id) return;
+
+        if (!over || over.id === active.id) return;
 
         const activeType = active.data.current?.type;
         const overType = over.data.current?.type;
 
         if (activeType === 'Column') {
-            await handleColumnOrder(active.id.toString(), over.id.toString())
-            setActiveColumn(null);
+            await handleColumnOrder(active.id.toString(), over.id.toString());
             return;
-        };
+        }
 
         if (activeType === 'Todo') {
             const activeTodo = active.data.current?.todo as Todo;
             const activeId = active.id;
+
+            // grab current todos from cache
+            const previousTodos = queryClient.getQueryData<Todo[]>(createTodoQueryOptions().queryKey) ?? [];
+
+            // skip optimistic reorder if the todo no longer exists (deleted)
+            if (!previousTodos.find(t => t.id === activeId)) return;
+
             const sourceColumnId = activeTodo.columnId;
 
             let targetColumnId = sourceColumnId;
@@ -137,34 +159,41 @@ export default function Board() {
                 targetColumnId = over.id.toString();
             }
 
-            const sourceTodos = todos.filter(t => t.columnId === sourceColumnId);
-            const targetTodos = todos.filter(t => t.columnId === targetColumnId);
+            // remove active todo from source column
+            const updatedSourceTodos = previousTodos.filter(t => t.id !== activeId && t.columnId === sourceColumnId);
 
-            const updatedSourceTodos = sourceTodos.filter(t => t.id !== activeId);
+            // calculate insert index in target column
+            const targetTodos = previousTodos.filter(t => t.columnId === targetColumnId);
+            const insertIndex = overTodoId ? targetTodos.findIndex(t => t.id === overTodoId) : targetTodos.length;
 
-            let insertIndex = targetTodos.length;
-
-            if (overTodoId) {
-                insertIndex = targetTodos.findIndex(t => t.id === overTodoId);
-            }
-
-            const filteredTargetTodos = targetTodos.filter(t => t.id !== activeId); // prep updated target todos
+            // build new todos array
+            const todosInTargetColumn = targetTodos.filter(t => t.id !== activeId);
+            const beforeTarget = todosInTargetColumn.slice(0, insertIndex);
+            const afterTarget = todosInTargetColumn.slice(insertIndex);
 
             const updatedTargetTodos = [
-                ...filteredTargetTodos.slice(0, insertIndex),
+                ...beforeTarget,
                 { ...activeTodo, columnId: targetColumnId },
-                ...filteredTargetTodos.slice(insertIndex),
+                ...afterTarget
             ];
-            
-            if (sourceColumnId !== targetColumnId) { // updates source column if todo was moved across columns
+
+            const otherTodos = previousTodos.filter(t => t.columnId !== targetColumnId && t.id !== activeId);
+
+            const newTodos = [...otherTodos, ...updatedTargetTodos];
+
+            // optimistic cache update
+            queryClient.setQueryData(createTodoQueryOptions().queryKey, newTodos);
+
+            // final API calls
+            if (sourceColumnId !== targetColumnId) {
                 const sourceOrder = updatedSourceTodos.map(t => t.id ?? '');
                 mutateReorderTodos({ orderId: sourceOrder, columnId: sourceColumnId });
             }
-
-            const targetOrder = updatedTargetTodos.map(t => t.id ?? ''); // updates target column order
+            const targetOrder = updatedTargetTodos.map(t => t.id ?? '');
             mutateReorderTodos({ orderId: targetOrder, columnId: targetColumnId });
-        };
+        }
     };
+
 
     const handleColumnOrder = async (activeId: string, overId: string) => {
         const oldIndex = columnsId.findIndex(id => id === activeId);
@@ -183,17 +212,15 @@ export default function Board() {
     };
 
     return (
-            <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto rounded-xl flex px-3 md:px-8 gap-4 items-start justify-start overflow-x-auto overflow-y-hidden">
+            <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto rounded-xl flex p-3 md:px-8 gap-4 items-start justify-start overflow-x-auto overflow-y-hidden">
                 {isOpen && (
-                    <div
-                        className="w-full h-full fixed top-0 left-0 bg-black bg-opacity-50 z-10 transition transform"
-                        onClick={() => {setIsOpen(false); navigate('/kanban')}
-                        }
-                    />
+                    <div className="w-full h-full fixed top-0 left-0 bg-black bg-opacity-50 z-10 transition transform"
+                         onClick={() => {setIsOpen(false); navigate('/kanban')}}/>
                 )}
                 <DndContext sensors={sensors} 
                             collisionDetection={closestCorners}
                             onDragStart={handleDragStart} 
+                            onDragOver={handleDragOver}
                             onDragEnd={handleDragEnd}>
                     <SortableContext key={columnsId.join(',')} id="board" items={columnsId}>
                         {columns.map((column) => (
@@ -205,38 +232,39 @@ export default function Board() {
                         ))}
                         <ButtonAddColumn onClick={() => {handleAddColumn()}}/>
                     </SortableContext>
-                {createPortal(
-                    <DragOverlay>
-                        {activeColumn && (
-                            <ColumnContainer key={activeColumn.id}
-                                            todos={todos}
-                                            column={activeColumn}
-                                            getTodo={getTodo}
-                            />)}
+                    {createPortal(
+                        <DragOverlay>
+                            {activeColumn && (
+                                <ColumnContainer key={activeColumn.id}
+                                                todos={todos}
+                                                column={activeColumn}
+                                                getTodo={getTodo}
+                                />)}
 
-                        {activeTodo && (
-                            <TodoCard className="opacity-80 border-2 border-dashed" todo={activeTodo}>
-                                <TodoCardId>#{formatTodoId(todos, activeTodo.id, activeTodo.user?.username)}</TodoCardId>
-                                <TodoCardTitle>{activeTodo.title}</TodoCardTitle>
-                                <section className="w-full flex flex-wrap gap-1">
-                                    {activeTodo.labels?.map((label) => (
-                                        <span key={label.labelId} className="flex items-center justify-between gap-1 bg-blue-600 rounded px-2 py-1 font-secondary text-sm border border-black">
-                                            <p>{label.title}</p>
-                                        </span>
-                                        ))
-                                    }
-                                </section>
-                            </TodoCard>
-                        )}
-                    </DragOverlay>, 
-                    document.body
-                )}
+                            {activeTodo && (
+                                <TodoCard className="opacity-80 border-2 border-dashed" todo={activeTodo}>
+                                    <TodoCardId>#{formatTodoId(todos, activeTodo.id, activeTodo.user?.username)}</TodoCardId>
+                                    <TodoCardTitle>{activeTodo.title}</TodoCardTitle>
+                                    <section className="w-full flex flex-wrap gap-1">
+                                        {activeTodo.labels?.map((label) => (
+                                            <Label key={label.labelId}>
+                                                <p>{label.title}</p>
+                                            </Label>
+                                            ))
+                                        }
+                                    </section>
+                                </TodoCard>
+                            )}
+                        </DragOverlay>, 
+                        document.body
+                    )}
                 </DndContext>
                 {isOpen && (
                     <>
                         <TodoModal todos={todos}
                                     todo={todos.find(t => t.id === activeTodo?.id)}
                                     setIsOpen={setIsOpen}
+                                    pending={isPending}
                         />
                     </>
                     )

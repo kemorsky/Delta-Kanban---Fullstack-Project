@@ -33,7 +33,7 @@ export const ColumnWrapper: React.FC<ColumnWrapperProps> = (({...props}) => {
                 style={style}
                 {...attributes}
                 {...listeners}
-                className="w-[18.75rem] h-full bg-secondary flex flex-shrink-0 flex-col border border-transparent rounded-md gap-4 overflow-y-auto overflow-x-hidden"
+                className="w-[18.75rem] h-full bg-secondary flex flex-shrink-0 flex-col border border-transparent rounded-md gap-4 cursor-grab overflow-y-auto overflow-x-hidden"
                 >
                     {children}
         </article>
