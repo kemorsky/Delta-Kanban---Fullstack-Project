@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://fullstack-kanban-backend.vercel.app/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
