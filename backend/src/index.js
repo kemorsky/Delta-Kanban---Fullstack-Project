@@ -31,8 +31,7 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://fullstack-kanban-delta.vercel.app',
-  'https://fullstack-kanban-backend.vercel.app',
+  'https://fullstack-kanban-delta.vercel.app',,
 ];
 
 app.use(cors({
@@ -49,8 +48,6 @@ app.use(cors({
   credentials: true,
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
 }));
-
-// app.options('*', cors());
 
 app.use((req, res, next) => {
   console.log('Incoming URL:', req.url);
