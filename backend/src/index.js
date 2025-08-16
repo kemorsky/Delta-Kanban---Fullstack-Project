@@ -12,7 +12,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 import express from 'express';
 import { dbConnect } from './config/dbConnect.js'
 import authRoutes from './routes/authRoutes.js'
-import userRoutes from './routes/userRoutes.js'
+// import userRoutes from './routes/userRoutes.js'
 import todoRoutes from './routes/todoRoutes.js'
 import columnRoutes from './routes/columnRoutes.js'
 import verifyToken from './middleware/authMiddleware.js';
@@ -48,10 +48,10 @@ app.use(cors({
 
 app.options('*', cors());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/users', verifyToken, userRoutes);
-app.use('/api', verifyToken, todoRoutes);
-app.use('/api/columns', verifyToken, columnRoutes);
+app.use(authRoutes);
+// app.use('/api/users', verifyToken, userRoutes);
+app.use(verifyToken, todoRoutes);
+app.use(verifyToken, columnRoutes);
 
 app.get('/api/auth/me', verifyToken, (req, res) => {
   res.set('Cache-Control', 'no-store');

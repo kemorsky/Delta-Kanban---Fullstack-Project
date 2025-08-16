@@ -4,10 +4,10 @@ import { register, login, logout, deleteUser, fetchUser } from '../controllers/a
 
 const router = express.Router();
 
-router.get('/me', authMiddleware, fetchUser)
-router.post('/login', login)
-router.post('/signup', register)
-router.post('/logout', logout)
-router.delete('/user/:id', deleteUser)
+router.get('/api/auth/me', authMiddleware, fetchUser)
+router.post('/api/auth/login', login)
+router.post('/api/auth/signup', register)
+router.post('/api/auth/logout', logout)
+router.delete('/api/auth/user/:id', deleteUser)
 
 export default router;
