@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const verifyToken = (req, res, next) => {
-    if (req.path === '/login' || req.path === '/signup') {
+    if (req.path.endsWith('/login') || req.path.endsWith('/signup')) {
         return next();
     }
 
