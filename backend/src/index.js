@@ -54,7 +54,7 @@ app.options('*', cors());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', verifyToken, userRoutes);
-app.use('/api', verifyToken, todoRoutes);
+app.use('/api/todos', verifyToken, todoRoutes);
 app.use('/api/columns', verifyToken, columnRoutes);
 
 app.get('/api/auth/me', verifyToken, (req, res) => {
