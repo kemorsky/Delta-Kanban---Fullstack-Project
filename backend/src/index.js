@@ -55,7 +55,7 @@ app.options('*', cors());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', verifyToken, userRoutes);
 app.use('/api', verifyToken, todoRoutes);
-app.use('/api', verifyToken, columnRoutes);
+app.use('/api/columns', verifyToken, columnRoutes);
 
 app.get('/api/auth/me', verifyToken, (req, res) => {
   res.set('Cache-Control', 'no-store');
