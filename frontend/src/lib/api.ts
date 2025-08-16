@@ -124,7 +124,7 @@ export const deleteTodo = async (columnId: string, id: string): Promise<Todo> =>
 };
 
 export const postLabel = async (columnId: string, id: string, title: string): Promise<Label> => {
-    const response = await apiRequest(`${URL}/columns/${columnId}/todos/todo/${id}/labels/`, {
+    const response = await apiRequest(`${URL}/columns/${columnId}/todos/todo/${id}/labels`, {
       method: 'POST',
       credentials: 'include',
       body: JSON.stringify({title})
