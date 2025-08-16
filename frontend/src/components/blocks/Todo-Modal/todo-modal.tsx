@@ -17,7 +17,7 @@ type TodoModalProps = {
     todo?: Todo | null | undefined,
     todos?: Todo[],
     setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>,
-    pending: boolean;
+    pending?: boolean;
 };
 
 export default function TodoModal(props: TodoModalProps) {
