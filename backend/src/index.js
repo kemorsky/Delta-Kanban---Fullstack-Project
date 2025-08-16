@@ -25,9 +25,7 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://fullstack-kanban.netlify.app',
   'https://fullstack-kanban-backend.vercel.app',
-  'fullstack-kanban-backend-krx1q4ajz-kamil-romanowicz.vercel.app'
 ];
 
 app.use(cors({
