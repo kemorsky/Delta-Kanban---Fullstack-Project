@@ -3,10 +3,10 @@ import { getColumns, reorderColumns, postColumn, editColumn, deleteColumn} from 
 
 const router = express.Router();
 
-router.get('', getColumns);
-router.put('/reorder', reorderColumns);
-router.post('', postColumn);
-router.put('/column/:id', editColumn);
-router.delete('/column/:id', deleteColumn);
+router.get('/columns', getColumns);
+router.put('/columns/reorder', reorderColumns);
+router.post('/columns', postColumn);
+router.put('/columns/column/:id', editColumn);
+router.delete('/columns/column/:id', deleteColumn);
 
 export default router;

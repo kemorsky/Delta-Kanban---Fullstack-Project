@@ -52,10 +52,15 @@ app.use(cors({
 
 app.options('*', cors());
 
+app.use('*', (req, res) => {
+  console.log('Request path:', req.path);
+  res.status(404).send('Not Found');
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', verifyToken, userRoutes);
-app.use('/api/todos', verifyToken, todoRoutes);
-app.use('/api/columns', verifyToken, columnRoutes);
+app.use('/api', verifyToken, todoRoutes);
+app.use('/api', verifyToken, columnRoutes);
 
 app.get('/api/auth/me', verifyToken, (req, res) => {
   res.set('Cache-Control', 'no-store');
