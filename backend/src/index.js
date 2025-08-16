@@ -46,6 +46,8 @@ app.use(cors({
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
 }));
 
+app.options('*', cors());
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', verifyToken, userRoutes);
 app.use('/api', verifyToken, todoRoutes);
