@@ -7,7 +7,7 @@ type RequestOptions = {
     credentials?: RequestCredentials;
   }
 
-const URL = ''
+const URL = 'https://fullstack-kanban-backend.vercel.app'
 
 export const apiRequest = async (url: string, options: RequestOptions = {}) => {
     try {
