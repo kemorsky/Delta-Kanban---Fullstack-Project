@@ -25,6 +25,7 @@ export type Todo = {
     order?: number;
     createdAt?: string;
     updatedAt?: string;
+    done?: boolean;
 };
 
 export type Column = {

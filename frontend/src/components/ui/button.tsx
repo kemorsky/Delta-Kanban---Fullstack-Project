@@ -44,7 +44,7 @@ export const ButtonEditTodoDescription: React.FC<ButtonProps> = ({className, ...
 };
 
 export const ButtonDeleteTodo: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("flex items-center justify-center p-2 bg-none border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-red-200 transform transition-colors", className)}
+    return <button className={cn("w-full flex items-center justify-center p-2 bg-none border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-red-200 transform transition-colors", className)}
                     {...props}>
                 <Trash2 className="w-[1.3125rem] h-[1.3125rem] mr-1"/> 
                 <span>Delete Todo</span>

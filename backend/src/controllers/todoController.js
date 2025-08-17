@@ -129,12 +129,12 @@ const deleteLabel = async (req, res) => {
 
 const editTodo = async (req, res) => {
     const todoId = req.params.id;
-    const { title, description, labels } = req.body;
+    const { title, description, labels, done } = req.body;
 
     try {
         const updatedTodo = await Todo.findOneAndUpdate(
             { _id: todoId, user: req.user.id },
-            { title, description, labels },
+            { title, description, labels, done },
             { new: true, runValidators: true }
         );
 

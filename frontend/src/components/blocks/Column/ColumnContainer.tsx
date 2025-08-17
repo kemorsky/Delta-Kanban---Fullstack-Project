@@ -65,8 +65,8 @@ export default function ColumnContainer(props: Props) {
                 <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}} />
             </section>
             <ColumnContent todos={todos} columnId={column.id} column={column} getTodo={getTodo} activeTodo={activeTodo} overId={overId}/>
-            <footer className="w-full p-2 self-end">
-                <ButtonAddTodo className="self-end" onClick={() => {handleAddTodo(column.id)}} />
+            <footer className="w-full p-2 ">
+                <ButtonAddTodo  onClick={() => {handleAddTodo(column.id)}} />
             </footer>
         </ColumnWrapper>
     )

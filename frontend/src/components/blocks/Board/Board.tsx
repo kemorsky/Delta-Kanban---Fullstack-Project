@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, Slide } from "react-toastify";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { DndContext, DragOverlay, useSensor, useSensors, type DragStartEvent, type DragEndEvent, type DragOverEvent, closestCorners } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
@@ -21,6 +20,7 @@ import { Label } from "../../ui/label";
 import { ButtonAddColumn } from "../../ui/button";
 import ColumnContainer from "../Column/ColumnContainer";
 import TodoModal from "../Todo-Modal/todo-modal";
+import Toast from '../../ui/toast'
 
 export default function Board() {
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
@@ -88,13 +88,13 @@ export default function Board() {
         }
     });
 
-
     if (!todos || !columns || !columnsId ) return null;
     
     if (error) { console.error(error); };
     
     const getTodo = async (todo: Todo) => {
         mutateGetTodo(todo.id ?? '');
+        console.log(todo)
     };
 
     const handleDragStart = async (event: DragStartEvent) => {
@@ -270,18 +270,7 @@ export default function Board() {
                     </>
                     )
                 }
-                <ToastContainer position="bottom-center"
-                    autoClose={2500}
-                    hideProgressBar
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss={false}
-                    draggable={false}
-                    pauseOnHover
-                    theme="colored"
-                    transition={Slide}
-                />
+                <Toast />
             </article>
     )
 };

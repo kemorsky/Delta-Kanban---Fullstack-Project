@@ -17,7 +17,7 @@ export default function Header() {
                     <span> {data.username}</span>
                 </a>
             </h1>
-            <nav className="flex md:flex-row flex-col gap-2 md:items-center md:justify-start">
+            <nav className="flex gap-2 items-center justify-start">
                 <section className="flex items-center gap-2">
                     <img src="/profile-picture.jpg" alt="user profile picture" className="w-10 h-10 bg-blue-200 rounded-full overflow-hidden object-fill"/>
                     <p className="text-base font-secondary">{data.username}</p>

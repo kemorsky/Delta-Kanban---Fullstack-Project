@@ -4,7 +4,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import { verticalListSortingStrategy } from "@dnd-kit/sortable";
 import DraggableTodoCard from "../DraggableTodo/draggable-todo";
-import { TodoCardId, TodoCardTitle } from "../Todo/todo-card";
+import { TodoCardId, TodoCardDoneTag, TodoCardTitle, } from "../Todo/todo-card";
 import { formatTodoId } from "../../../lib/format-todo-id";
 import { Label } from "../../ui/label";
 
@@ -46,14 +46,19 @@ export default function ColumnContent(props: Props) {
 
     return (
         <SortableContext id={`column-${columnId}`} items={todosId} strategy={verticalListSortingStrategy}>
-            <ul ref={setNodeRef} className="w-full flex flex-col gap-3 px-2 pt-1 pb-4 overflow-x-hidden overflow-y-auto">
+            <ul ref={setNodeRef} className="w-full h-full flex flex-col gap-3 px-2 pt-1 pb-4 overflow-x-hidden overflow-y-auto">
                 {columnTodos.map((todo) => (
                         <DraggableTodoCard key={todo.id} todo={todo} onClick={() => todo.id && getTodo(todo)} onKeyDown={(e) => {
                                             if (e.key === "Enter") {
                                                 (e.currentTarget as HTMLElement).click();
                                             }
                                         }}>
-                                <TodoCardId>#{formatTodoId(todos, todo.id, todo.user?.username)}</TodoCardId>
+                                <article className="w-full flex items-center justify-between">
+                                    <TodoCardId>#{formatTodoId(todos, todo.id, todo.user?.username)}</TodoCardId>
+                                    {todo.done && (
+                                        <TodoCardDoneTag>Done</TodoCardDoneTag>
+                                    )}
+                                </article>
                                 <TodoCardTitle>{todo.title}</TodoCardTitle>
                                 <section className="w-full flex flex-wrap gap-1">
                                     {todo.labels?.map((label) => (
