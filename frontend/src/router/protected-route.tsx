@@ -10,6 +10,7 @@ const fetcher = (url: string) =>
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { error, isLoading } = useSWR("https://fullstack-kanban-backend.vercel.app/api/auth/me", fetcher);
+    // const { error, isLoading } = useSWR("http://localhost:3000/api/auth/me", fetcher);
 
   if (isLoading) {
     return (<div>

@@ -52,7 +52,7 @@ export default function ColumnContainer(props: Props) {
                 )}
 
                 {editColumnId !== column.id && (
-                    <p tabIndex={0} className="font-secondary px-2 leading-[1.625rem] cursor-text"
+                    <p tabIndex={0} className="font-secondary px-2 leading-[1.625rem] border border-transparent cursor-text"
                        onClick={() => {setEditColumnId(column.id)}}
                        onKeyDown={(e) => {
                                 if (e.key === "Enter") {
@@ -64,7 +64,7 @@ export default function ColumnContainer(props: Props) {
                 )}
                 <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}} />
             </section>
-            <ColumnContent todos={todos} columnId={column.id} column={column} getTodo={getTodo} activeTodo={activeTodo} overId={overId}/>
+            <ColumnContent todos={todos} column={column} getTodo={getTodo} activeTodo={activeTodo} overId={overId}/>
             <footer className="w-full p-2 ">
                 <ButtonAddTodo  onClick={() => {handleAddTodo(column.id)}} />
             </footer>

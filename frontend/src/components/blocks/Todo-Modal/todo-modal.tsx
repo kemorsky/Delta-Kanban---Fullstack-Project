@@ -61,7 +61,7 @@ export default function TodoModal(props: TodoModalProps) {
                 <article className="w-full pb-4 flex flex-col gap-2">
                     <section className="flex md:flex-row flex-col gap-2">
                             {todo.done && (
-                                <span className="flex items-center justify-center font-secondary w-16 min-h-[1.3125rem] rounded bg-green-700">Done</span>
+                                <span className="w-16 min-h-[1.3125rem] h-[2.625rem] flex items-center justify-center font-secondary rounded bg-green-700">Done</span>
                             )}  
                         <span className="font-secondary text-3xl leading-[2.5rem] text-white/50 border border-transparent">#{formatTodoId(todos ?? [], todo.id, todo.user?.username)}</span>
                         {editTodoTitle === todo.id && (
@@ -93,8 +93,12 @@ export default function TodoModal(props: TodoModalProps) {
                             </h1>
                         )}
                     </section>
-                    <section className="flex flex-col items-start gap-1.5 font-secondary  text-white/75">
-                        <label htmlFor="label" className="text-[1.125rem] text-white/65">Labels:</label>
+                    <section className="flex flex-col items-start gap-1.5 font-secondary text-white/75">
+                        <span className="flex items-center justify-center gap-1.5 text-[1.125rem] text-white/65">
+                            <label htmlFor="label">Labels:</label>
+                            <p className={`${todo.labels?.length === 5 ? 'text-red-400' : ''}`}>{todo.labels?.length}<span className="text-white">/5</span></p>
+                        </span>
+                        
                         <article className="flex flex-wrap gap-1.5">
                             {todo.labels?.map((label) => (
                                     <Label key={label.labelId}>
@@ -107,7 +111,7 @@ export default function TodoModal(props: TodoModalProps) {
                             {editTodoLabel === todo.id && (
                                 <>
                                     <input type="text"
-                                            className="min-w-[5rem] max-w-[7.25rem] flex items-center gap-1 bg-blue-600 rounded px-2 py-1 text-sm border border-black focus:outline-none"
+                                            className="w-[6rem] flex items-center gap-1 bg-blue-600 rounded px-2 py-1 text-sm border border-black focus:outline-none"
                                             ref={inputRef}
                                             placeholder=''
                                             autoFocus/>
@@ -123,8 +127,8 @@ export default function TodoModal(props: TodoModalProps) {
                             )}
 
                             {editTodoLabel !== todo.id && ( 
-                                <ButtonAddLabel onClick={() => {setEditTodoLabel(todo.id ?? '')}}><Plus className="w-4 h-4" /> Add Label</ButtonAddLabel> 
-                            )}                
+                                <ButtonAddLabel disabled={todo.labels?.length === 5} className="disabled:bg-gray-400 disabled:opacity-80 disabled:border-black disabled:hover:border-black" onClick={() => {setEditTodoLabel(todo.id ?? '')}}><Plus className="w-4 h-4" /> Add Label</ButtonAddLabel> 
+                            )}      
                         </article>
                     </section>
                 </article>
@@ -166,7 +170,7 @@ export default function TodoModal(props: TodoModalProps) {
 
                         {editTodoDescription !== todo.id && (
                             <section>
-                                <article tabIndex={0} id="description" className="min-h-[7rem] font-secondary text-white/80 whitespace-pre-wrap p-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] shadow-sm transform transition-colors"
+                                <article tabIndex={0} id="description" className="min-h-[7rem] font-secondary text-white/80 whitespace-pre-wrap p-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] transform transition-colors"
                                         onClick={() => setEditTodoDescription(todo.id ?? '')}
                                         dangerouslySetInnerHTML={{__html: todo.description ?? ''}}
                                         onKeyDown={(e) => {if (e.key === "Enter") {e.currentTarget.click()}}}>
