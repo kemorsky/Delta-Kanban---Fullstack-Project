@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, Slide } from "react-toastify";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
-import { DndContext, DragOverlay, useSensor, useSensors, type DragStartEvent, type DragEndEvent, type DragOverEvent, closestCorners } from '@dnd-kit/core';
+import { DndContext, DragOverlay, useSensor, useSensors, type DragStartEvent, type DragEndEvent, type DragOverEvent, rectIntersection } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import type { Todo, Column } from "../../../types/types"
 import useHandles from "../../../hooks/useHandles";
@@ -21,25 +20,26 @@ import { Label } from "../../ui/label";
 import { ButtonAddColumn } from "../../ui/button";
 import ColumnContainer from "../Column/ColumnContainer";
 import TodoModal from "../Todo-Modal/todo-modal";
+import Toast from '../../ui/toast'
+import { LineSpinner } from "ldrs/react";
+import 'ldrs/react/LineSpinner.css'
 
 export default function Board() {
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
     const [ activeTodo, setActiveTodo ] = useState<Todo | null>(null);
+    // const [ overId, setOverId ] = useState<string>();
     const [ isOpen, setIsOpen ] = useState(false);
 
     const { handleAddColumn } = useHandles();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     
-    const [{ data: todos, error }, { data: columns }] = useQueries( // main fetch of data of todos and columns
-            {queries: [createTodoQueryOptions(), createColumnQueryOptions()]} 
-        );
+    const [{ data: todos, error }, { data: columns  }] = useQueries( // main fetch of data of todos and columns
+            {queries: [createTodoQueryOptions(), createColumnQueryOptions()]}
+    );
 
     const joinedColumnIds = useMemo(() => columns?.map(col => col.id).join(','), [columns]);
-
-    const columnsId = useMemo(() => {
-        return joinedColumnIds?.split(',');
-    }, [joinedColumnIds]);
+    const columnsId = useMemo(() => { return joinedColumnIds?.split(','); }, [joinedColumnIds]);
 
     const sensors = useSensors(useSensor(CustomMouseSensor, { activationConstraint: { distance: 10 } }),);
 
@@ -78,21 +78,26 @@ export default function Board() {
         }
     });
 
-    const { mutate: mutateGetTodo, isPending } = useMutation({ mutationFn: (id: string) => fetchTodoById(id), 
+    const { mutate: mutateGetTodo, isPending } = useMutation({
+        mutationFn: (id: string) => fetchTodoById(id),
         onSuccess: (todo) => {
-            setActiveTodo(todo);
             setIsOpen(true);
+            setActiveTodo(todo);
             navigate(`/kanban/todo/${todo.id}`);
-            queryClient.invalidateQueries({ queryKey: createTodoQueryOptions().queryKey })
+            queryClient.invalidateQueries({ queryKey: createTodoQueryOptions().queryKey });
         }
     });
 
-    if (!todos || !columns || !columnsId) return <p>Loading...</p>;
-    
+    if (!todos || !columns || !columnsId ) return (
+        <article className="w-full max-w-[90rem] h-full max-h-[40rem] mx-auto rounded-xl flex p-3 md:px-8 gap-4 items-center justify-center overflow-x-auto overflow-y-hidden">
+            <LineSpinner size="36" stroke="3" speed="1" color="white" />
+        </article>
+    );
     if (error) { console.error(error); };
     
     const getTodo = async (todo: Todo) => {
         mutateGetTodo(todo.id ?? '');
+        console.log(todo)
     };
 
     const handleDragStart = async (event: DragStartEvent) => {
@@ -106,18 +111,19 @@ export default function Board() {
         }
     };
 
-    const handleDragOver = (event: DragOverEvent) => {
+    const handleDragOver = async (event: DragOverEvent) => {
         const { active, over } = event;
-        if (active.data.current?.type !== 'Todo') return;
-
         if (!over) return;
-
+        if (active.data.current?.type !== 'Todo' || over.data.current?.type !== 'Column') return;
         const overType = over.data.current?.type;
+
         if (overType === 'Column') {
-            active.data.current.hoveredColumnId = over.id.toString();
+            active.data.current.hoveredColumnId = over.id;
+            console.log(over.id)
         } else if (overType === 'Todo') {
             const overTodo = over.data.current?.todo as Todo;
-            active.data.current.hoveredColumnId = overTodo.columnId;
+            active.data.current.hoveredTodoId = overTodo.id;
+            console.log(overTodo.id)
         }
     };
 
@@ -194,7 +200,6 @@ export default function Board() {
         }
     };
 
-
     const handleColumnOrder = async (activeId: string, overId: string) => {
         const oldIndex = columnsId.findIndex(id => id === activeId);
         const newIndex = columnsId.findIndex(id => id === overId);
@@ -203,12 +208,7 @@ export default function Board() {
 
         const reordered = arrayMove(columns, oldIndex, newIndex);
         const newOrder = reordered.map(c => c.id)
-
-        try {
-            mutateReorderColumns(newOrder)
-        } catch (error) {
-            console.error(`Error reordering columns`, error);
-        }
+        mutateReorderColumns(newOrder)
     };
 
     return (
@@ -218,31 +218,35 @@ export default function Board() {
                          onClick={() => {setIsOpen(false); navigate('/kanban')}}/>
                 )}
                 <DndContext sensors={sensors} 
-                            collisionDetection={closestCorners}
+                            collisionDetection={rectIntersection}
                             onDragStart={handleDragStart} 
                             onDragOver={handleDragOver}
                             onDragEnd={handleDragEnd}>
-                    <SortableContext key={columnsId.join(',')} id="board" items={columnsId}>
+                    <SortableContext id="board" items={columnsId}>
                         {columns.map((column) => (
                                 <ColumnContainer key={column.id}
                                                 todos={todos}
                                                 column={column}
+                                                activeTodo={activeTodo!}
                                                 getTodo={getTodo}
+                                                // overId={?????} // cause of no cross-column ui feedback
                                 />
                         ))}
-                        <ButtonAddColumn onClick={() => {handleAddColumn()}}/>
                     </SortableContext>
+                        <ButtonAddColumn onClick={() => {handleAddColumn()}}/>
                     {createPortal(
                         <DragOverlay>
                             {activeColumn && (
                                 <ColumnContainer key={activeColumn.id}
                                                 todos={todos}
                                                 column={activeColumn}
-                                                getTodo={getTodo}
+                                                activeTodo={activeTodo!}
+                                                getTodo={getTodo}     
+                                                                         
                                 />)}
 
                             {activeTodo && (
-                                <TodoCard className="opacity-80 border-2 border-dashed" todo={activeTodo}>
+                                <TodoCard className="opacity-80 border-2 border-dashed" key={activeTodo.id} todo={activeTodo}>
                                     <TodoCardId>#{formatTodoId(todos, activeTodo.id, activeTodo.user?.username)}</TodoCardId>
                                     <TodoCardTitle>{activeTodo.title}</TodoCardTitle>
                                     <section className="w-full flex flex-wrap gap-1">
@@ -269,18 +273,7 @@ export default function Board() {
                     </>
                     )
                 }
-                <ToastContainer position="bottom-center"
-                    autoClose={2500}
-                    hideProgressBar
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss={false}
-                    draggable={false}
-                    pauseOnHover
-                    theme="colored"
-                    transition={Slide}
-                />
+                <Toast />
             </article>
-    )
+        )
 };

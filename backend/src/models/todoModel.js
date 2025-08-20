@@ -35,11 +35,19 @@ export const todoSchema = new mongoose.Schema(
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Label',
             }
-        ]
+        ],
+        done: {
+            type: Boolean,
+            default: false
+        }
     }, {
         timestamps: true
         }
 );
+
+todoSchema.path('labels').validate(function (value) {
+  return value.length <= 5; // <-- max 5 labels
+}, 'Max number of labels per todo is 5.');
 
 todoSchema.virtual('id').get(function() {
   return this._id.toString();

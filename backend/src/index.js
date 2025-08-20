@@ -31,7 +31,7 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://fullstack-kanban-delta.vercel.app',,
+  'https://fullstack-kanban-delta.vercel.app',
 ];
 
 app.use(cors({

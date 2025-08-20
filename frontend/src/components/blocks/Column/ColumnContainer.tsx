@@ -5,6 +5,8 @@ import { ColumnWrapper } from "./ColumnWrapper";
 import ColumnContent from "./ColumnContent";
 import { InputEdit } from "../../ui/input";
 import useHandles from "../../../hooks/useHandles";
+import { LineSpinner } from "ldrs/react";
+import 'ldrs/react/LineSpinner.css'
 
 type Props = {
     className?: string,
@@ -12,7 +14,7 @@ type Props = {
     overId?: string,
     todos: Todo[],
     column: Column,
-    getTodo: (todo: Todo) => void
+    getTodo: (todo: Todo) => void,
 };
 
 export default function ColumnContainer(props: Props) {
@@ -20,6 +22,14 @@ export default function ColumnContainer(props: Props) {
     const { todos, column, getTodo, activeTodo, overId } = props;
 
     const [ editColumnId, setEditColumnId ] = useState<string | null>(null);
+
+    if (!column) {
+        return (
+            <ColumnWrapper column={column}>
+                <LineSpinner size="36" stroke="3" speed="1" color="white" />
+            </ColumnWrapper>
+        )
+    }
     
     return (
         <ColumnWrapper column={column}>
@@ -42,7 +52,7 @@ export default function ColumnContainer(props: Props) {
                 )}
 
                 {editColumnId !== column.id && (
-                    <p tabIndex={0} className="font-secondary px-2 leading-[1.625rem] cursor-text"
+                    <p tabIndex={0} className="font-secondary px-2 leading-[1.625rem] border border-transparent cursor-text"
                        onClick={() => {setEditColumnId(column.id)}}
                        onKeyDown={(e) => {
                                 if (e.key === "Enter") {
@@ -54,9 +64,9 @@ export default function ColumnContainer(props: Props) {
                 )}
                 <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}} />
             </section>
-            <ColumnContent todos={todos} columnId={column.id} column={column} getTodo={getTodo} activeTodo={activeTodo} overId={overId}/>
-            <footer className="w-full p-2 self-end">
-                <ButtonAddTodo className="self-end" onClick={() => {handleAddTodo(column.id)}} />
+            <ColumnContent todos={todos} column={column} getTodo={getTodo} activeTodo={activeTodo} overId={overId}/>
+            <footer className="w-full p-2 ">
+                <ButtonAddTodo  onClick={() => {handleAddTodo(column.id)}} />
             </footer>
         </ColumnWrapper>
     )

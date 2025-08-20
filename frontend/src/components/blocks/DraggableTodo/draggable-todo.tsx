@@ -6,12 +6,11 @@ import { CSS } from "@dnd-kit/utilities";
 type DraggableTodoProps = {
     todo: Todo,
     children: React.ReactNode,
-    onClick: () => void,
-    onKeyDown: (event: React.KeyboardEvent) => void
+    onClick?: () => void,
+    onKeyDown?: (event: React.KeyboardEvent) => void
 }
 
 export default function DraggableTodoCard({todo, children, onClick, onKeyDown }: DraggableTodoProps) {
-
     const { setNodeRef, attributes, listeners, transform, isDragging, transition } = useSortable({
         id: todo.id ?? '',
         data: {

@@ -7,7 +7,9 @@ type RequestOptions = {
     credentials?: RequestCredentials;
   }
 
+
 const URL = '/api'
+// const URL = 'http://localhost:3000'
 
 export const apiRequest = async (url: string, options: RequestOptions = {}) => {
     try {
@@ -106,11 +108,11 @@ export const reorderTodos = async (orderId: string[], columnId: string): Promise
     return data;
 };
 
-export const editTodo = async (columnId: string, id: string, title: string, description: string): Promise<Todo> => {
+export const editTodo = async (columnId: string, id: string, title: string, description: string, done: boolean): Promise<Todo> => {
     const response = await apiRequest(`${URL}/columns/${columnId}/todos/todo/${id}`, {
       method: 'PUT',
       credentials: 'include',
-      body: JSON.stringify({columnId, id, title, description})
+      body: JSON.stringify({columnId, id, title, description, done})
     });
     return response;
 };

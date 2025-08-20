@@ -6,12 +6,13 @@ import { formatDate } from "../../../lib/formatDate";
 import { formatTodoId } from "../../../lib/format-todo-id";
 import useHandles from "../../../hooks/useHandles";
 import type { Todo } from "../../../types/types";
-import { AlignLeft, Plus } from 'lucide-react';
+import { AlignLeft, Plus, Check } from 'lucide-react';
 import { InputEdit, TextAreaEditor } from "../../ui/input";
 import { ButtonDeleteTodo, ButtonDeleteLabel, ButtonAddLabel, ButtonCloseModal, ButtonEditTodoDescription } from "../../ui/button";
 import TextEditor from "../../ui/text-editor";
 import { Label } from "../../ui/label";
 import { LineSpinner } from "ldrs/react";
+import 'ldrs/react/LineSpinner.css'
 
 type TodoModalProps = {
     todo?: Todo | null | undefined,
@@ -38,14 +39,15 @@ export default function TodoModal(props: TodoModalProps) {
         content: todo?.description
     });
 
-    if (!todo || !setIsOpen ) return;
+    if (!setIsOpen ) return;
 
-    if (pending) {
+    if (pending || !todo) {
         return (
-            <div>
+        <div className="bg-secondary mx-auto w-full max-w-[64rem] h-[30rem] p-4 md:rounded-md absolute inset-x-0 top-[0rem] md:top-[2rem] z-50">
+            <section className="absolute top-0 left-0 w-full h-full flex justify-center items-center">
                 <LineSpinner size="36" stroke="3" speed="1" color="white" />
-            </div>
-        );
+            </section>
+        </div>)
     }
 
     return (
@@ -58,13 +60,16 @@ export default function TodoModal(props: TodoModalProps) {
             <header className="flex justify-between items-center border-b">
                 <article className="w-full pb-4 flex flex-col gap-2">
                     <section className="flex md:flex-row flex-col gap-2">
+                            {todo.done && (
+                                <span className="w-16 min-h-[1.3125rem] h-[2.625rem] flex items-center justify-center font-secondary rounded bg-green-700">Done</span>
+                            )}  
                         <span className="font-secondary text-3xl leading-[2.5rem] text-white/50 border border-transparent">#{formatTodoId(todos ?? [], todo.id, todo.user?.username)}</span>
                         {editTodoTitle === todo.id && (
                             <InputEdit type="text" 
                                     className="text-3xl leading-[2.5rem]"
                                     defaultValue={todo.title}
                                     onBlur={(e) => {
-                                        handleEditTodo(todo.columnId, todo.id ?? '', e.target.value, todo.description ?? '');    
+                                        handleEditTodo(todo.columnId, todo.id ?? '', e.target.value, todo.description ?? '', todo.done ?? false);    
                                         console.log(todo.columnId, todo.id, todo.title)                                     
                                         setEditTodoTitle(null);
                                     }}
@@ -88,9 +93,13 @@ export default function TodoModal(props: TodoModalProps) {
                             </h1>
                         )}
                     </section>
-                    <section className="flex flex-col items-start gap-1.5 font-secondary  text-white/75">
-                        <label htmlFor="label" className="text-[1.125rem] text-white/65">Labels:</label>
-                        <article className="flex gap-1.5">
+                    <section className="flex flex-col items-start gap-1.5 font-secondary text-white/75">
+                        <span className="flex items-center justify-center gap-1.5 text-[1.125rem] text-white/65">
+                            <label htmlFor="label">Labels:</label>
+                            <p className={`${todo.labels?.length === 5 ? 'text-red-400' : ''}`}>{todo.labels?.length}<span className="text-white">/5</span></p>
+                        </span>
+                        
+                        <article className="flex flex-wrap gap-1.5">
                             {todo.labels?.map((label) => (
                                     <Label key={label.labelId}>
                                         <p>{label.title}</p>
@@ -102,7 +111,7 @@ export default function TodoModal(props: TodoModalProps) {
                             {editTodoLabel === todo.id && (
                                 <>
                                     <input type="text"
-                                            className="min-w-[5rem] max-w-[7.25rem] flex items-center gap-1 bg-blue-600 rounded px-2 py-1 text-sm border border-black focus:outline-none"
+                                            className="w-[6rem] flex items-center gap-1 bg-blue-600 rounded px-2 py-1 text-sm border border-black focus:outline-none"
                                             ref={inputRef}
                                             placeholder=''
                                             autoFocus/>
@@ -113,13 +122,13 @@ export default function TodoModal(props: TodoModalProps) {
                                                         }
                                                         setEditTodoLabel(null)}}>Save Label
                                     </ButtonAddLabel>
-                                    <button onClick={() => {setEditTodoLabel(null)}}>Cancel</button>
+                                    <button className="text-sm px-2 py-1 rounded" onClick={() => {setEditTodoLabel(null)}}>Cancel</button>
                                 </>
                             )}
 
                             {editTodoLabel !== todo.id && ( 
-                                <ButtonAddLabel onClick={() => {setEditTodoLabel(todo.id ?? '')}}><Plus className="w-4 h-4" /> Add Label</ButtonAddLabel> 
-                            )}                          
+                                <ButtonAddLabel disabled={todo.labels?.length === 5} className="disabled:bg-gray-400 disabled:opacity-80 disabled:border-black disabled:hover:border-black" onClick={() => {setEditTodoLabel(todo.id ?? '')}}><Plus className="w-4 h-4" /> Add Label</ButtonAddLabel> 
+                            )}      
                         </article>
                     </section>
                 </article>
@@ -146,7 +155,7 @@ export default function TodoModal(props: TodoModalProps) {
                             <ButtonEditTodoDescription className="w-[5rem] text-center p-2 bg-none border-green-600 hover:border-green-600 hover:bg-green-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-green-200 transform transition-colors mt-2"
                                 onClick={() => {
                                     const updatedDescription = tiptapEditor?.getHTML() ?? todo.description;
-                                    handleEditTodo(todo.columnId, todo.id ?? '', todo.title ?? '', updatedDescription);
+                                    handleEditTodo(todo.columnId, todo.id ?? '', todo.title ?? '', updatedDescription, todo.done ?? false);
                                     setEditTodoDescription(null);
                                 }}
                                 onKeyDown={(e) => {
@@ -154,18 +163,19 @@ export default function TodoModal(props: TodoModalProps) {
                                         e.currentTarget.click();
                                     }
                                 }}/>
-                            <button onClick={() => {setEditTodoDescription(null)}}>Cancel</button>
+                            <button className="w-[5rem] text-center p-2 ml-2 bg-none hover:text-white hover:border-white/75 font-secondary font-semibold text-[0.875rem] text-white/75 transform transition-colors mt-2" 
+                            onClick={() => {setEditTodoDescription(null)}}>Cancel</button >
                         </>
                         )}
 
                         {editTodoDescription !== todo.id && (
                             <section>
-                                <article tabIndex={0} id="description" className="min-h-[7rem] font-secondary text-white/80 whitespace-pre-wrap p-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] shadow-sm transform transition-colors"
+                                <article tabIndex={0} id="description" className="min-h-[7rem] font-secondary text-white/80 whitespace-pre-wrap p-2 cursor-text hover:bg-primary rounded border border-transparent hover:border-[#485fc7] transform transition-colors"
                                         onClick={() => setEditTodoDescription(todo.id ?? '')}
                                         dangerouslySetInnerHTML={{__html: todo.description ?? ''}}
                                         onKeyDown={(e) => {if (e.key === "Enter") {e.currentTarget.click()}}}>
                                 </article>
-                                <ButtonAddLabel className="w-[4rem] mt-4" onClick={() => setEditTodoDescription(todo.id ?? '')}>Edit</ButtonAddLabel>  
+                                <ButtonAddLabel className="w-[4rem] mt-4" onClick={() => setEditTodoDescription(todo.id ?? '')}>Edit</ButtonAddLabel> 
                             </section>
                             
                         )}
@@ -178,6 +188,17 @@ export default function TodoModal(props: TodoModalProps) {
                     </section>
                     <hr className="border-gray-200" />
                     <section className="w-full flex flex-col items-start gap-2">
+                        <button className="w-full flex items-center justify-center p-2 bg-none border-transparent hover:border-green-600 hover:bg-green-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-green-200 transform transition-colors" onClick={() => {                     
+                            handleEditTodo(todo.columnId, todo.id ?? '', todo.title ?? '', todo.description ?? '', todo.done === true ? false : true)
+                        }}>
+                            {todo.done ? (
+                                <span>Mark as not done</span>
+                            ) : (<>
+                                    <Check className="w-[1.3125rem] h-[1.3125rem] mr-1"/>
+                                    <span> Mark as done</span>
+                                </>
+                            )}
+                        </button>
                         <ButtonDeleteTodo onClick={() => {
                             handleDeleteTodo(todo.columnId, todo.id ?? ''); 
                             setIsOpen(false);
