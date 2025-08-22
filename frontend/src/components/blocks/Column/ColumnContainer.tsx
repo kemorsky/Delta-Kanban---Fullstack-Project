@@ -79,7 +79,7 @@ export default function ColumnContainer(props: Props) {
                         }}>
 
                     <EllipsisVertical className="w-8 h-8" />
-                    <ul tabIndex={-1} className={`${isDropped ? 'inline-block' : 'hidden'} absolute top-10 right-0 z-20 w-[7.5rem] bg-primary py-2 rounded`}>
+                    <ul tabIndex={-1} className={`${isDropped ? 'inline-block' : 'hidden'} absolute top-10 right-0 z-50 w-[7.5rem] bg-primary py-2 rounded`}>
                         <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}} 
                                             onKeyDown={(e) => {if (e.key === "Enter") {handleDeleteColumn(column.id)}}}
                         />
