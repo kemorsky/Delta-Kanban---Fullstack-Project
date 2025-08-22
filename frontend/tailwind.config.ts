@@ -8,6 +8,7 @@ export default {
             primary: '#111827',
             secondary: '#1F2937',
             tertiary: '#374151',
+            'border-accent': '#4073ffb0'
           },
           fontFamily: {
             secondary: ['Montserrat', 'sans-serif'],

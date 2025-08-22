@@ -140,7 +140,7 @@ export default function useHandles() {
     };
 
     const handleAddLabel = async (columnId: string, id: string, title: string) => {
-        mutateAddLabel({columnId, id, title})        
+        mutateAddLabel({ columnId, id, title })        
     };
 
     const handleDeleteLabel = async (columnId: string, id: string, labelId: string) => {

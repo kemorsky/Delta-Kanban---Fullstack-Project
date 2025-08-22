@@ -11,38 +11,42 @@ import { Label } from "../../ui/label";
 type Props = {
     todos: Todo[],
     activeTodo?: Todo,
-    overId?: string,
+    dragOver: { overColumnId?: string; overTodoId?: string } | null,
     column: Column,
     getTodo: (todo: Todo) => void,
     children?: React.ReactNode
 };
 
 export default function ColumnContent(props: Props) {
-    const { getTodo, todos, column, activeTodo, overId } = props;
+    const { getTodo, todos, column, activeTodo, dragOver } = props;
 
-    const columnTodos = useMemo(() => {
-        const todosInColumn = todos.filter((todo) => todo.columnId === column.id);
+  const columnTodos = useMemo(() => {
+    const todosInColumn = todos.filter((todo) => todo.columnId === column.id);
 
-        if (activeTodo && overId === column.id && !todosInColumn.find(t => t.id === activeTodo.id)) {
-      return [...todosInColumn, activeTodo];
-  }
+    if (!activeTodo || !dragOver) return todosInColumn;
 
-        return todosInColumn;
-    }, [todos, column.id, activeTodo, overId]);
+    const { overColumnId, overTodoId } = dragOver;
+
+    const isOverColumn = overColumnId === column.id
+    const isOverTodo = overTodoId && todosInColumn.some((t) => t.id === overTodoId)
+
+    if ((isOverColumn && isOverTodo || isOverColumn) && !todosInColumn.find(t => t.id === activeTodo.id)) {
+      return [...todosInColumn, { ...activeTodo, columnId: column.id }];
+    }
+
+    return todosInColumn;
+  }, [todos, column.id, activeTodo, dragOver]);
 
     const todosId = useMemo(() => columnTodos.map((todo) => todo.id ?? ''), [columnTodos]);
 
     const { setNodeRef } = useDroppable({
         id: column.id,
-        data: {
-            type: 'Column',
-            column
-        }
+        data: { type: 'Column', column }
     });
 
     return (
         <ul ref={setNodeRef} className="w-full h-full flex flex-col gap-3 px-2 pt-1 pb-4 overflow-x-hidden overflow-y-auto">
-            <SortableContext id={column.id} items={todosId} strategy={verticalListSortingStrategy}>
+            <SortableContext items={todosId} strategy={verticalListSortingStrategy}>
                 {columnTodos.map((todo) => (
                     <DraggableTodoCard key={todo.id} todo={todo} onClick={() => todo.id && getTodo(todo)} onKeyDown={(e) => {
                                         if (e.key === "Enter") {

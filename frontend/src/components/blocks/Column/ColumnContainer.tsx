@@ -5,13 +5,14 @@ import { ColumnWrapper } from "./ColumnWrapper";
 import ColumnContent from "./ColumnContent";
 import { InputEdit } from "../../ui/input";
 import useHandles from "../../../hooks/useHandles";
+import { EllipsisVertical } from 'lucide-react';
 import { LineSpinner } from "ldrs/react";
 import 'ldrs/react/LineSpinner.css'
 
 type Props = {
     className?: string,
     activeTodo?: Todo,
-    overId?: string,
+    dragOver: { overColumnId?: string; overTodoId?: string } | null,
     todos: Todo[],
     column: Column,
     getTodo: (todo: Todo) => void,
@@ -19,9 +20,10 @@ type Props = {
 
 export default function ColumnContainer(props: Props) {
     const { handleDeleteColumn, handleEditColumn, handleAddTodo } = useHandles();
-    const { todos, column, getTodo, activeTodo, overId } = props;
+    const { todos, column, getTodo, activeTodo, dragOver } = props;
 
     const [ editColumnId, setEditColumnId ] = useState<string | null>(null);
+    const [ isDropped, setIsDropped ] = useState(false);
 
     if (!column) {
         return (
@@ -33,9 +35,9 @@ export default function ColumnContainer(props: Props) {
     
     return (
         <ColumnWrapper column={column}>
-            <section className="flex items-center justify-between p-2 border-b border-[#4073ffb0]">
+            <section className="min-h-[3.25rem] flex items-center justify-between p-2 border-b border-border-accent">
                 {editColumnId === column.id && (
-                    <InputEdit 
+                    <InputEdit
                             className="m-0 leading-[1.625rem]"
                             defaultValue={column.title}
                             onBlur={(e) => {
@@ -52,7 +54,7 @@ export default function ColumnContainer(props: Props) {
                 )}
 
                 {editColumnId !== column.id && (
-                    <p tabIndex={0} className="font-secondary px-2 leading-[1.625rem] border border-transparent cursor-text"
+                    <p tabIndex={0} className="font-secondary px-2 leading-[1.625rem] truncate border border-transparent cursor-text"
                        onClick={() => {setEditColumnId(column.id)}}
                        onKeyDown={(e) => {
                                 if (e.key === "Enter") {
@@ -62,11 +64,31 @@ export default function ColumnContainer(props: Props) {
                         {column.title}
                     </p>
                 )}
-                <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}} />
+                <button aria-description="column options button"
+                        className="relative ml-2 border-none hover:bg-tertiary transform transition-colors"
+                        onClick={() => setIsDropped((prev) => !prev)} onBlur={(e) => {
+                            if (!e.currentTarget.contains(e.relatedTarget)) {
+                                setIsDropped(false);
+                            }
+                        }} 
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                e.preventDefault();
+                                setIsDropped((prev) => !prev);
+                            }
+                        }}>
+
+                    <EllipsisVertical className="w-8 h-8" />
+                    <ul tabIndex={-1} className={`${isDropped ? 'inline-block' : 'hidden'} absolute top-10 right-0 z-20 w-[7.5rem] bg-primary py-2 rounded`}>
+                        <ButtonDeleteColumn onClick={() => {handleDeleteColumn(column.id)}} 
+                                            onKeyDown={(e) => {if (e.key === "Enter") {handleDeleteColumn(column.id)}}}
+                        />
+                    </ul>
+                </button>        
             </section>
-            <ColumnContent todos={todos} column={column} getTodo={getTodo} activeTodo={activeTodo} overId={overId}/>
+            <ColumnContent todos={todos} column={column} getTodo={getTodo} activeTodo={activeTodo} dragOver={dragOver}/>
             <footer className="w-full p-2 ">
-                <ButtonAddTodo  onClick={() => {handleAddTodo(column.id)}} />
+                <ButtonAddTodo onClick={() => {handleAddTodo(column.id)}} />
             </footer>
         </ColumnWrapper>
     )

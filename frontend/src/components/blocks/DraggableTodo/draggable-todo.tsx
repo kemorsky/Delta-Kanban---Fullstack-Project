@@ -29,13 +29,13 @@ export default function DraggableTodoCard({todo, children, onClick, onKeyDown }:
     return (
         <TodoCard 
                 ref={setNodeRef}
-                  todo={todo}
-                  onClick={onClick}
-                  onKeyDown={onKeyDown}
-                  {...attributes}
-                  {...listeners} 
-                  style={style}
-                  >
+                todo={todo}
+                onClick={onClick}
+                onKeyDown={onKeyDown}
+                {...attributes}
+                {...listeners} 
+                style={style}
+        >
             {children}
         </TodoCard>
     )
