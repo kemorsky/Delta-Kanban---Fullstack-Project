@@ -23,7 +23,7 @@ export const ButtonAddColumn: React.FC<ButtonProps> = ({className, ...props}) =>
 };
 
 export const ButtonDeleteColumn: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("flex p-2 bg-none border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-red-200 transform transition-colors", className)}
+    return <button className={cn("w-full flex p-2 bg-none rounded-none border-none hover:bg-red-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-red-200 transform transition-colors", className)}
                     {...props}>
                 <Trash2 className="w-[1.3125rem] h-[1.3125rem] mr-1"/> 
                 <span>Delete</span>

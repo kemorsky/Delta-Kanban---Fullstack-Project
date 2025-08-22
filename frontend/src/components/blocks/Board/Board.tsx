@@ -6,11 +6,11 @@ import { DndContext, DragOverlay, useSensor, useSensors, type DragStartEvent, ty
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import type { Todo, Column } from "../../../types/types"
 import useHandles from "../../../hooks/useHandles";
+import useBoardHandles from "../../../hooks/useBoardHandles";
 
-import { fetchTodoById, reorderColumns, reorderTodos } from "../../../lib/api";
+import { fetchTodoById } from "../../../lib/api";
 import { CustomMouseSensor } from "../../../lib/custom-mouse-sensor";
 import { formatTodoId } from "../../../lib/format-todo-id";
-import { showToastError } from "../../../lib/toast-utils";
 
 import createColumnQueryOptions from "../../../queries/createColumnQueryOptions";
 import createTodoQueryOptions from "../../../queries/createTodoQueryOptions";
@@ -27,14 +27,20 @@ import 'ldrs/react/LineSpinner.css'
 export default function Board() {
     const [ activeColumn, setActiveColumn ] = useState<Column | null>(null);
     const [ activeTodo, setActiveTodo ] = useState<Todo | null>(null);
-    // const [ overId, setOverId ] = useState<string>();
+    const [dragOver, setDragOver] = useState<{
+        overColumnId?: string;
+        overTodoId?: string;
+    } | null>(null);
+
     const [ isOpen, setIsOpen ] = useState(false);
 
     const { handleAddColumn } = useHandles();
+    const { handleColumnOrder, handleTodoOrder } = useBoardHandles();
+
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     
-    const [{ data: todos, error }, { data: columns  }] = useQueries( // main fetch of data of todos and columns
+    const [{ data: todos }, { data: columns }] = useQueries( // main fetch of data of todos and columns
             {queries: [createTodoQueryOptions(), createColumnQueryOptions()]}
     );
 
@@ -42,41 +48,6 @@ export default function Board() {
     const columnsId = useMemo(() => { return joinedColumnIds?.split(','); }, [joinedColumnIds]);
 
     const sensors = useSensors(useSensor(CustomMouseSensor, { activationConstraint: { distance: 10 } }),);
-
-    const { mutate: mutateReorderColumns } = useMutation({
-        mutationFn: reorderColumns,
-        onMutate: async (newOrderIds: string[]) => {
-            await queryClient.cancelQueries({ queryKey: createColumnQueryOptions().queryKey });
-
-            const previousColumns = queryClient.getQueryData<Column[]>(createColumnQueryOptions().queryKey);
-
-            const updated = previousColumns?.slice().sort((a, b) => {
-                return newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id);
-            });
-
-            queryClient.setQueryData(
-                createColumnQueryOptions().queryKey,
-                updated
-            );
-
-            return { previousColumns };
-        },
-        onError: (_, __, context) => {
-            showToastError('Error reordering columns');
-            if (context?.previousColumns) {
-                queryClient.setQueryData(createColumnQueryOptions().queryKey, context.previousColumns);
-            };
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: createColumnQueryOptions().queryKey });
-        }
-    });
-
-    const { mutate: mutateReorderTodos } = useMutation({ mutationFn: ({orderId, columnId} : {orderId: string[], columnId: string}) => reorderTodos(orderId, columnId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: createTodoQueryOptions().queryKey });
-        }
-    });
 
     const { mutate: mutateGetTodo, isPending } = useMutation({
         mutationFn: (id: string) => fetchTodoById(id),
@@ -93,11 +64,9 @@ export default function Board() {
             <LineSpinner size="36" stroke="3" speed="1" color="white" />
         </article>
     );
-    if (error) { console.error(error); };
     
     const getTodo = async (todo: Todo) => {
         mutateGetTodo(todo.id ?? '');
-        console.log(todo)
     };
 
     const handleDragStart = async (event: DragStartEvent) => {
@@ -111,96 +80,92 @@ export default function Board() {
         }
     };
 
-    const handleDragOver = async (event: DragOverEvent) => {
+    const handleDragOver = (event: DragOverEvent) => {
         const { active, over } = event;
+
         if (!over) return;
-        if (active.data.current?.type !== 'Todo' || over.data.current?.type !== 'Column') return;
+        if (active.data.current?.type !== 'Todo') return;
+
         const overType = over.data.current?.type;
 
         if (overType === 'Column') {
-            active.data.current.hoveredColumnId = over.id;
-            console.log(over.id)
+            const newState = { overColumnId: over.id.toString(), overTodoId: undefined };
+            setDragOver(newState);
         } else if (overType === 'Todo') {
-            const overTodo = over.data.current?.todo as Todo;
-            active.data.current.hoveredTodoId = overTodo.id;
-            console.log(overTodo.id)
+            const newState = { overColumnId: (over.data.current?.todo as Todo)?.columnId, overTodoId: over.id.toString() };
+            setDragOver(newState);
         }
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
+        const lastDragOver = dragOver; // empty-column drop fallback
+
         setActiveColumn(null);
         setActiveTodo(null);
+        setDragOver(null);
 
-        if (!over || over.id === active.id) return;
-
+        if (!active) return;
         const activeType = active.data.current?.type;
-        const overType = over.data.current?.type;
 
-        if (activeType === 'Column') {
-            await handleColumnOrder(active.id.toString(), over.id.toString());
+        if (activeType === 'Column' && over?.id) { // Column drag
+            await handleColumnReorder(active.id.toString(), over.id.toString());
             return;
         }
 
-        if (activeType === 'Todo') {
-            const activeTodo = active.data.current?.todo as Todo;
-            const activeId = active.id;
+        if (activeType !== 'Todo') return;
 
-            // grab current todos from cache
-            const previousTodos = queryClient.getQueryData<Todo[]>(createTodoQueryOptions().queryKey) ?? [];
+        const activeTodo = active.data.current?.todo as Todo;
+        const activeId = active.id;
 
-            // skip optimistic reorder if the todo no longer exists (deleted)
-            if (!previousTodos.find(t => t.id === activeId)) return;
+        const previousTodos = queryClient.getQueryData<Todo[]>(createTodoQueryOptions().queryKey) ?? [];
+        if (!previousTodos.find(t => t.id === activeId)) return;
 
-            const sourceColumnId = activeTodo.columnId;
+        const sourceColumnId = activeTodo.columnId;
+        let targetColumnId = sourceColumnId;
+        let overTodoId: string | null = null;
 
-            let targetColumnId = sourceColumnId;
-            let overTodoId: string | null = null;
-
-            if (overType === 'Todo') {
-                const overTodo = over.data.current?.todo as Todo;
-                targetColumnId = overTodo.columnId;
-                overTodoId = overTodo.id ?? '';
-            } else if (overType === 'Column') {
-                targetColumnId = over.id.toString();
-            }
-
-            // remove active todo from source column
-            const updatedSourceTodos = previousTodos.filter(t => t.id !== activeId && t.columnId === sourceColumnId);
-
-            // calculate insert index in target column
-            const targetTodos = previousTodos.filter(t => t.columnId === targetColumnId);
-            const insertIndex = overTodoId ? targetTodos.findIndex(t => t.id === overTodoId) : targetTodos.length;
-
-            // build new todos array
-            const todosInTargetColumn = targetTodos.filter(t => t.id !== activeId);
-            const beforeTarget = todosInTargetColumn.slice(0, insertIndex);
-            const afterTarget = todosInTargetColumn.slice(insertIndex);
-
-            const updatedTargetTodos = [
-                ...beforeTarget,
-                { ...activeTodo, columnId: targetColumnId },
-                ...afterTarget
-            ];
-
-            const otherTodos = previousTodos.filter(t => t.columnId !== targetColumnId && t.id !== activeId);
-
-            const newTodos = [...otherTodos, ...updatedTargetTodos];
-
-            // optimistic cache update
-            queryClient.setQueryData(createTodoQueryOptions().queryKey, newTodos);
-
-            // final API calls
-            if (sourceColumnId !== targetColumnId) {
-                const sourceOrder = updatedSourceTodos.map(t => t.id ?? '');
-                mutateReorderTodos({ orderId: sourceOrder, columnId: sourceColumnId });
-            }
-            const targetOrder = updatedTargetTodos.map(t => t.id ?? '');
-            mutateReorderTodos({ orderId: targetOrder, columnId: targetColumnId });
+        if (over?.data.current?.type === 'Todo') {
+            const overTodo = over.data.current?.todo as Todo;
+            targetColumnId = overTodo.columnId;
+            overTodoId = overTodo.id ?? '';
+        } else if (over?.data.current?.type === 'Column') {
+            targetColumnId = over.id.toString();
+        } else if (lastDragOver?.overColumnId) {
+            targetColumnId = lastDragOver.overColumnId;
+        } else {
+            return;
         }
+
+        // remove active todo from source column
+        const updatedSourceTodos = previousTodos.filter(t => t.id !== activeId && t.columnId === sourceColumnId);
+
+        // calculate insert index in target column
+        const targetTodos = previousTodos.filter(t => t.columnId === targetColumnId);
+        const insertIndex = overTodoId ? targetTodos.findIndex(t => t.id === overTodoId) : targetTodos.length;
+
+        const todosInTargetColumn = targetTodos.filter(t => t.id !== activeId);  // build new todos array
+        const beforeTarget = todosInTargetColumn.slice(0, insertIndex);
+        const afterTarget = todosInTargetColumn.slice(insertIndex);
+
+        const updatedTargetTodos = [
+            ...beforeTarget,
+            { ...activeTodo, columnId: targetColumnId },
+            ...afterTarget
+        ];
+        
+        const otherTodos = previousTodos.filter(t => t.columnId !== targetColumnId && t.id !== activeId); // combine with other todos
+        const newTodos = [...otherTodos, ...updatedTargetTodos];
+
+        queryClient.setQueryData(createTodoQueryOptions().queryKey, newTodos); // optimistic cache update
+
+        if (sourceColumnId !== targetColumnId) {
+            handleTodoOrder(updatedSourceTodos.map(t => t.id ?? ''), sourceColumnId );
+        }
+        handleTodoOrder(updatedTargetTodos.map(t => t.id ?? ''), targetColumnId);
     };
 
-    const handleColumnOrder = async (activeId: string, overId: string) => {
+    const handleColumnReorder = async (activeId: string, overId: string) => {
         const oldIndex = columnsId.findIndex(id => id === activeId);
         const newIndex = columnsId.findIndex(id => id === overId);
 
@@ -208,7 +173,7 @@ export default function Board() {
 
         const reordered = arrayMove(columns, oldIndex, newIndex);
         const newOrder = reordered.map(c => c.id)
-        mutateReorderColumns(newOrder)
+        handleColumnOrder(newOrder)
     };
 
     return (
@@ -229,7 +194,7 @@ export default function Board() {
                                                 column={column}
                                                 activeTodo={activeTodo!}
                                                 getTodo={getTodo}
-                                                // overId={?????} // cause of no cross-column ui feedback
+                                                dragOver={dragOver}
                                 />
                         ))}
                     </SortableContext>
@@ -241,10 +206,9 @@ export default function Board() {
                                                 todos={todos}
                                                 column={activeColumn}
                                                 activeTodo={activeTodo!}
-                                                getTodo={getTodo}     
-                                                                         
+                                                getTodo={getTodo}
+                                                dragOver={dragOver}                          
                                 />)}
-
                             {activeTodo && (
                                 <TodoCard className="opacity-80 border-2 border-dashed" key={activeTodo.id} todo={activeTodo}>
                                     <TodoCardId>#{formatTodoId(todos, activeTodo.id, activeTodo.user?.username)}</TodoCardId>

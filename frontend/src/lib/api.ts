@@ -9,7 +9,7 @@ type RequestOptions = {
 
 
 const URL = '/api'
-// const URL = 'http://localhost:3000'
+// const URL = 'http://localhost:3000/api'
 
 export const apiRequest = async (url: string, options: RequestOptions = {}) => {
     try {
