@@ -96,10 +96,28 @@ export default function TodoModal(props: TodoModalProps) {
                     <section className="flex flex-col items-start gap-1.5 font-secondary text-white/75">
                         <span className="flex items-center justify-center gap-1.5 text-[1.125rem] text-white/65">
                             <label htmlFor="label">Labels:</label>
-                            <p className={`${todo.labels?.length === 5 ? 'text-red-400' : ''}`}>{todo.labels?.length}<span className="text-white">/5</span></p>
+                            <p className={`${todo.labels?.length === 5 ? 'text-red-400' : ''} w-[1.875rem]`}>{todo.labels?.length}
+                                <span className="text-white">/5</span>
+                            </p>
+                            {editTodoLabel !== todo.id && ( 
+                                <ButtonAddLabel disabled={todo.labels?.length === 5} className="flex sm:hidden" onClick={() => {setEditTodoLabel(todo.id ?? '')}}><Plus className="w-4 h-4" /> Add Label</ButtonAddLabel> 
+                            )}
+                            {editTodoLabel === todo.id && (
+                                <>
+                                    <ButtonAddLabel className="flex sm:hidden"
+                                                    onClick={() => {
+                                                        const value = inputRef.current?.value.trim()
+                                                        if (value) {
+                                                            handleAddLabel(todo.columnId, todo.id ?? '', value)
+                                                        }
+                                                        setEditTodoLabel(null)}}>Save Label
+                                    </ButtonAddLabel>
+                                    <button className="sm:hidden text-sm px-2 py-1 rounded" onClick={() => {setEditTodoLabel(null)}}>Cancel</button>
+                                </>
+                            )}     
                         </span>
                         
-                        <article className="flex flex-wrap gap-1.5">
+                        <article className="min-h-[1.875rem] flex flex-wrap gap-1.5">
                             {todo.labels?.map((label) => (
                                     <Label key={label.labelId}>
                                         <p>{label.title}</p>
@@ -122,13 +140,16 @@ export default function TodoModal(props: TodoModalProps) {
                                                         }
                                                         setEditTodoLabel(null)}}>Save Label
                                     </ButtonAddLabel>
-                                    <button className="text-sm px-2 py-1 rounded" onClick={() => {setEditTodoLabel(null)}}>Cancel</button>
+                                    <button className="hidden sm:flex text-sm px-2 py-1 rounded" onClick={() => {setEditTodoLabel(null)}}>Cancel</button>
                                 </>
                             )}
 
                             {editTodoLabel !== todo.id && ( 
-                                <ButtonAddLabel disabled={todo.labels?.length === 5} className="disabled:bg-gray-400 disabled:opacity-80 disabled:border-black disabled:hover:border-black" onClick={() => {setEditTodoLabel(todo.id ?? '')}}><Plus className="w-4 h-4" /> Add Label</ButtonAddLabel> 
-                            )}      
+                                <ButtonAddLabel disabled={todo.labels?.length === 5} onClick={() => {setEditTodoLabel(todo.id ?? '')}}>
+                                    <Plus className="w-4 h-4" /> 
+                                    Add Label
+                                    </ButtonAddLabel> 
+                            )}
                         </article>
                     </section>
                 </article>

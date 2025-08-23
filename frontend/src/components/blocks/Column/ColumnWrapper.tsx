@@ -25,6 +25,7 @@ export const ColumnWrapper: React.FC<ColumnWrapperProps> = (({...props}) => {
         opacity: isDragging ? 0.5 : 1,
         border: isDragging ? "2px dashed #ffffff" : "",
         height: isDragging ? "min-h-[139px] max-h-[515px]" : "",
+        touchAction: "none",
     };
 
     return (

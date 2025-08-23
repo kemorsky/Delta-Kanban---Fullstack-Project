@@ -23,7 +23,8 @@ export default function DraggableTodoCard({todo, children, onClick, onKeyDown }:
         transform: CSS.Transform.toString(transform),
         opacity: isDragging ? 0.5 : 1,
         border: isDragging ? "2px dashed #ffffff" : "",
-        transition
+        transition,
+        touchAction: "none",
     };
 
     return (

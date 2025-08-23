@@ -2,7 +2,7 @@ import { useMemo, useState } from "react"
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
-import { DndContext, DragOverlay, useSensor, useSensors, type DragStartEvent, type DragEndEvent, type DragOverEvent, rectIntersection } from '@dnd-kit/core';
+import { DndContext, DragOverlay, useSensor, useSensors, type DragStartEvent, type DragEndEvent, type DragOverEvent, rectIntersection, TouchSensor } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import type { Todo, Column } from "../../../types/types"
 import useHandles from "../../../hooks/useHandles";
@@ -47,7 +47,10 @@ export default function Board() {
     const joinedColumnIds = useMemo(() => columns?.map(col => col.id).join(','), [columns]);
     const columnsId = useMemo(() => { return joinedColumnIds?.split(','); }, [joinedColumnIds]);
 
-    const sensors = useSensors(useSensor(CustomMouseSensor, { activationConstraint: { distance: 10 } }),);
+    const sensors = useSensors(
+        useSensor(CustomMouseSensor, { activationConstraint: { distance: 10 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 50, tolerance: 40 } })
+    );
 
     const { mutate: mutateGetTodo, isPending } = useMutation({
         mutationFn: (id: string) => fetchTodoById(id),

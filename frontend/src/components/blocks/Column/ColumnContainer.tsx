@@ -66,7 +66,8 @@ export default function ColumnContainer(props: Props) {
                 )}
                 <button aria-description="column options button"
                         className="relative z-20 ml-2 border-none hover:bg-tertiary transform transition-colors"
-                        onClick={() => setIsDropped((prev) => !prev)} onBlur={(e) => {
+                        onClick={() => setIsDropped((prev) => !prev)} 
+                        onBlur={(e) => {
                             if (!e.currentTarget.contains(e.relatedTarget)) {
                                 setIsDropped(false);
                             }
@@ -87,7 +88,7 @@ export default function ColumnContainer(props: Props) {
                 </button>        
             </section>
             <ColumnContent todos={todos} column={column} getTodo={getTodo} activeTodo={activeTodo} dragOver={dragOver}/>
-            <footer className="w-full p-2 ">
+            <footer className="w-full p-2">
                 <ButtonAddTodo onClick={() => {handleAddTodo(column.id)}} />
             </footer>
         </ColumnWrapper>

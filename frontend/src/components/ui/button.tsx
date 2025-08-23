@@ -6,13 +6,13 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 export const ButtonLogin: React.FC<ButtonProps> = ({className, ...props}) => {
     return <button className={cn("w-[7rem] px-4 py-2 mt-2 self-end text-base font-secondary hover:text-white/75 bg-[#485fc7] hover:bg-[#485fc7]/80 border-none transform transition-colors", className)}{...props}>
                     Login
-            </button>;
+            </button>
 };
 
 export const ButtonLogout: React.FC<ButtonProps> = ({className, ...props}) => {
     return <button className={cn("px-4 py-2 text-base font-secondary hover:text-white/75 bg-secondary hover:bg-secondary/80 border-none rounded transform transition-colors", className)}{...props}>
                     Logout
-            </button>;
+            </button>
 };
 
 export const ButtonAddColumn: React.FC<ButtonProps> = ({className, ...props}) => {
@@ -52,11 +52,15 @@ export const ButtonDeleteTodo: React.FC<ButtonProps> = ({className, ...props}) =
 };
 
 export const ButtonAddLabel: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("flex justify-center items-center px-2 py-1 text-sm font-secondary bg-black/20 hover:bg-black/35 rounded transform transition-colors", className)}{...props}></button>
+    return <button className={cn("hidden sm:flex justify-center items-center px-2 py-1 text-sm font-secondary bg-black/20 hover:bg-black/35 rounded transform transition-colors disabled:bg-gray-400 disabled:opacity-80 disabled:border-black disabled:hover:border-black", className)}
+                {...props}>
+            </button>
 };
 
 export const ButtonDeleteLabel: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-[1.250rem] h-[1.250rem] flex items-center justify-center text-base bg-black/20 hover:bg-black/35 border border-transparent hover:border-[#485fc7] rounded-full transform transition-colors", className)}{...props}>< X className="w-[0.75rem] h-[0.75rem]" /></button>
+    return <button className={cn("w-[1.250rem] h-[1.250rem] flex items-center justify-center text-base bg-black/20 hover:bg-black/35 border border-transparent hover:border-[#485fc7] rounded-full transform transition-colors", className)}{...props}>
+                < X className="w-[0.75rem] h-[0.75rem]" />
+            </button>
 };
 
 export const ButtonCloseModal: React.FC<ButtonProps> = ({className, ...props}) => {
@@ -67,8 +71,10 @@ export const ButtonCloseModal: React.FC<ButtonProps> = ({className, ...props}) =
 };
 
 export const ButtonTextFormat: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-[2rem] h-[2rem] bg-none rounded border border-transparent hover:border-gray-500 hover:bg-secondary/80 transform transition-colors", className)}{...props}></button>;
-}
+    return <button className={cn("w-[2rem] h-[2rem] bg-none rounded border border-transparent hover:border-gray-500 hover:bg-secondary/80 transform transition-colors", className)}
+                {...props}>
+            </button>;
+};
 
 
 

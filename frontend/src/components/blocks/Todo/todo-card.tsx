@@ -4,7 +4,6 @@ import type { Todo } from "../../../types/types";
 
 type TodoCardProps = React.HTMLAttributes<HTMLElement> & {
     children: React.ReactNode,
-    ref?: React.Ref<HTMLElement>,
     todo: Todo,
 };
 

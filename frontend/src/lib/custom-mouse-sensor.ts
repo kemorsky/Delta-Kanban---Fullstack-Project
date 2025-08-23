@@ -1,7 +1,6 @@
 import { MouseSensor } from '@dnd-kit/core';
 
 export class CustomMouseSensor extends MouseSensor {
-  // We override the activators array with a type-safe handler
   static activators = [
     {
       eventName: 'onMouseDown' as const,
