@@ -4,26 +4,26 @@ import { Plus, X, Trash2 } from 'lucide-react';
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const ButtonLogin: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-[7rem] px-4 py-2 mt-2 self-end text-base font-secondary hover:text-white/75 bg-[#485fc7] hover:bg-[#485fc7]/80 border-none transform transition-colors", className)}{...props}>
+    return <button aria-label="Login button" className={cn("w-[7rem] px-4 py-2 mt-2 self-end text-base font-secondary hover:text-white/75 bg-[#485fc7] hover:bg-[#485fc7]/80 border-none transform transition-colors", className)}{...props}>
                     Login
             </button>
 };
 
 export const ButtonLogout: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("px-4 py-2 text-base font-secondary hover:text-white/75 bg-secondary hover:bg-secondary/80 border-none rounded transform transition-colors", className)}{...props}>
+    return <button aria-label="Logout button" className={cn("px-4 py-2 text-base font-secondary hover:text-white/75 bg-secondary hover:bg-secondary/80 border-none rounded transform transition-colors", className)}{...props}>
                     Logout
             </button>
 };
 
 export const ButtonAddColumn: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-[18.75rem] p-2 flex flex-shrink-0 items-center justify-center font-secondary hover:text-white/75 text-[1rem] leading-[1.3125rem] bg-secondary hover:bg-secondary/80 border border-transparent hover:border-transparent transform transition-colors", className)}{...props}>
+    return <button aria-label="Add new column button" className={cn("w-[18.75rem] p-2 flex flex-shrink-0 items-center justify-center font-secondary hover:text-white/75 text-[1rem] leading-[1.3125rem] bg-secondary hover:bg-secondary/80 border border-transparent hover:border-transparent transform transition-colors", className)}{...props}>
                 <Plus className="w-[1.3125rem] h-[1.3125rem]"/>
                 <span>Add column</span>
             </button>
 };
 
 export const ButtonDeleteColumn: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-full flex p-2 bg-none rounded-none border-none hover:bg-red-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-red-200 transform transition-colors", className)}
+    return <button aria-label="Delete column button" className={cn("w-full flex p-2 bg-none rounded-none border-none hover:bg-red-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-red-200 transform transition-colors", className)}
                     {...props}>
                 <Trash2 className="w-[1.3125rem] h-[1.3125rem] mr-1"/> 
                 <span>Delete</span>
@@ -31,20 +31,20 @@ export const ButtonDeleteColumn: React.FC<ButtonProps> = ({className, ...props})
 };
 
 export const ButtonAddTodo: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-full p-2 flex flex-shrink-0 items-center justify-center font-secondary hover:text-white/75 text-[1rem] leading-[1.3125rem] bg-none hover:bg-primary/80 border-none rounded-md transform transition-colors", className)}{...props}>
+    return <button aria-label="Add todo button" className={cn("w-full p-2 flex flex-shrink-0 items-center justify-center font-secondary hover:text-white/75 text-[1rem] leading-[1.3125rem] bg-none hover:bg-primary/80 border-none rounded-md transform transition-colors", className)}{...props}>
                 <Plus className="w-[1.3125rem] h-[1.3125rem]" />
                 <span>Add Todo</span>
             </button>
 };
 
 export const ButtonEditTodoDescription: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-[5rem] text-center p-2 bg-none border-green-700 hover:border-green-700 hover:bg-green-600 hover:text-white font-secondary font-semibold text-[0.875rem] text-green-200 transform transition-colors mt-2", className)}{...props}>
+    return <button aria-label="Edit description button" className={cn("w-[5rem] text-center p-2 bg-none border-green-700 hover:border-green-700 hover:bg-green-600 hover:text-white font-secondary font-semibold text-[0.875rem] text-green-200 transform transition-colors mt-2", className)}{...props}>
                 Save
             </button>
 };
 
 export const ButtonDeleteTodo: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-full flex items-center justify-center p-2 bg-none border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-red-200 transform transition-colors", className)}
+    return <button aria-label="Delete todo button" className={cn("w-full flex items-center justify-center p-2 bg-none border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white font-secondary font-semibold text-[0.875rem] text-red-200 transform transition-colors", className)}
                     {...props}>
                 <Trash2 className="w-[1.3125rem] h-[1.3125rem] mr-1"/> 
                 <span>Delete Todo</span>
@@ -52,19 +52,19 @@ export const ButtonDeleteTodo: React.FC<ButtonProps> = ({className, ...props}) =
 };
 
 export const ButtonAddLabel: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("hidden sm:flex justify-center items-center px-2 py-1 text-sm font-secondary bg-black/20 hover:bg-black/35 rounded transform transition-colors disabled:bg-gray-400 disabled:opacity-80 disabled:border-black disabled:hover:border-black", className)}
+    return <button aria-label="Add label button" className={cn("hidden sm:flex justify-center items-center px-2 py-1 text-sm font-secondary bg-black/20 hover:bg-black/35 rounded transform transition-colors disabled:bg-gray-400 disabled:opacity-80 disabled:border-black disabled:hover:border-black", className)}
                 {...props}>
             </button>
 };
 
 export const ButtonDeleteLabel: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-[1.250rem] h-[1.250rem] flex items-center justify-center text-base bg-black/20 hover:bg-black/35 border border-transparent hover:border-[#485fc7] rounded-full transform transition-colors", className)}{...props}>
+    return <button aria-label="Delete label button" className={cn("w-[1.250rem] h-[1.250rem] flex items-center justify-center text-base bg-black/20 hover:bg-black/35 border border-transparent hover:border-[#485fc7] rounded-full transform transition-colors", className)}{...props}>
                 < X className="w-[0.75rem] h-[0.75rem]" />
             </button>
 };
 
 export const ButtonCloseModal: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button className={cn("w-[2.5rem] h-[2.5rem] flex items-center justify-center hover:bg-black/35 border-none rounded-xl transform transition-colors", className)}
+    return <button aria-label="Close modal button" className={cn("w-[2.5rem] h-[2.5rem] flex items-center justify-center hover:bg-black/35 border-none rounded-xl transform transition-colors", className)}
                 {...props}>
                 < X className="w-[2rem] h-[2rem]" />
             </button>
