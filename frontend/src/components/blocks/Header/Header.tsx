@@ -28,7 +28,7 @@ export default function Header() {
 
     return (
         <header className="bg-[#111827] flex justify-between gap-3 px-3 md:px-8 py-6 mb-[1rem]">
-            <section className="flex items-center gap-2">
+            <section className="flex items-center">
                 <img src="/delta-svgrepo-com.svg" alt="svgrepo delta logo" width={40} height={40} color="white"/>
                 <h1 className="text-3xl font-secondary">Kanban</h1>
             </section>

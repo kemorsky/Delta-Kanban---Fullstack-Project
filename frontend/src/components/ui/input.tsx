@@ -30,8 +30,9 @@ export const TextAreaEditor: React.FC<TextAreaEditorProps> = ({
 
   return (
     <div
+      aria-label="Edit todo description"
       className={cn(
-        "w-full min-h-[7rem] bg-primary text-base font-normal font-secondary rounded-b p-2 border-r border-l border-b border-[#374151] hover:border-[#485fc7] focus:ring-1 focus:ring-[#374151] focus:outline-none shadow-sm transition-all cursor-text",
+        "w-full min-h-[7rem] h-full bg-primary text-base font-normal font-secondary rounded-b p-2 border-r border-l border-b border-[#374151] hover:border-[#485fc7] focus:ring-1 focus:ring-[#374151] focus:outline-none shadow-sm transition-all cursor-text",
         className
       )}
     >

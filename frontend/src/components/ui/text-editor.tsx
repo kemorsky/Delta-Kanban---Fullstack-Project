@@ -128,13 +128,13 @@ export default function TextEditor({ editor }: { editor: Editor }) {
         </ButtonTextFormat>
       </section>
       <section className="pl-2 flex gap-1">
-        <ButtonTextFormat onClick={() => editor.chain().focus().undo().run()} disabled={!editorState.canUndo}>
+        <ButtonTextFormat onClick={() => editor.chain().focus().undo().run()}>
           <ButtonTextFormatIcon>
             <ButtonTextFormatTipTop>Undo</ButtonTextFormatTipTop >
             <Undo />
           </ButtonTextFormatIcon>
         </ButtonTextFormat>
-        <ButtonTextFormat onClick={() => editor.chain().focus().redo().run()} disabled={!editorState.canRedo}>
+        <ButtonTextFormat onClick={() => editor.chain().focus().redo().run()}>
           <ButtonTextFormatIcon>
             <ButtonTextFormatTipTop>Redo</ButtonTextFormatTipTop >
             <Redo />

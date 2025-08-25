@@ -18,8 +18,8 @@ const TodoCard = React.forwardRef<HTMLElement, TodoCardProps
     TodoCard.displayName = "TodoCard";
 
 const TodoCardId = React.forwardRef<
-    HTMLParagraphElement,
-    React.HTMLAttributes<HTMLParagraphElement>
+    HTMLSpanElement,
+    React.HTMLAttributes<HTMLSpanElement>
     >(({ className, ...props }, ref) => (
         <span 
             ref={ref}
@@ -27,7 +27,7 @@ const TodoCardId = React.forwardRef<
         {...props}
         />
     ))
-    TodoCard.displayName = "TodoCardId";
+    TodoCardId.displayName = "TodoCardId";
 
 const TodoCardTitle = React.forwardRef<
     HTMLHeadingElement,
@@ -39,11 +39,11 @@ const TodoCardTitle = React.forwardRef<
         {...props}
         />
     ))
-    TodoCard.displayName = "TodoCardTitle";
+    TodoCardTitle.displayName = "TodoCardTitle";
 
 const TodoCardDoneTag = React.forwardRef<
-    HTMLParagraphElement,
-    React.HTMLAttributes<HTMLParagraphElement>
+    HTMLSpanElement,
+    React.HTMLAttributes<HTMLSpanElement>
     >(({ className, ...props }, ref) => (
         <span 
             ref={ref}
@@ -51,7 +51,7 @@ const TodoCardDoneTag = React.forwardRef<
         {...props}
         />
     ))
-    TodoCard.displayName = "TodoCardDoneTag";
+    TodoCardDoneTag.displayName = "TodoCardDoneTag";
 
 const TodoCardDescription = React.forwardRef<
     HTMLParagraphElement,
@@ -63,6 +63,6 @@ const TodoCardDescription = React.forwardRef<
         {...props}
         />
     ))
-    TodoCard.displayName = "TodoCardDescription";
+    TodoCardDescription.displayName = "TodoCardDescription";
 
-export {TodoCard, TodoCardId, TodoCardTitle, TodoCardDoneTag, TodoCardDescription}
+export { TodoCard, TodoCardId, TodoCardTitle, TodoCardDoneTag, TodoCardDescription }
