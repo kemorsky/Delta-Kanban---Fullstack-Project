@@ -41,6 +41,15 @@ export const apiRequest = async (url: string, options: RequestOptions = {}) => {
     }
 }
 
+export const signup = async (username: string, password: string): Promise<UserCredentials> => {
+    const response = await apiRequest(`${URL}/auth/signup`, {
+      method: 'POST',
+      credentials: 'include',
+      body: JSON.stringify({ username, password })
+    });
+    return response;
+}
+
 export const login = async (username: string, password: string): Promise<UserCredentials> => {
     const response = await apiRequest(`${URL}/auth/login`, {
       method: 'POST',

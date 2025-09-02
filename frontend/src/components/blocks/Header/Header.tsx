@@ -27,13 +27,13 @@ export default function Header() {
     <LineSpinner size="36" stroke="3" speed="1" color="white" />
 
     return (
-        <header className="bg-[#111827] flex justify-between gap-3 px-3 md:px-8 py-6 mb-[1rem]">
-            <section className="flex items-center">
+        <header className="max-w-[90rem] mx-auto bg-primary flex justify-between gap-3 px-3 md:px-8 py-6 mb-[1rem]">
+            <section className="flex items-start sm:items-center">
                 <img src="/delta-svgrepo-com.svg" alt="svgrepo delta logo" width={40} height={40} color="white"/>
                 <h1 className="text-3xl font-secondary">Kanban</h1>
             </section>
             
-            <nav className="flex gap-2 items-center justify-start">
+            <nav className="flex flex-col sm:flex-row gap-2 items-center justify-start">
                 <section className="flex items-center gap-2">
                     <img src="/profile-picture.jpg" alt="user profile picture" className="w-10 h-10 bg-blue-200 rounded-full overflow-hidden object-fill"/>
                     <p className="text-base font-secondary">{data.username}</p>

@@ -37,6 +37,7 @@
     "@tiptap/pm": "^3.0.9",
     "@tiptap/react": "^3.0.9",
     "@tiptap/starter-kit": "^3.0.9",
+    "@vercel/analytics": "^1.5.0",
     "@vitejs/plugin-react": "^4.5.2",
     "clsx": "^2.1.1",
     "ldrs": "^1.1.7",
