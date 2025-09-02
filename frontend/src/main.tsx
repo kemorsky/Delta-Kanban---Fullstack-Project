@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider } from 'react-router'
 import router from './router/router.tsx'
 
+import { Analytics } from "@vercel/analytics/react"
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -17,6 +19,7 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')!).render(
 <QueryClientProvider client={queryClient}>
       <StrictMode>
+        <Analytics />
         <RouterProvider router={router} />
       </StrictMode>
 </QueryClientProvider>
