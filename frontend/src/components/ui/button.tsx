@@ -4,8 +4,14 @@ import { Plus, X, Trash2 } from 'lucide-react';
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const ButtonLogin: React.FC<ButtonProps> = ({className, ...props}) => {
-    return <button aria-label="Login button" className={cn("w-[7rem] px-4 py-2 mt-2 self-end text-base font-secondary hover:text-white/75 bg-[#485fc7] hover:bg-[#485fc7]/80 border-none transform transition-colors", className)}{...props}>
+    return <button aria-label="Login button" className={cn("w-[7rem] px-4 py-2 mt-2 self-center text-base font-secondary hover:text-white/75 bg-[#485fc7] hover:bg-[#485fc7]/80 border-none transform transition-colors", className)}{...props}>
                     Login
+            </button>
+};
+
+export const ButtonSignup: React.FC<ButtonProps> = ({className, ...props}) => {
+    return <button aria-label="Sign Up button" className={cn("w-[7rem] px-4 py-2 mt-2 self-end text-base font-secondary hover:text-white/75 bg-[#485fc7] hover:bg-[#485fc7]/80 border-none transform transition-colors", className)}{...props}>
+                    Sign Up
             </button>
 };
 

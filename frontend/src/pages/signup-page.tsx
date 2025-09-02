@@ -1,27 +1,27 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Slide, ToastContainer } from 'react-toastify';
-import { login } from "../lib/api"
+import { signup } from "../lib/api"
 import { useNavigate } from "react-router";
 import { InputLogin } from "../components/ui/input";
 import { Form } from "../components/ui/credentials-form";
 import type { UserCredentials } from "../types/types";
-import { ButtonLogin } from "../components/ui/button";
+import { ButtonSignup } from "../components/ui/button";
 import { showToastSuccess, showToastError } from "../lib/toast-utils";
 
-export default function LoginPage() {
+export default function SignupPage() {
     const [ user, setUser ] = useState<UserCredentials>({username: '', password: ''});
     const navigate = useNavigate();
 
     const queryClient = useQueryClient();
 
-    const { mutate: mutateLogin } = useMutation({ mutationFn: ({username, password}: {username: string, password: string}) => login(username, password),
+    const { mutate: mutateSignup } = useMutation({ mutationFn: ({username, password}: {username: string, password: string}) => signup(username, password),
                 onSuccess: () => {
-                    showToastSuccess('User logged in successfully')
+                    showToastSuccess('User signed up successfully')
                     queryClient.invalidateQueries();
 
                     setTimeout(() => {
-                        navigate('/kanban');
+                        navigate('/');
                     }, 500);
                 },
                 onError: (error: Error) => {
@@ -29,21 +29,21 @@ export default function LoginPage() {
                         }
             });
 
-    const handleLogin = async (username: string, password: string) => {
-            mutateLogin({username, password})
-            setUser({username: username, password: password})
+    const handleSignup = async (username: string, password: string) => {
+            mutateSignup({username, password})
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await handleLogin(user.username, user.password);
+        await handleSignup(user.username, user.password);
+        console.log("registered user yippieeeee")
     }
 
     return (
         <main className="h-full w-full flex items-center justify-center bg-primary">
             <Form onSubmit={handleSubmit}>
                 <img src="/delta-svgrepo-com.svg" alt="svgrepo delta logo" width={54} height={54} color="white" className="self-end"/>
-                <h1 className="self-start text-2xl">Login</h1>
+                <h1 className="self-start text-2xl">Sign Up</h1>
                 <article className="w-full max-w-[25rem] space-y-3">
                     <label htmlFor="username" className="flex flex-col gap-1 text-[0.875rem] font-secondary font-semibold">Username
                         <InputLogin type="text"
@@ -59,12 +59,7 @@ export default function LoginPage() {
                             onChange={(e) => {setUser({username: user.username, password: e.target.value})}}/>
                     </label>
                 </article>
-                <section className="w-full flex flex-col gap-4">
-                    <ButtonLogin type="submit"/>
-                    <p className="text-center text-[0.875rem] text-white/80 font-secondary font-semibold">Don't have an account? 
-                        <a href='/signup' className="ml-2 text-white/65 transform transition-colors hover:text-blue-300 hover:underline">Sign Up</a>
-                    </p>
-                </section>
+                <ButtonSignup type="submit"/>
             </Form>
             <ToastContainer position="bottom-center"
                             autoClose={2500}

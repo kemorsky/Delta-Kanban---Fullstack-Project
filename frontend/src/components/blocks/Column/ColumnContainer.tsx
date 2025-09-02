@@ -64,8 +64,8 @@ export default function ColumnContainer(props: Props) {
                         {column.title}
                     </p>
                 )}
-                <button aria-description="column options button"
-                        className="relative z-20 ml-2 border-none hover:bg-tertiary transform transition-colors"
+                <div tabIndex={0} aria-description="column options button"
+                        className="relative z-20 ml-2 border-none hover:bg-tertiary transform transition-colors rounded cursor-pointer"
                         onClick={() => setIsDropped((prev) => !prev)} 
                         onBlur={(e) => {
                             if (!e.currentTarget.contains(e.relatedTarget)) {
@@ -85,7 +85,7 @@ export default function ColumnContainer(props: Props) {
                                             onKeyDown={(e) => {if (e.key === "Enter") {handleDeleteColumn(column.id)}}}
                         />
                     </ul>
-                </button>        
+                </div>        
             </section>
             <ColumnContent todos={todos} column={column} getTodo={getTodo} activeTodo={activeTodo} dragOver={dragOver}/>
             <footer className="w-full p-2">
