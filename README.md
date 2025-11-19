@@ -1,6 +1,7 @@
 # Delta Kanban
 
 My first fullstack project built with React, TypeScript, Tailwind, TanStack Query, DnD_Kit, Node.js and Express.js. I built this project in an ambitious attempt to make my first step towards becoming a fullstack developer more "challenging". What a mistake that was...
+
 The kanban is meant to be used as an organising board composed of columns and todo cards. Each column and card can be dragged and dropped within the parent container, as well as cross-column in the case of the todo cards.
 
 ## Technologies
@@ -38,6 +39,7 @@ This project was also my first real exposure to making the website accessible in
 To test Delta Kanban head to https://fullstack-kanban-delta.vercel.app/ and make an account, or login with the following credentials:
 
 username: anders
+
 password: kaffe456
 
 ## Video Showcase
